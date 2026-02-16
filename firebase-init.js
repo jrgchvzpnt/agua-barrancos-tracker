@@ -55,19 +55,24 @@ onAuthStateChanged(auth, user => {
         }
     }
 
-    // Para la página pública, siempre sincronizamos los datos
-    if (path.includes('index.html') || path === '/' || path.includes('agua-barrancos-tracker')) {
+    // Determinar si estamos en una página pública
+    const isPublicPage = path.includes('index.html') || path.endsWith('/') || path.endsWith('/agua-barrancos-tracker/');
+
+    // Sincronizar datos y hacer login anónimo solo en páginas públicas
+    if (isPublicPage) {
         syncOutages();
         syncAds();
 
-        signInAnonymously(auth).catch((error) => {
-            console.error("Error de inicio de sesión anónimo:", error);
-            const statusIndicator = document.getElementById('connection-status');
-            if (statusIndicator) {
-                statusIndicator.classList.add('bg-red-500');
-                statusIndicator.title = "Error de conexión";
-            }
-        });
+        if (!user) { // Solo intentar login anónimo si no hay ningún usuario
+            signInAnonymously(auth).catch((error) => {
+                console.error("Error de inicio de sesión anónimo:", error);
+                const statusIndicator = document.getElementById('connection-status');
+                if (statusIndicator) {
+                    statusIndicator.classList.add('bg-red-500');
+                    statusIndicator.title = "Error de conexión";
+                }
+            });
+        }
     }
 });
 
