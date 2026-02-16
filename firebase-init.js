@@ -82,7 +82,7 @@ window.signIn = async function(email, password) {
         await signInWithEmailAndPassword(auth, email, password);
         return { success: true };
     } catch (error) {
-        console.error("Error de inicio de sesión:", error);
+        // Do not log detailed error to console in production
         return { success: false, message: "Credenciales incorrectas." };
     }
 }
@@ -92,7 +92,7 @@ window.signOutUser = async function() {
     try {
         await signOut(auth);
     } catch (error) {
-        console.error("Error al cerrar sesión:", error);
+        // Do not log detailed error to console in production
     }
 }
 
@@ -133,7 +133,7 @@ window.saveOutageCloud = async function(dateKey, data) {
         await setDoc(doc(db, 'outages', dateKey), data);
         return true;
     } catch (error) {
-        console.error("Error al guardar:", error);
+        // Do not log detailed error to console in production
         return false;
     }
 };
@@ -146,7 +146,7 @@ window.deleteOutageCloud = async function(dateKey) {
     try {
         await deleteDoc(doc(db, 'outages', keyToDelete));
     } catch (error) {
-        console.error("Error al eliminar:", error);
+        // Do not log detailed error to console in production
         throw error;
     }
 };
@@ -169,7 +169,7 @@ window.saveMessage = async function(name, phone, message) {
         await setDoc(doc(db, 'messages', docId), { name, phone, message, createdAt: timestamp, read: false });
         return { success: true };
     } catch (error) {
-        console.error("Error al enviar mensaje:", error);
+        // Do not log detailed error to console in production
         return { success: false };
     }
 }
@@ -200,7 +200,7 @@ window.saveAdCloud = async function(id, data) {
         await setDoc(doc(db, 'ads', docId), { ...data, active: true }, { merge: true });
         return true;
     } catch (error) {
-        console.error("Error saving ad:", error);
+        // Do not log detailed error to console in production
         return false;
     }
 };

@@ -157,9 +157,12 @@
         </div>
 
         <!-- Banner de Anuncios -->
-        <div class="mt-12 border-t border-slate-200 pt-8">
-            <h2 class="text-lg font-semibold text-slate-600 text-center mb-6">Nuestros Patrocinadores</h2>
-            <div id="ads-banner-public" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 items-center">
+        <div class="bg-slate-50 rounded-2xl p-8 mt-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">Nuestros Patrocinadores</h2>
+                <p class="text-slate-500 mt-2">Empresas locales que apoyan nuestra comunidad.</p>
+            </div>
+            <div id="ads-banner-public" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-center">
                 <!-- Los anuncios se cargarán aquí -->
             </div>
         </div>
@@ -192,5 +195,28 @@
     <script type="module" src="firebase-init.js"></script>
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
+
+    <!-- Sponsor Carousel Modal -->
+    <dialog id="sponsor-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-full max-w-2xl open:animate-fade-in overflow-hidden">
+        <div class="bg-white">
+            <div class="p-4 flex justify-between items-center border-b">
+                <h3 class="text-lg font-bold" id="sponsor-modal-title"></h3>
+                <button onclick="document.getElementById('sponsor-modal').close()" class="text-slate-500 hover:bg-slate-100 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="relative">
+                    <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden" style="height: 400px;">
+                        <!-- Images will be loaded here -->
+                    </div>
+                    <button id="prev-btn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md"><i data-lucide="chevron-left"></i></button>
+                    <button id="next-btn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md"><i data-lucide="chevron-right"></i></button>
+                    <a id="sponsor-contact-link" href="#" target="_blank" class="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 bg-green-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-600 transition-colors shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        Contactar por WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </dialog>
 </body>
 </html>

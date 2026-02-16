@@ -3,42 +3,72 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin role
+    // --- Helper Functions ---
     function isAdmin() {
-      // Checks if the user's UID exists in the 'admins' collection
+      // Checks if the user's UID exists in the 'admins' collection. Secure.
       return exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
-    // Admin Collection
-    // Only admins can read this collection. Writing is disabled from the client
-    // for security. Admins must be added manually in the Firebase Console.
+    function isPublicRead() {
+      // Allow public read access.
+      return request.auth == null || request.auth != null;
+    }
+
+    // --- Collection Rules ---
+
+    // Admin Collection: Secure
+    // Only admins can read. Client-side writes are disabled.
     match /admins/{userId} {
       allow read: if isAdmin();
-      allow write: if false;
+      allow write: if false; // Prevent client-side modification of admins
     }
 
-    // Outages Collection
-    // Read: Anyone can read outage reports.
-    // Write: Only users listed in the 'admins' collection.
+    // Outages Collection: Secured
     match /outages/{outageId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if isPublicRead();
+      allow write: if isAdmin() &&
+                      // Validate document ID format (YYYY-MM-DD)
+                      outageId.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+                      // Enforce strict data schema
+                      request.resource.data.keys().hasOnly(['status', 'notes', 'duracion', 'timestamp']) &&
+                      // Validate field types and constraints
+                      request.resource.data.status is string &&
+                      request.resource.data.status.size() < 100 &&
+                      request.resource.data.notes is string &&
+                      request.resource.data.notes.size() < 500 &&
+                      request.resource.data.duracion is string &&
+                      request.resource.data.duracion.size() < 50 &&
+                      request.resource.data.timestamp is timestamp; // Use proper timestamp
     }
 
-    // Messages Collection
-    // Read, Delete: Only users in the 'admins' collection.
-    // Create: Anyone can send a message.
+    // Messages Collection: Secured
     match /messages/{messageId} {
       allow read, delete: if isAdmin();
-      allow create: if true;
+      // Allow creation only with a strict schema and size limits to prevent abuse
+      allow create: if request.resource.data.keys().hasOnly(['name', 'phone', 'message', 'createdAt']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 1 && request.resource.data.name.size() < 100 &&
+                       request.resource.data.phone is string &&
+                       request.resource.data.phone.size() > 1 && request.resource.data.phone.size() < 100 &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() > 1 && request.resource.data.message.size() < 1000 &&
+                       request.resource.data.createdAt is timestamp;
     }
 
-    // Ads Collection
-    // Read: Anyone can view ads.
-    // Write: Only users in the 'admins' collection.
+    // Ads Collection: Secured
     match /ads/{adId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if isPublicRead();
+      allow write: if isAdmin() &&
+                      // Enforce strict data schema
+                      request.resource.data.keys().hasOnly(['name', 'imageUrls', 'linkUrl', 'createdAt']) &&
+                      // Validate field types and constraints
+                      request.resource.data.name is string &&
+                      request.resource.data.name.size() < 100 &&
+                      request.resource.data.linkUrl is string &&
+                      request.resource.data.linkUrl.size() < 500 &&
+                      request.resource.data.imageUrls is list &&
+                      request.resource.data.imageUrls.size() < 10 && // Limit to 10 images
+                      request.resource.data.createdAt is timestamp;
     }
   }
 }

@@ -211,17 +211,17 @@ window.calculateStats = function() {
         const maxScale = Math.max(maxVal, 5); 
         const percent = (count / maxScale) * 100;
         const barWrapper = document.createElement('div');
-        barWrapper.className = 'w-full flex flex-col justify-end items-center h-full relative group';
+        barWrapper.className = 'w-full flex flex-col justify-end items-center h-full relative';
         
         const bar = document.createElement('div');
-        bar.className = 'w-full bg-water-200 group-hover:bg-water-500 transition-colors rounded-t-md cursor-pointer';
+        bar.className = 'w-full bg-water-200 group-hover:bg-water-500 transition-colors rounded-t-md';
         bar.style.height = count > 0 ? `${Math.max(percent, 5)}%` : '4px';
         
         if(count > 0) {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-slate-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap';
-            tooltip.innerText = `${count} cortes`;
-            barWrapper.appendChild(tooltip);
+            const label = document.createElement('div');
+            label.className = 'absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-600';
+            label.innerText = count;
+            barWrapper.appendChild(label);
         }
         barWrapper.appendChild(bar);
         chartContainer.appendChild(barWrapper);
@@ -243,7 +243,7 @@ if (contactForm) {
         btn.innerText = 'Enviando...';
 
         if (window.saveMessage) {
-            const result = await window.saveMessage(name, phone, message);
+            const result = await window.saveMessage(name, phone, message, new Date());
             if (result.success) {
                 window.showToast("¡Mensaje enviado con éxito!");
                 e.target.reset();
@@ -258,20 +258,23 @@ if (contactForm) {
 
 function updateLatestReport() {
     const outages = window.appState ? window.appState.outages : {};
-    const keys = Object.keys(outages).sort().reverse();
     const container = document.getElementById('latest-report-container');
-    if(!container) return;
+    if (!container) return;
 
-    if (keys.length > 0) {
-        const lastKey = keys[0];
-        const data = outages[lastKey];
+    const reports = Object.entries(outages)
+        .map(([date, data]) => ({ date, ...data }))
+        .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
+
+    if (reports.length > 0) {
+        const lastReport = reports[0];
+        const { date, status, motivo, notes, comentarios, duracion } = lastReport;
         
-        const estado = data.status || data.motivo || "Corte de agua reportado";
-        const detalle = data.notes || data.comentarios || (data.duracion ? `Duración: ${data.duracion}` : "Sin detalles adicionales");
+        const estado = status || motivo || "Corte de agua reportado";
+        const detalle = notes || comentarios || (duracion ? `Duración: ${duracion}` : "Sin detalles adicionales");
 
         container.innerHTML = `
             <div class="border-l-4 border-alert-500 pl-4 py-1">
-                <p class="text-xs text-slate-400 font-bold uppercase mb-1">${formatDatePretty(lastKey)}</p>
+                <p class="text-xs text-slate-400 font-bold uppercase mb-1">${formatDatePretty(date)}</p>
                 <p class="font-bold text-slate-800">${estado}</p>
                 <p class="text-sm text-slate-500 mt-1">${detalle}</p>
             </div>
@@ -311,6 +314,18 @@ function formatDatePretty(dateStr) {
 window.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) window.lucide.createIcons();
     setTimeout(() => window.router('home'), 200); 
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+        if (!currentSponsor) return;
+        currentImageIndex = (currentImageIndex - 1 + currentSponsor.imageUrls.length) % currentSponsor.imageUrls.length;
+        updateCarousel();
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+        if (!currentSponsor) return;
+        currentImageIndex = (currentImageIndex + 1) % currentSponsor.imageUrls.length;
+        updateCarousel();
+    });
 });
 
 // --- RENDER ADS (PUBLIC) ---
@@ -330,19 +345,48 @@ window.renderAdsPublic = function() {
 
     bannerContainer.innerHTML = ''; 
     ads.forEach(ad => {
-        const adElement = document.createElement('a');
-        adElement.href = ad.linkUrl;
-        adElement.target = '_blank';
-        adElement.rel = 'noopener noreferrer';
-        adElement.className = 'block p-2 hover:bg-slate-100 rounded-lg transition-colors';
+        const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
+        const adElement = document.createElement('div');
+        adElement.className = 'group relative cursor-pointer';
+        adElement.onclick = () => openSponsorModal(ad);
         
         adElement.innerHTML = `
-            <img src="${ad.imageUrl}" alt="${ad.name}" class="w-full h-20 object-contain rounded-md">
-            <p class="text-xs text-center text-slate-500 mt-2 font-medium truncate">${ad.name}</p>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 h-32 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1">
+                <img src="${imageUrl}" alt="${ad.name}" class="max-h-full max-w-full object-contain">
+            </div>
+            <p class="text-xs text-center text-slate-500 mt-3 font-semibold truncate group-hover:text-water-600">${ad.name}</p>
         `;
         bannerContainer.appendChild(adElement);
     });
 };
+
+// --- SPONSOR CAROUSEL LOGIC ---
+let currentImageIndex = 0;
+let currentSponsor = null;
+
+function openSponsorModal(ad) {
+    const images = Array.isArray(ad.imageUrls) ? ad.imageUrls : [ad.imageUrl];
+    if (!images || images.length === 0) return;
+
+    currentSponsor = { ...ad, imageUrls: images };
+    currentImageIndex = 0;
+    
+    const modal = document.getElementById('sponsor-modal');
+    document.getElementById('sponsor-modal-title').innerText = ad.name;
+    document.getElementById('sponsor-contact-link').href = ad.linkUrl;
+    
+    updateCarousel();
+    
+    modal.showModal();
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function updateCarousel() {
+    const carousel = document.getElementById('sponsor-carousel');
+    if (carousel) {
+        carousel.innerHTML = `<img src="${currentSponsor.imageUrls[currentImageIndex]}" class="max-h-full max-w-full object-contain">`;
+    }
+}
 
 window.handleDeleteOutage = async function() {
     if (!window.appState || !window.appState.isAdmin || !window.selectedDateKey) {
