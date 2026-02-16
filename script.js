@@ -315,33 +315,33 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // --- RENDER ADS (PUBLIC) ---
 window.renderAdsPublic = function() {
-    const container = document.getElementById('ads-container-public');
-    if (!container) return;
+    const bannerContainer = document.getElementById('ads-banner-public');
+    if (!bannerContainer) return;
     const ads = window.appState.ads || [];
 
     if (ads.length === 0) {
-        container.innerHTML = `
-            <div class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
-                <p class="text-slate-400 text-sm">Espacio para Patrocinador</p>
+        bannerContainer.innerHTML = `
+            <div class="col-span-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
+                <p class="text-slate-400 text-sm">Espacio para Patrocinadores</p>
             </div>
         `;
         return;
     }
 
-    container.innerHTML = ''; 
-    const ad = ads[Math.floor(Math.random() * ads.length)];
-    const adElement = document.createElement('a');
-    adElement.href = ad.linkUrl;
-    adElement.target = '_blank';
-    adElement.rel = 'noopener noreferrer';
-    adElement.className = 'block bg-white rounded-2xl shadow-sm border border-slate-200 p-4 hover:shadow-lg hover:border-slate-300 transition-all';
-    
-    adElement.innerHTML = `
-        <h4 class="font-bold text-slate-800 mb-3 text-sm">Patrocinador</h4>
-        <img src="${ad.imageUrl}" alt="${ad.name}" class="w-full h-auto object-cover rounded-lg">
-        <p class="text-xs text-center text-slate-500 mt-3">${ad.name}</p>
-    `;
-    container.appendChild(adElement);
+    bannerContainer.innerHTML = ''; 
+    ads.forEach(ad => {
+        const adElement = document.createElement('a');
+        adElement.href = ad.linkUrl;
+        adElement.target = '_blank';
+        adElement.rel = 'noopener noreferrer';
+        adElement.className = 'block p-2 hover:bg-slate-100 rounded-lg transition-colors';
+        
+        adElement.innerHTML = `
+            <img src="${ad.imageUrl}" alt="${ad.name}" class="w-full h-20 object-contain rounded-md">
+            <p class="text-xs text-center text-slate-500 mt-2 font-medium truncate">${ad.name}</p>
+        `;
+        bannerContainer.appendChild(adElement);
+    });
 };
 
 window.handleDeleteOutage = async function() {
