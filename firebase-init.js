@@ -188,13 +188,14 @@ function syncAds() {
     });
 }
 
-window.saveAdCloud = async function(name, imageUrl, linkUrl) {
+window.saveAdCloud = async function(id, data) {
     if (!window.appState.isAdmin) return false;
     try {
-        const docId = name.toLowerCase().replace(/\s+/g, '-');
-        await setDoc(doc(db, 'ads', docId), { name, imageUrl, linkUrl, active: true });
+        const docId = id || data.name.toLowerCase().replace(/\s+/g, '-');
+        await setDoc(doc(db, 'ads', docId), { ...data, active: true }, { merge: true });
         return true;
     } catch (error) {
+        console.error("Error saving ad:", error);
         return false;
     }
 };
