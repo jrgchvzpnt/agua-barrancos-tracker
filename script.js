@@ -10,8 +10,7 @@ window.router = function(viewName) {
 
     document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.nav-link').forEach(el => {
-        el.classList.remove('text-water-600', 'bg-water-50');
-        el.classList.add('text-slate-600');
+        el.classList.remove('active-nav');
     });
 
     const selectedView = document.getElementById(`view-${viewName}`);
@@ -19,8 +18,7 @@ window.router = function(viewName) {
 
     const activeNav = document.getElementById(`nav-${viewName}`);
     if(activeNav) {
-        activeNav.classList.remove('text-slate-600');
-        activeNav.classList.add('text-water-600');
+        activeNav.classList.add('active-nav');
     }
 
     const mobileMenu = document.getElementById('mobile-menu');
@@ -75,7 +73,7 @@ window.renderCalendar = function() {
 
         const today = new Date();
         if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-            cell.classList.add('ring-2', 'ring-slate-800', 'ring-offset-2');
+            cell.classList.add('ring-2', 'ring-water-500', 'ring-offset-2');
         }
         grid.appendChild(cell);
     }
@@ -108,7 +106,6 @@ window.openDayModal = function(dateKey) {
     const modalHeader = document.getElementById('modal-header');
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content-body');
-    const adminActions = document.getElementById('modal-admin-actions');
 
     document.getElementById('modal-date').innerText = formatDatePretty(dateKey);
     modalHeader.className = "p-4 flex justify-between items-center transition-colors duration-300";
@@ -132,8 +129,6 @@ window.openDayModal = function(dateKey) {
                 <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1">${detalle}</p>
             </div>
         `;
-        
-        if(adminActions) adminActions.classList.toggle('hidden', !(window.appState && window.appState.isAdmin));
     } else {
         modalHeader.classList.add('bg-success-600');
         modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-white"></i> <span class="text-white">Servicio Normal</span></div>`;
@@ -146,7 +141,6 @@ window.openDayModal = function(dateKey) {
                 <p class="text-xs text-slate-400 mt-2">El suministro operó con normalidad.</p>
             </div>
         `;
-        if(adminActions) adminActions.classList.add('hidden');
     }
     
     if (modal) modal.showModal();
@@ -274,7 +268,7 @@ function updateLatestReport() {
 
         container.innerHTML = `
             <div class="border-l-4 border-alert-500 pl-4 py-1">
-                <p class="text-xs text-slate-400 font-bold uppercase mb-1">${formatDatePretty(date)}</p>
+                <p class="text-xs text-slate-500 font-semibold uppercase mb-1">${formatDatePretty(date)}</p>
                 <p class="font-bold text-slate-800">${estado}</p>
                 <p class="text-sm text-slate-500 mt-1">${detalle}</p>
             </div>
@@ -351,8 +345,8 @@ window.renderAdsPublic = function() {
         adElement.onclick = () => openSponsorModal(ad);
         
         adElement.innerHTML = `
-            <div class="bg-white p-4 rounded-xl border border-slate-200 h-32 flex items-center justify-center transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1">
-                <img src="${imageUrl}" alt="${ad.name}" class="max-h-full max-w-full object-contain">
+            <div class="sponsor-logo-container transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1">
+                <img src="${imageUrl}" alt="${ad.name}">
             </div>
             <p class="text-xs text-center text-slate-500 mt-3 font-semibold truncate group-hover:text-water-600">${ad.name}</p>
         `;
@@ -387,24 +381,3 @@ function updateCarousel() {
         carousel.innerHTML = `<img src="${currentSponsor.imageUrls[currentImageIndex]}" class="max-h-full max-w-full object-contain">`;
     }
 }
-
-window.handleDeleteOutage = async function() {
-    if (!window.appState || !window.appState.isAdmin || !window.selectedDateKey) {
-        window.showToast("No tienes permisos de administrador", true);
-        return;
-    }
-    
-    if (confirm(`¿Estás seguro de que quieres eliminar este reporte?\n\nFecha: ${formatDatePretty(window.selectedDateKey)}\n\nEsta acción no se puede deshacer.`)) {
-        if (typeof window.deleteOutageCloud === 'function') {
-            try {
-                await window.deleteOutageCloud(window.selectedDateKey);
-                const modal = document.getElementById('day-modal');
-                if (modal) modal.close();
-                window.showToast("Registro eliminado con éxito");
-                window.renderCalendar();
-            } catch (error) {
-                window.showToast("Ocurrió un error al eliminar", true);
-            }
-        }
-    }
-};

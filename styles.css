@@ -10,3 +10,43 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
 /* Loading Spinner */
 .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 24px; height: 24px; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.nav-link { position: relative; padding-bottom: 4px; }
+.nav-link.active-nav {
+    color: #0284c7; /* water-600 */
+    font-weight: 600;
+}
+.nav-link.active-nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #0284c7; /* water-600 */
+    border-radius: 1px;
+}
+
+.sponsor-logo-container {
+    height: 8rem; /* 128px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.75rem; /* rounded-xl */
+    border: 1px solid #e2e8f0; /* slate-200 */
+    transition: all 0.3s ease;
+}
+
+.sponsor-logo-container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+}
+
+.group:hover .sponsor-logo-container img {
+    filter: grayscale(0%);
+}
