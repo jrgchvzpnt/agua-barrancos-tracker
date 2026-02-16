@@ -56,7 +56,7 @@ onAuthStateChanged(auth, user => {
     }
 
     // Para la página pública, siempre sincronizamos los datos
-    if (path.includes('index.html') || path === '/' || path.includes('monitor-h2o-barrancos')) {
+    if (path.includes('index.html') || path === '/' || path.includes('agua-barrancos-tracker')) {
         syncOutages();
         syncAds();
 
