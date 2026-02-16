@@ -1,0 +1,12 @@
+body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 0.5rem; font-size: 0.9rem; transition: all 0.2s; cursor: pointer; position: relative; }
+.calendar-day:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+
+/* Loading Spinner */
+.loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

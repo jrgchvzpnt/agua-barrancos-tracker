@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Monitor H2O</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 pb-12">
+
+    <nav class="bg-blue-900 p-4 shadow-lg flex justify-between items-center text-white">
+        <div class="font-bold text-xl flex items-center gap-2"><span>💧</span> Panel Admin - Barrancos</div>
+        <div class="flex items-center gap-4">
+            <span id="admin-email" class="hidden md:block text-sm text-blue-200"></span>
+            <button onclick="window.signOutUser()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors">Cerrar Sesión</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-blue-500">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Registrar Fallo de Agua</h2>
+            <form id="outage-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-1">Fecha del problema</label>
+                    <input type="date" id="outage-date" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Estado del Servicio</label>
+                    <select id="outage-status" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                        <option value="Cortado (Sin servicio)">🔴 Cortado (Sin agua)</option>
+                        <option value="Intermitente (Baja presión)">🟡 Intermitente (Baja presión)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-1">Notas adicionales (Opcional)</label>
+                    <textarea id="outage-notes" rows="2" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Ej. El agua se fue a las 2 PM..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors">
+                    Guardar Registro
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-green-500">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Gestionar Patrocinadores</h2>
+            <form id="ad-form" class="space-y-4 mb-6">
+                <div><label class="block text-sm font-bold mb-1">Nombre del Negocio</label><input type="text" id="ad-name" required class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500"></div>
+                <div><label class="block text-sm font-bold mb-1">URL de la Imagen</label><input type="url" id="ad-image" required class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500"></div>
+                <div><label class="block text-sm font-bold mb-1">Enlace (WhatsApp/Web)</label><input type="url" id="ad-link" required class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500"></div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors">+ Agregar Publicidad</button>
+            </form>
+            <h3 class="text-sm font-bold text-gray-700 mb-2 bg-gray-200 p-2 rounded">Anuncios Activos</h3>
+            <div id="ads-list" class="space-y-3 max-h-48 overflow-y-auto pr-2"></div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 md:col-span-2 border-t-4 border-yellow-500">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Calendario de Registros (Gestión Visual)</h2>
+            <p class="text-sm text-gray-600 mb-4">Haz clic en un día en rojo para ver los detalles o eliminar el registro.</p>
+            <div id="calendar-grid" class="calendar-grid min-h-[300px]"></div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 md:col-span-2 border-t-4 border-purple-500">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Bandeja de Mensajes de Vecinos</h2>
+            <div id="messages-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+    </div>
+
+    <dialog id="day-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-black/60 w-full max-w-md bg-white">
+        <div id="modal-header" class="p-4 flex justify-between items-center transition-colors">
+            <h3 class="text-white font-bold flex items-center gap-2" id="modal-title"></h3>
+            <button onclick="document.getElementById('day-modal').close()" class="text-white hover:bg-white/20 rounded-full p-1"><span class="text-xl font-bold leading-none">×</span></button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div><p class="text-xs text-gray-500 uppercase font-bold">Fecha</p><p class="text-lg font-medium" id="modal-date">--</p></div>
+            <div id="modal-content-body"></div>
+            <div class="pt-2 border-t border-gray-100 mt-4 hidden" id="modal-admin-actions">
+                <button onclick="window.handleDeleteOutage()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold w-full text-center py-3 rounded-lg shadow">
+                    🗑️ Eliminar Registro Permanentemente
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <span id="toast-msg"></span>
+    </div>
+
+    <script type="module" src="./firebase-init.js"></script>
+    <script src="./admin.js"></script>
+    <script src="./script.js"></script>
+</body>
+</html>

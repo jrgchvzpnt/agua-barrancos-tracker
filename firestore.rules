@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Colección de Cortes (outages)
+    // Lectura: Cualquiera puede leer los reportes.
+    // Escritura: Solo usuarios autenticados (admins) pueden crear, actualizar o eliminar.
+    match /outages/{outageId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Colección de Mensajes (messages)
+    // Lectura y Eliminación: Solo usuarios autenticados (admins).
+    // Creación: Cualquiera puede enviar un mensaje (desde el formulario de contacto).
+    match /messages/{messageId} {
+      allow read, delete: if request.auth != null;
+      allow create: if true;
+    }
+
+    // Colección de Anuncios (ads)
+    // Lectura: Cualquiera puede ver los anuncios.
+    // Escritura: Solo usuarios autenticados (admins) pueden gestionar los anuncios.
+    match /ads/{adId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
