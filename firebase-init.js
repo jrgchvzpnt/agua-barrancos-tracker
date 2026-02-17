@@ -29,13 +29,6 @@ window.appState = {
     messages: []
 };
 
-const appCheck = initializeAppCheck(app, {
-  // BORRA EL TEXTO DE ABAJO Y PEGA TU CLAVE DE SITIO (MANTÉN LAS COMILLAS SIMPLES):
-  provider: new ReCaptchaV3Provider('6LfUTW4sAAAAAI5mgQMu1mCFPAcMuaF8pa2eIDoj'),
-  isTokenAutoRefreshEnabled: true
-});
-
-
 // --- LÓGICA DE AUTENTICACIÓN ---
 onAuthStateChanged(auth, user => {
     const path = window.location.pathname.toLowerCase();
