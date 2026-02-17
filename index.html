@@ -164,10 +164,45 @@
         </div>
 
         <div id="view-about" class="view-section hidden fade-in max-w-3xl mx-auto">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">Misión</h2>
-                <p class="text-slate-600 mb-4">Herramienta comunitaria para registrar la calidad del servicio de agua en Barrancos.</p>
-                <p class="text-slate-600">Usamos una base de datos centralizada para que todos los vecinos vean la misma información al instante.</p>
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4">Nuestra Misión</h2>
+                    <p class="text-slate-600 leading-relaxed">
+                        Empoderar a la comunidad de Barrancos a través de la transparencia y la colaboración, proporcionando una plataforma digital robusta y accesible para el monitoreo del servicio de agua. Buscamos ser un punto de encuentro ciudadano donde la información veraz y en tiempo real sobre el suministro fomente la participación, la rendición de cuentas y la búsqueda conjunta de soluciones para garantizar un servicio de calidad para todos.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">Visión</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Convertirnos en un referente de iniciativa comunitaria y tecnológica, demostrando cómo la acción colectiva y el uso de herramientas digitales pueden generar un impacto positivo y duradero en la calidad de los servicios públicos. Aspiramos a un futuro donde cada residente tenga acceso constante a información fiable, promoviendo una comunidad más informada, unida y resiliente.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">Nuestros Valores</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i data-lucide="eye" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-slate-700">Transparencia</h4>
+                                <p class="text-slate-500">Creemos en el libre acceso a la información como pilar de la confianza y la participación ciudadana.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="users" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-slate-700">Comunidad</h4>
+                                <p class="text-slate-500">Fomentamos la colaboración y el apoyo mutuo entre vecinos como motor de cambio.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i data-lucide="cpu" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <div>
+                                <h4 class="font-semibold text-slate-700">Tecnología para el Bien</h4>
+                                <p class="text-slate-500">Utilizamos la innovación como una herramienta para resolver problemas locales y mejorar la calidad de vida.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -225,6 +260,7 @@
                 <button onclick="document.getElementById('sponsor-modal').close()" class="text-slate-500 hover:bg-slate-100 rounded-full p-1 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6">
+                <div id="sponsor-description" class="mb-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border"></div>
                 <div class="relative">
                     <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden" style="height: 400px;">
                         <!-- Images will be loaded here -->

@@ -377,11 +377,23 @@ function openSponsorModal(ad) {
 
 function updateCarousel() {
     const carousel = document.getElementById('sponsor-carousel');
-    if (carousel) {
+    const descriptionEl = document.getElementById('sponsor-description');
+
+    if (carousel && descriptionEl) {
         carousel.innerHTML = ''; // Clear previous image
         const img = document.createElement('img');
         img.src = currentSponsor.imageUrls[currentImageIndex];
         img.className = 'max-h-full max-w-full object-contain';
         carousel.appendChild(img);
+
+        const descriptions = currentSponsor.imageDescriptions || [];
+        const description = descriptions[currentImageIndex];
+
+        if (description) {
+            descriptionEl.innerText = description;
+            descriptionEl.classList.remove('hidden');
+        } else {
+            descriptionEl.classList.add('hidden');
+        }
     }
 }

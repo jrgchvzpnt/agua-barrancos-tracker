@@ -112,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = document.getElementById('ad-id').value;
         const name = document.getElementById('ad-name').value;
         const imageUrls = document.getElementById('ad-images').value.split('\n').map(url => url.trim()).filter(url => url);
+        const imageDescriptions = document.getElementById('ad-image-descriptions').value.split('\n').map(desc => desc.trim());
         const linkUrl = document.getElementById('ad-link').value;
 
         if (imageUrls.length === 0) {
@@ -119,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const success = await window.saveAdCloud(id, { name, imageUrls, linkUrl, createdAt: new Date() });
+        const success = await window.saveAdCloud(id, { name, imageUrls, imageDescriptions, linkUrl, createdAt: new Date() });
         if (success) {
             alert("✅ Anuncio guardado.");
             adForm.reset();
@@ -135,6 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('ad-name').value = ad.name;
         const images = Array.isArray(ad.imageUrls) ? ad.imageUrls.join('\n') : ad.imageUrl || '';
         document.getElementById('ad-images').value = images;
+        const descriptions = Array.isArray(ad.imageDescriptions) ? ad.imageDescriptions.join('\n') : '';
+        document.getElementById('ad-image-descriptions').value = descriptions;
         document.getElementById('ad-link').value = ad.linkUrl;
 
         cancelEditAdBtn.classList.remove('hidden');
