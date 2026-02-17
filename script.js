@@ -378,6 +378,10 @@ function openSponsorModal(ad) {
 function updateCarousel() {
     const carousel = document.getElementById('sponsor-carousel');
     if (carousel) {
-        carousel.innerHTML = `<img src="${currentSponsor.imageUrls[currentImageIndex]}" class="max-h-full max-w-full object-contain">`;
+        carousel.innerHTML = ''; // Clear previous image
+        const img = document.createElement('img');
+        img.src = currentSponsor.imageUrls[currentImageIndex];
+        img.className = 'max-h-full max-w-full object-contain';
+        carousel.appendChild(img);
     }
 }
