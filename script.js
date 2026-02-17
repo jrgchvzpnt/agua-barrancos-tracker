@@ -208,7 +208,7 @@ window.calculateStats = function() {
         barWrapper.className = 'w-full flex flex-col justify-end items-center h-full relative';
         
         const bar = document.createElement('div');
-        bar.className = 'w-full bg-water-200 group-hover:bg-water-500 transition-colors rounded-t-md';
+        bar.className = 'w-full bg-water-100 group-hover:bg-water-500 transition-colors rounded-t-md';
         bar.style.height = count > 0 ? `${Math.max(percent, 5)}%` : '4px';
         
         if(count > 0) {
