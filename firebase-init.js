@@ -2,9 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// --- 1. NUEVA IMPORTACIÓN DE APP CHECK ---
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
-
 // --- CONFIGURACIÓN ---
 const firebaseConfig = {
   apiKey: "AIzaSyBTheMMxd2m4cjKGm_7oZ1qL73_xHXFQHA",
@@ -17,14 +14,6 @@ const firebaseConfig = {
 
 // --- INICIALIZACIÓN ---
 const app = initializeApp(firebaseConfig);
-
-// --- 2. ACTIVACIÓN DE APP CHECK ---
-const appCheck = initializeAppCheck(app, {
-  // BORRA EL TEXTO DE ABAJO Y PEGA TU CLAVE DE SITIO (MANTÉN LAS COMILLAS SIMPLES):
-  provider: new ReCaptchaV3Provider('6LfUTW4sAAAAAI5mgQMu1mCFPAcMuaF8pa2eIDoj'),
-  isTokenAutoRefreshEnabled: true
-});
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 const outagesCollection = collection(db, 'outages');
@@ -39,6 +28,13 @@ window.appState = {
     ads: [],
     messages: []
 };
+
+const appCheck = initializeAppCheck(app, {
+  // BORRA EL TEXTO DE ABAJO Y PEGA TU CLAVE DE SITIO (MANTÉN LAS COMILLAS SIMPLES):
+  provider: new ReCaptchaV3Provider('6LfUTW4sAAAAAI5mgQMu1mCFPAcMuaF8pa2eIDoj'),
+  isTokenAutoRefreshEnabled: true
+});
+
 
 // --- LÓGICA DE AUTENTICACIÓN ---
 onAuthStateChanged(auth, user => {
@@ -93,6 +89,7 @@ window.signIn = async function(email, password) {
         await signInWithEmailAndPassword(auth, email, password);
         return { success: true };
     } catch (error) {
+        // Do not log detailed error to console in production
         return { success: false, message: "Credenciales incorrectas." };
     }
 }
@@ -101,7 +98,9 @@ window.signIn = async function(email, password) {
 window.signOutUser = async function() {
     try {
         await signOut(auth);
-    } catch (error) {}
+    } catch (error) {
+        // Do not log detailed error to console in production
+    }
 }
 
 
@@ -141,6 +140,7 @@ window.saveOutageCloud = async function(dateKey, data) {
         await setDoc(doc(db, 'outages', dateKey), data);
         return true;
     } catch (error) {
+        // Do not log detailed error to console in production
         return false;
     }
 };
@@ -153,6 +153,7 @@ window.deleteOutageCloud = async function(dateKey) {
     try {
         await deleteDoc(doc(db, 'outages', keyToDelete));
     } catch (error) {
+        // Do not log detailed error to console in production
         throw error;
     }
 };
@@ -175,6 +176,7 @@ window.saveMessage = async function(name, phone, message) {
         await setDoc(doc(db, 'messages', docId), { name, phone, message, createdAt: timestamp, read: false });
         return { success: true };
     } catch (error) {
+        // Do not log detailed error to console in production
         return { success: false };
     }
 }
@@ -205,6 +207,7 @@ window.saveAdCloud = async function(id, data) {
         await setDoc(doc(db, 'ads', docId), { ...data, active: true }, { merge: true });
         return true;
     } catch (error) {
+        // Do not log detailed error to console in production
         return false;
     }
 };
