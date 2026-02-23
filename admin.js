@@ -39,21 +39,33 @@ document.addEventListener("DOMContentLoaded", () => {
         const dateVal = document.getElementById('outage-date').value;
         if (!dateVal) return alert("Selecciona una fecha válida.");
 
-        const data = {
-            status: document.getElementById('outage-status').value,
-            notes: document.getElementById('outage-notes').value,
-            duracion: document.getElementById('outage-duration').value,
-            timestamp: new Date()
-        };
+        const submitBtn = outageForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Guardando...';
 
-        const success = await window.saveOutageCloud(dateVal, data);
-        if (success) {
-            alert(`✅ Se guardó el registro para el día ${dateVal}`);
-            outageForm.reset();
-            document.getElementById('outage-date').disabled = false;
-            cancelEditOutageBtn.classList.add('hidden');
-        } else {
-            alert("❌ Hubo un error al guardar.");
+        try {
+            const data = {
+                status: document.getElementById('outage-status').value,
+                notes: document.getElementById('outage-notes').value,
+                timestamp: new Date().toISOString()
+            };
+
+            const success = await window.saveOutageCloud(dateVal, data);
+            if (success) {
+                alert(`✅ Se guardó el registro para el día ${dateVal}`);
+                outageForm.reset();
+                document.getElementById('outage-date').disabled = false;
+                cancelEditOutageBtn.classList.add('hidden');
+            } else {
+                alert("❌ Hubo un error al guardar.");
+            }
+        } catch (error) {
+            console.error("Error al guardar el reporte:", error);
+            alert(`❌ Hubo un error: ${error.message}`);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalBtnText;
         }
     });
 

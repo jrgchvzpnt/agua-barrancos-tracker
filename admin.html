@@ -56,12 +56,10 @@
                             <option value="Intermitente (Baja presión)">🟡 Intermitente (Baja presión)</option>
                         </select>
                     </div>
-                        <div>
-                            <label for="ad-image-upload" class="block text-sm font-medium text-gray-700 mb-1">Subir Imágenes</label>
-                            <input type="file" id="ad-image-upload" multiple accept="image/*" class="w-full border-gray-300 rounded-md shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <div id="image-previews" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
-                            <p class="text-xs text-gray-500 mt-2">Al editar, subir nuevas imágenes reemplazará las existentes.</p>
-                        </div>
+                    <div>
+                        <label for="outage-notes" class="block text-sm font-bold mb-1">Notas / Descripción</label>
+                        <textarea id="outage-notes" rows="3" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Ej: Reparación de tubería en la calle principal."></textarea>
+                    </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors">
                         Guardar Registro
                     </button>
