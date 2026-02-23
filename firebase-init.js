@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -15,6 +16,15 @@ const firebaseConfig = {
 
 // --- INICIALIZACIÓN ---
 const app = initializeApp(firebaseConfig);
+
+// Activar App Check solo en producción
+if (location.hostname === "agua-barrancos-tracker.web.app") {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LfvsHQsAAAAALHLX9fdNU9PW4g-Hr51Iqy7wId3'),
+    isTokenAutoRefreshEnabled: true
+  });
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);

@@ -274,9 +274,9 @@ if (contactForm) {
         btn.innerText = 'Enviando...';
 
         if (window.saveMessage) {
-            const contactInfo = email ? `Email: ${email}` : `Tel: ${phone}`;
-            const fullMessage = `${message}\n\nContacto: ${contactInfo}`;
-            const result = await window.saveMessage(name, contactInfo, message, new Date());
+            const contactInfo = phone || email;
+            const result = await window.saveMessage(name, contactInfo, message);
+            
             if (result.success) {
                 window.showToast("¡Mensaje enviado con éxito!");
                 localStorage.setItem('lastMessageTimestamp', new Date().getTime());
