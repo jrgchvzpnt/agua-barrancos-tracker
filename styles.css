@@ -1,4 +1,11 @@
+* { box-sizing: border-box; }
 body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+
+.today-marker {
+    font-weight: 600; /* semibold */
+    box-shadow: inset 0 0 0 2px #0284c7; /* water-600 */
+}
+
 .fade-in { animation: fadeIn 0.3s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 

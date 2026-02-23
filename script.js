@@ -73,7 +73,7 @@ window.renderCalendar = function() {
 
         const today = new Date();
         if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-            cell.classList.add('ring-2', 'ring-water-500', 'ring-offset-2');
+            cell.classList.add('today-marker');
         }
         grid.appendChild(cell);
     }
