@@ -422,26 +422,13 @@ window.renderAdsPublic = function() {
     ads.forEach(ad => {
         const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
         
-        // Safely create elements
-        const adElement = document.createElement('div');
-        adElement.className = 'group relative cursor-pointer';
-        adElement.onclick = () => openSponsorModal(ad);
-        
-        const logoContainer = document.createElement('div');
-        logoContainer.className = 'sponsor-logo-container transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1';
-        
         const img = document.createElement('img');
         img.src = imageUrl;
-        img.alt = ad.name; // Alt text is safe
-        logoContainer.appendChild(img);
+        img.alt = ad.name;
+        img.className = 'sponsor-logo';
+        img.onclick = () => openSponsorModal(ad);
         
-        const nameP = document.createElement('p');
-        nameP.className = 'text-xs text-center text-slate-500 mt-3 font-semibold truncate group-hover:text-water-600';
-        nameP.textContent = ad.name;
-        
-        adElement.appendChild(logoContainer);
-        adElement.appendChild(nameP);
-        bannerContainer.appendChild(adElement);
+        bannerContainer.appendChild(img);
     });
 };
 
