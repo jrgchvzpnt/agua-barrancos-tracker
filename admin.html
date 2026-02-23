@@ -29,6 +29,9 @@
             <a href="#" id="nav-messages" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700">
                 <i data-lucide="inbox"></i> Bandeja de Mensajes
             </a>
+            <a href="#" id="nav-stats" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700">
+                <i data-lucide="bar-chart-2"></i> Estadísticas de Visitas
+            </a>
         </nav>
         <div class="mt-auto">
             <div class="text-sm text-slate-400 mb-2" id="admin-email"></div>
@@ -103,6 +106,30 @@
             <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-purple-500">
                 <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Bandeja de Mensajes de Vecinos</h2>
                 <div id="messages-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- Sección: Estadísticas de Visitas -->
+        <section id="section-stats" class="admin-section hidden">
+            <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-indigo-500">
+                <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Estadísticas de Visitas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Visitas Hoy -->
+                    <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-200 text-center">
+                        <p class="text-sm font-semibold text-indigo-800 uppercase">Hoy</p>
+                        <p id="stats-today" class="text-4xl font-bold text-indigo-900 mt-2">0</p>
+                    </div>
+                    <!-- Visitas Mes -->
+                    <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-200 text-center">
+                        <p class="text-sm font-semibold text-indigo-800 uppercase">Este Mes</p>
+                        <p id="stats-month" class="text-4xl font-bold text-indigo-900 mt-2">0</p>
+                    </div>
+                    <!-- Visitas Año -->
+                    <div class="bg-indigo-50 p-5 rounded-lg border border-indigo-200 text-center">
+                        <p class="text-sm font-semibold text-indigo-800 uppercase">Este Año</p>
+                        <p id="stats-year" class="text-4xl font-bold text-indigo-900 mt-2">0</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>

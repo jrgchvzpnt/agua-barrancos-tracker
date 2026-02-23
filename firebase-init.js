@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
@@ -28,6 +28,13 @@ if (location.hostname === "agua-barrancos-tracker.web.app") {
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// Exponer funciones y db globalmente para usarlas en otros scripts como admin.js
+window.db = db;
+window.getDoc = getDoc;
+window.doc = doc;
+window.collection = collection;
+
 const outagesCollection = collection(db, 'outages');
 const messagesCollection = collection(db, 'messages');
 const adsCollection = collection(db, 'ads');
@@ -87,6 +94,7 @@ onAuthStateChanged(auth, async (user) => {
     if (isPublicPage) {
         syncOutages();
         syncAds();
+        trackVisit(); // <-- Llamada a la función de tracking
 
         if (!user) { // Solo intentar login anónimo si no hay ningún usuario
             signInAnonymously(auth).catch((error) => {
@@ -118,6 +126,43 @@ window.signOutUser = async function() {
         await signOut(auth);
     } catch (error) {
         // Do not log detailed error to console in production
+    }
+}
+
+// --- LÓGICA DE ANALYTICS ---
+async function trackVisit() {
+    // Solo contar una visita por sesión del navegador para no inflar las métricas con recargas
+    if (sessionStorage.getItem('visitTracked')) {
+        return;
+    }
+    sessionStorage.setItem('visitTracked', 'true');
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    // IDs para los documentos de analytics
+    const yearId = `Y_${year}`;
+    const monthId = `M_${year}_${month}`;
+    const dayId = `D_${year}_${month}_${day}`;
+
+    const analyticsRef = collection(db, 'analytics');
+    const yearRef = doc(analyticsRef, yearId);
+    const monthRef = doc(analyticsRef, monthId);
+    const dayRef = doc(analyticsRef, dayId);
+
+    try {
+        // Usamos una transacción para asegurar que los incrementos sean atómicos
+        await runTransaction(db, async (transaction) => {
+            // No necesitamos leer, `increment` lo hace en el servidor.
+            // Simplemente actualizamos los 3 documentos.
+            transaction.set(yearRef, { visits: increment(1) }, { merge: true });
+            transaction.set(monthRef, { visits: increment(1) }, { merge: true });
+            transaction.set(dayRef, { visits: increment(1) }, { merge: true });
+        });
+    } catch (e) {
+        // No loguear errores en producción para no exponer detalles
     }
 }
 

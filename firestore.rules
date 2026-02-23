@@ -72,5 +72,25 @@ service cloud.firestore {
                       request.resource.data.imageDescriptions.size() < 10 && // Match image count
                       request.resource.data.createdAt is timestamp;
     }
+
+    // Analytics Collection: Secured
+    match /analytics/{docId} {
+      allow read: if isAdmin();
+      // Allow anyone to create or update, but only to increment the visit count.
+      // This prevents a malicious user from setting an arbitrary number of visits.
+      allow write: if (
+        // Validate document ID format
+        (docId.matches('^Y_\\d{4}$') || docId.matches('^M_\\d{4}_\\d{2}$') || docId.matches('^D_\\d{4}_\\d{2}_\\d{2}$')) &&
+        // Enforce schema: only a 'visits' field of type number is allowed
+        request.resource.data.keys().hasOnly(['visits']) &&
+        request.resource.data.visits is number &&
+        (
+          // On create, the value must be 1
+          (resource == null && request.resource.data.visits == 1) ||
+          // On update, the new value must be exactly 1 greater than the old one
+          (resource != null && request.resource.data.visits == resource.data.visits + 1)
+        )
+      );
+    }
   }
 }

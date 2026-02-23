@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sponsors: document.getElementById('nav-sponsors'),
         calendar: document.getElementById('nav-calendar'),
         messages: document.getElementById('nav-messages'),
+        stats: document.getElementById('nav-stats'),
     };
 
     const sections = {
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sponsors: document.getElementById('section-sponsors'),
         calendar: document.getElementById('section-calendar'),
         messages: document.getElementById('section-messages'),
+        stats: document.getElementById('section-stats'),
     };
 
     function switchView(view) {
@@ -27,6 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
     navLinks.sponsors.addEventListener('click', (e) => { e.preventDefault(); switchView('sponsors'); });
     navLinks.calendar.addEventListener('click', (e) => { e.preventDefault(); switchView('calendar'); });
     navLinks.messages.addEventListener('click', (e) => { e.preventDefault(); switchView('messages'); });
+    navLinks.stats.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        switchView('stats');
+        loadStats(); // Cargar estadísticas al cambiar a esta vista
+    });
 
     switchView('outages');
 
@@ -379,4 +386,49 @@ document.addEventListener("DOMContentLoaded", () => {
         window.renderAds();
         window.renderMessages();
     }, 1000);
+
+    // --- LÓGICA DE ESTADÍSTICAS ---
+    async function loadStats() {
+        const statsTodayEl = document.getElementById('stats-today');
+        const statsMonthEl = document.getElementById('stats-month');
+        const statsYearEl = document.getElementById('stats-year');
+
+        // Mostrar un estado de carga
+        statsTodayEl.textContent = '...';
+        statsMonthEl.textContent = '...';
+        statsYearEl.textContent = '...';
+
+        try {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+
+            const yearId = `Y_${year}`;
+            const monthId = `M_${year}_${month}`;
+            const dayId = `D_${year}_${month}_${day}`;
+
+            const analyticsRef = window.collection(window.db, 'analytics');
+            
+            const yearDocRef = window.doc(analyticsRef, yearId);
+            const monthDocRef = window.doc(analyticsRef, monthId);
+            const dayDocRef = window.doc(analyticsRef, dayId);
+
+            const [yearSnap, monthSnap, daySnap] = await Promise.all([
+                window.getDoc(yearDocRef),
+                window.getDoc(monthDocRef),
+                window.getDoc(dayDocRef)
+            ]);
+
+            statsYearEl.textContent = yearSnap.exists() ? yearSnap.data().visits : 0;
+            statsMonthEl.textContent = monthSnap.exists() ? monthSnap.data().visits : 0;
+            statsTodayEl.textContent = daySnap.exists() ? daySnap.data().visits : 0;
+
+        } catch (error) {
+            console.error("Error al cargar estadísticas:", error);
+            statsTodayEl.textContent = 'Error';
+            statsMonthEl.textContent = 'Error';
+            statsYearEl.textContent = 'Error';
+        }
+    }
 });
