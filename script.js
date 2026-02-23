@@ -247,6 +247,17 @@ const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const btn = e.target.querySelector('button');
+        const lastSubmit = localStorage.getItem('lastMessageTimestamp');
+        const currentTime = new Date().getTime();
+
+        if (lastSubmit && (currentTime - lastSubmit < 60000)) { // 60 seconds cooldown
+            const timeLeft = Math.ceil((60000 - (currentTime - lastSubmit)) / 1000);
+            window.showToast(`Debes esperar ${timeLeft} segundos para enviar otro mensaje.`, true);
+            return;
+        }
+
         const formData = new FormData(e.target);
         const name = formData.get('name');
         const email = formData.get('email');
@@ -258,7 +269,6 @@ if (contactForm) {
             return;
         }
 
-        const btn = e.target.querySelector('button');
         const originalText = btn.innerText;
         btn.disabled = true;
         btn.innerText = 'Enviando...';
@@ -269,6 +279,7 @@ if (contactForm) {
             const result = await window.saveMessage(name, contactInfo, message, new Date());
             if (result.success) {
                 window.showToast("¡Mensaje enviado con éxito!");
+                localStorage.setItem('lastMessageTimestamp', new Date().getTime());
                 e.target.reset();
             } else {
                 window.showToast("Error al enviar el mensaje.", true);

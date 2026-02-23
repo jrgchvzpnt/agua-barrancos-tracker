@@ -17,9 +17,9 @@ service cloud.firestore {
     // --- Collection Rules ---
 
     // Admin Collection: Secure
-    // Only admins can read. Client-side writes are disabled.
+    // A user can read their own admin status. Client-side writes are disabled.
     match /admins/{userId} {
-      allow read: if isAdmin();
+      allow read: if request.auth != null && request.auth.uid == userId;
       allow write: if false; // Prevent client-side modification of admins
     }
 
