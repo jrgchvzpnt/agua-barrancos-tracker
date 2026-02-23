@@ -167,27 +167,79 @@ async function trackVisit() {
 }
 
 
-// --- LÓGICA DE DATOS (FIRESTORE) ---
+// --- LÓGICA DE VERSIÓN DE DATOS ---
+const metadataRef = doc(db, 'metadata', 'app_status');
 
-function syncOutages() {
+window.touchDataVersion = async function() {
+    if (!window.appState.isAdmin) return;
+    try {
+        await setDoc(metadataRef, { lastUpdate: new Date().toISOString() });
+    } catch (error) {
+        // No loguear en producción
+    }
+}
+
+
+// --- LÓGICA DE DATOS (FIRESTORE) CON CACHÉ INTELIGENTE ---
+
+const CACHE_DURATION_MINUTES = 15;
+
+function getFromCache(key, remoteTimestamp) {
+    const cached = localStorage.getItem(key);
+    if (!cached) return null;
+
+    const { timestamp, data, versionTimestamp } = JSON.parse(cached);
+    
+    const isCacheExpired = (new Date().getTime() - timestamp) / (1000 * 60) > CACHE_DURATION_MINUTES;
+    if (isCacheExpired) {
+        localStorage.removeItem(key);
+        return null;
+    }
+
+    if (remoteTimestamp && versionTimestamp && new Date(remoteTimestamp) > new Date(versionTimestamp)) {
+        localStorage.removeItem(key);
+        return null;
+    }
+
+    return data;
+}
+
+function saveToCache(key, data, versionTimestamp) {
+    const cacheItem = {
+        timestamp: new Date().getTime(),
+        versionTimestamp: versionTimestamp,
+        data: data
+    };
+    localStorage.setItem(key, JSON.stringify(cacheItem));
+}
+
+async function syncOutages() {
     const statusIndicator = document.getElementById('connection-status');
     if (statusIndicator) statusIndicator.classList.add('bg-yellow-400');
+
+    let remoteTimestamp = null;
+    try {
+        const metadataSnap = await getDoc(metadataRef);
+        if (metadataSnap.exists()) {
+            remoteTimestamp = metadataSnap.data().lastUpdate;
+        }
+    } catch(e) { /* No se pudo obtener */ }
+
+    const cachedOutages = getFromCache('outagesCache', remoteTimestamp);
+    if (cachedOutages) {
+        window.appState.outages = cachedOutages;
+        if (typeof window.renderCalendar === 'function') window.renderCalendar();
+    }
 
     const path = window.location.pathname.toLowerCase();
     const isPublicPage = path.includes('index.html') || path.endsWith('/') || path.endsWith('/agua-barrancos-tracker/');
     
     let queryRef = outagesCollection;
 
-    // Para la página pública, optimizamos la consulta para traer solo el último año.
-    // Esto mejora drásticamente el tiempo de carga inicial.
     if (isPublicPage) {
         const oneYearAgo = new Date();
         oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-        const year = oneYearAgo.getFullYear();
-        const month = String(oneYearAgo.getMonth() + 1).padStart(2, '0');
-        const day = String(oneYearAgo.getDate()).padStart(2, '0');
-        const oneYearAgoStr = `${year}-${month}-${day}`;
-        
+        const oneYearAgoStr = `${oneYearAgo.getFullYear()}-${String(oneYearAgo.getMonth() + 1).padStart(2, '0')}-${String(oneYearAgo.getDate()).padStart(2, '0')}`;
         queryRef = query(outagesCollection, where(documentId(), '>=', oneYearAgoStr));
     }
 
@@ -197,9 +249,9 @@ function syncOutages() {
             outagesData[doc.id] = doc.data();
         });
         window.appState.outages = outagesData;
+        saveToCache('outagesCache', outagesData, remoteTimestamp);
         
         if (typeof window.renderCalendar === 'function') window.renderCalendar();
-        if (typeof window.renderAdsPublic === 'function') window.renderAdsPublic();
         
         if (statusIndicator) {
             statusIndicator.classList.remove('bg-yellow-400', 'bg-red-500');
@@ -219,6 +271,7 @@ window.saveOutageCloud = async function(dateKey, data) {
     if (!window.appState.isAdmin) return false;
     try {
         await setDoc(doc(db, 'outages', dateKey), data);
+        await window.touchDataVersion();
         return true;
     } catch (error) {
         // Do not log detailed error to console in production
@@ -233,6 +286,7 @@ window.deleteOutageCloud = async function(dateKey) {
     
     try {
         await deleteDoc(doc(db, 'outages', keyToDelete));
+        await window.touchDataVersion();
     } catch (error) {
         // Do not log detailed error to console in production
         throw error;
@@ -240,6 +294,7 @@ window.deleteOutageCloud = async function(dateKey) {
 };
 
 function syncMessages() {
+    // Los mensajes no se cachean porque son solo para el admin y deben estar siempre actualizados.
     onSnapshot(messagesCollection, (snapshot) => {
         const messagesData = [];
         snapshot.forEach(doc => {
@@ -269,13 +324,31 @@ window.deleteMessageCloud = async function(id) {
     }
 };
 
-function syncAds() {
+async function syncAds() {
+    let remoteTimestamp = null;
+    try {
+        const metadataSnap = await getDoc(metadataRef);
+        if (metadataSnap.exists()) {
+            remoteTimestamp = metadataSnap.data().lastUpdate;
+        }
+    } catch(e) { /* No se pudo obtener */ }
+
+    const cachedAds = getFromCache('adsCache', remoteTimestamp);
+    if (cachedAds) {
+        window.appState.ads = cachedAds;
+        if (typeof window.renderAds === 'function') window.renderAds();
+        if (typeof window.renderAdsPublic === 'function') window.renderAdsPublic();
+    }
+
     onSnapshot(adsCollection, (snapshot) => {
         const adsData = [];
         snapshot.forEach(doc => {
             adsData.push({ id: doc.id, ...doc.data() });
         });
-        window.appState.ads = adsData.sort((a, b) => a.name.localeCompare(b.name));
+        const sortedAds = adsData.sort((a, b) => a.name.localeCompare(b.name));
+        window.appState.ads = sortedAds;
+        saveToCache('adsCache', sortedAds, remoteTimestamp);
+        
         if (typeof window.renderAds === 'function') window.renderAds();
         if (typeof window.renderAdsPublic === 'function') window.renderAdsPublic();
     });
@@ -286,6 +359,7 @@ window.saveAdCloud = async function(id, data) {
     try {
         const docId = id || data.name.toLowerCase().replace(/\s+/g, '-');
         await setDoc(doc(db, 'ads', docId), { ...data, active: true }, { merge: true });
+        await window.touchDataVersion();
         return true;
     } catch (error) {
         // Do not log detailed error to console in production
@@ -297,6 +371,7 @@ window.deleteAdCloud = async function(id) {
     if (!window.appState.isAdmin) return;
     if (confirm("¿Seguro que quieres eliminar este anuncio?")) {
         await deleteDoc(doc(db, 'ads', id));
+        await window.touchDataVersion();
     }
 };
 
