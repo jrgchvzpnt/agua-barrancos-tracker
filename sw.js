@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agua-barrancos-v2'; // Incrementa la versión al actualizar
+const CACHE_NAME = 'agua-barrancos-v3'; // Incrementa la versión al actualizar
 const urlsToCache = [
   './',
   './index.html',
