@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment, query, where, documentId } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
@@ -173,7 +173,25 @@ function syncOutages() {
     const statusIndicator = document.getElementById('connection-status');
     if (statusIndicator) statusIndicator.classList.add('bg-yellow-400');
 
-    onSnapshot(outagesCollection, (snapshot) => {
+    const path = window.location.pathname.toLowerCase();
+    const isPublicPage = path.includes('index.html') || path.endsWith('/') || path.endsWith('/agua-barrancos-tracker/');
+    
+    let queryRef = outagesCollection;
+
+    // Para la página pública, optimizamos la consulta para traer solo el último año.
+    // Esto mejora drásticamente el tiempo de carga inicial.
+    if (isPublicPage) {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        const year = oneYearAgo.getFullYear();
+        const month = String(oneYearAgo.getMonth() + 1).padStart(2, '0');
+        const day = String(oneYearAgo.getDate()).padStart(2, '0');
+        const oneYearAgoStr = `${year}-${month}-${day}`;
+        
+        queryRef = query(outagesCollection, where(documentId(), '>=', oneYearAgoStr));
+    }
+
+    onSnapshot(queryRef, (snapshot) => {
         const outagesData = {};
         snapshot.forEach(doc => {
             outagesData[doc.id] = doc.data();
