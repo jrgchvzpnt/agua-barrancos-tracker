@@ -107,7 +107,6 @@ window.openDayModal = function(dateKey) {
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content-body');
 
-    // Clear previous content
     modalContent.innerHTML = '';
     modalTitle.innerHTML = '';
 
@@ -121,52 +120,62 @@ window.openDayModal = function(dateKey) {
         const estado = data.status || data.motivo || "Corte registrado";
         const detalle = data.notes || data.comentarios || "Sin comentarios";
 
-        // Safely create elements and assign text content
         const estadoDiv = document.createElement('div');
-        estadoDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold">Estado del Servicio</p>`;
+        const estadoLabel = document.createElement('p');
+        estadoLabel.className = 'text-xs text-slate-500 uppercase font-bold';
+        estadoLabel.textContent = 'Estado del Servicio';
         const estadoP = document.createElement('p');
         estadoP.className = 'text-slate-800 font-bold';
         estadoP.textContent = estado;
-        estadoDiv.appendChild(estadoP);
+        estadoDiv.append(estadoLabel, estadoP);
         modalContent.appendChild(estadoDiv);
 
         if (data.duracion) {
             const duracionDiv = document.createElement('div');
-            duracionDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold mt-3">Duración</p>`;
+            const duracionLabel = document.createElement('p');
+            duracionLabel.className = 'text-xs text-slate-500 uppercase font-bold mt-3';
+            duracionLabel.textContent = 'Duración';
             const duracionP = document.createElement('p');
             duracionP.className = 'text-slate-800';
             duracionP.textContent = data.duracion;
-            duracionDiv.appendChild(duracionP);
+            duracionDiv.append(duracionLabel, duracionP);
             modalContent.appendChild(duracionDiv);
         }
 
         const detalleDiv = document.createElement('div');
         detalleDiv.className = 'mt-3';
-        detalleDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold">Detalles / Notas</p>`;
+        const detalleLabel = document.createElement('p');
+        detalleLabel.className = 'text-xs text-slate-500 uppercase font-bold';
+        detalleLabel.textContent = 'Detalles / Notas';
         const detalleP = document.createElement('p');
         detalleP.className = 'text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1';
-        
-        // Para respetar saltos de línea y aplicar negritas
         detalleP.style.whiteSpace = 'pre-wrap';
-        // Escapar HTML básico para seguridad y luego reemplazar * con <b>
         const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">");
         detalleP.innerHTML = escapedDetalle.replace(/\*(.*?)\*/g, '<b>$1</b>');
-
-        detalleDiv.appendChild(detalleP);
+        detalleDiv.append(detalleLabel, detalleP);
         modalContent.appendChild(detalleDiv);
 
     } else {
         modalHeader.classList.add('bg-success-600');
         modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-white"></i> <span class="text-white">Servicio Normal</span></div>`;
-        modalContent.innerHTML = `
-            <div class="text-center py-4">
-                <div class="bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
-                     <i data-lucide="thumbs-up" class="w-8 h-8 text-success-600"></i>
-                </div>
-                <p class="text-slate-600">No hay reportes de fallas para este día.</p>
-                <p class="text-xs text-slate-400 mt-2">El suministro operó con normalidad.</p>
-            </div>
-        `;
+        
+        const container = document.createElement('div');
+        container.className = 'text-center py-4';
+        
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3';
+        iconContainer.innerHTML = '<i data-lucide="thumbs-up" class="w-8 h-8 text-success-600"></i>';
+        
+        const p1 = document.createElement('p');
+        p1.className = 'text-slate-600';
+        p1.textContent = 'No hay reportes de fallas para este día.';
+        
+        const p2 = document.createElement('p');
+        p2.className = 'text-xs text-slate-400 mt-2';
+        p2.textContent = 'El suministro operó con normalidad.';
+        
+        container.append(iconContainer, p1, p2);
+        modalContent.appendChild(container);
     }
     
     if (modal) modal.showModal();
@@ -376,7 +385,7 @@ function formatDatePretty(dateStr) {
 // --- INIT ---
 window.addEventListener('DOMContentLoaded', () => {
     if (window.lucide) window.lucide.createIcons();
-    setTimeout(() => window.router('home'), 200); 
+    window.router('home');
 
     document.getElementById('prev-btn').addEventListener('click', () => {
         if (!currentSponsor) return;
