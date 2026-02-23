@@ -294,7 +294,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentDate = new Date();
     window.selectedDateKey = null;
 
-    function renderAdminCalendar() {
+    // Renombrado a renderCalendar y expuesto globalmente para ser llamado desde firebase-init.js
+    window.renderCalendar = function() {
         const grid = document.getElementById('calendar-grid');
         if (!grid) return;
 
@@ -376,13 +377,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if (confirm(`¿Seguro que quieres eliminar el registro para ${window.selectedDateKey}?`)) {
             await window.deleteOutageCloud(window.selectedDateKey);
             document.getElementById('day-modal').close();
-            renderAdminCalendar();
+            // No es necesario llamar a renderCalendar aquí, onSnapshot lo hará automáticamente.
         }
+    }
+
+    window.handleEditOutage = function() {
+        if (!window.selectedDateKey) return;
+        const modal = document.getElementById('day-modal');
+        
+        // Llama a la función de edición ya existente
+        window.editOutage(window.selectedDateKey);
+        
+        // Cierra el modal
+        modal.close();
     }
 
     // Initial render
     setTimeout(() => {
-        renderAdminCalendar();
+        // La primera renderización ahora es manejada por el onSnapshot en firebase-init.js
+        // que llama a window.renderCalendar() cuando los datos están listos.
+        // Mantenemos esto para renderizar ads y mensajes que tienen su propia sincronización.
         window.renderAds();
         window.renderMessages();
     }, 1000);
