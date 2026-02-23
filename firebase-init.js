@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Activar App Check solo en producción
-if (location.hostname === "agua-barrancos-tracker.web.app") {
+if (location.hostname === "agua-barrancos-tracker.web.app" || location.hostname === "monitorbarrancos.com") {
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider('6LfvsHQsAAAAALHLX9fdNU9PW4g-Hr51Iqy7wId3'),
     isTokenAutoRefreshEnabled: true
