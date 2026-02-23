@@ -145,7 +145,13 @@ window.openDayModal = function(dateKey) {
         detalleDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold">Detalles / Notas</p>`;
         const detalleP = document.createElement('p');
         detalleP.className = 'text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1';
-        detalleP.textContent = detalle;
+        
+        // Para respetar saltos de línea y aplicar negritas
+        detalleP.style.whiteSpace = 'pre-wrap';
+        // Escapar HTML básico para seguridad y luego reemplazar * con <b>
+        const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">");
+        detalleP.innerHTML = escapedDetalle.replace(/\*(.*?)\*/g, '<b>$1</b>');
+
         detalleDiv.appendChild(detalleP);
         modalContent.appendChild(detalleDiv);
 
@@ -324,7 +330,12 @@ function updateLatestReport() {
 
         const detalleP = document.createElement('p');
         detalleP.className = 'text-sm text-slate-500 mt-1';
-        detalleP.textContent = detalle;
+        
+        // Aplicar formato para saltos de línea y negritas
+        detalleP.style.whiteSpace = 'pre-wrap';
+        const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">");
+        detalleP.innerHTML = escapedDetalle.replace(/\*(.*?)\*/g, '<b>$1</b>');
+
         reportDiv.appendChild(detalleP);
 
         container.appendChild(reportDiv);
