@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
@@ -32,33 +32,46 @@ window.appState = {
 };
 
 // --- LÓGICA DE AUTENTICACIÓN ---
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async (user) => {
     const path = window.location.pathname.toLowerCase();
+    const isPublicPage = path.includes('index.html') || path.endsWith('/') || path.endsWith('/agua-barrancos-tracker/');
 
     if (user && !user.isAnonymous) {
-        window.appState.user = user;
-        window.appState.isAdmin = true;
-        
-        if (path.includes('login.html')) {
-            window.location.href = 'admin.html';
-        }
-        
-        if (path.includes('admin.html')) {
-            syncOutages();
-            syncMessages();
-            syncAds();
+        // User is logged in, now VERIFY if they are an admin.
+        const adminDocRef = doc(db, 'admins', user.uid);
+        const adminDocSnap = await getDoc(adminDocRef);
+
+        if (adminDocSnap.exists()) {
+            // User is a verified admin
+            window.appState.user = user;
+            window.appState.isAdmin = true;
+            
+            if (path.includes('login.html')) {
+                window.location.href = 'admin.html';
+            }
+            
+            // If on admin page, load admin data
+            if (path.includes('admin.html')) {
+                syncOutages();
+                syncMessages();
+                syncAds();
+            }
+        } else {
+            // User is authenticated but NOT an admin. Force sign out.
+            await signOut(auth);
+            alert("Acceso denegado. No tienes permisos de administrador.");
+            window.location.href = 'login.html';
         }
     } else {
+        // User is not logged in or is anonymous
         window.appState.user = null;
         window.appState.isAdmin = false;
 
+        // If they are trying to access admin, redirect to login
         if (path.includes('admin.html')) {
             window.location.href = 'login.html';
         }
     }
-
-    // Determinar si estamos en una página pública
-    const isPublicPage = path.includes('index.html') || path.endsWith('/') || path.endsWith('/agua-barrancos-tracker/');
 
     // Sincronizar datos y hacer login anónimo solo en páginas públicas
     if (isPublicPage) {

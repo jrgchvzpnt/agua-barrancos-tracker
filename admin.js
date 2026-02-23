@@ -86,25 +86,66 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!adsList) return;
         const ads = window.appState.ads || [];
         
-        adsList.innerHTML = ads.length === 0
-            ? '<p class="text-gray-500 text-sm italic">No hay publicidad activa.</p>'
-            : ads.map(ad => {
-                const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
-                return `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <img src="${imageUrl}" alt="${ad.name}" class="w-10 h-10 rounded-md border">
-                        <div class="truncate">
-                            <p class="font-bold text-sm truncate">${ad.name}</p>
-                            <a href="${ad.linkUrl}" target="_blank" class="text-xs text-blue-600 hover:underline">Ver enlace</a>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="editAd('${ad.id}')" class="text-blue-500">Editar</button>
-                        <button onclick="window.deleteAdCloud('${ad.id}')" class="text-red-500">X</button>
-                    </div>
-                </div>
-            `}).join('');
+        adsList.innerHTML = ''; // Clear previous content
+
+        if (ads.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'text-gray-500 text-sm italic';
+            p.textContent = 'No hay publicidad activa.';
+            adsList.appendChild(p);
+            return;
+        }
+
+        ads.forEach(ad => {
+            const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
+            
+            const adItem = document.createElement('div');
+            adItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+
+            const leftDiv = document.createElement('div');
+            leftDiv.className = 'flex items-center gap-3 overflow-hidden';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = ad.name;
+            img.className = 'w-10 h-10 rounded-md border';
+            leftDiv.appendChild(img);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'truncate';
+            
+            const nameP = document.createElement('p');
+            nameP.className = 'font-bold text-sm truncate';
+            nameP.textContent = ad.name;
+            infoDiv.appendChild(nameP);
+
+            const linkA = document.createElement('a');
+            linkA.href = ad.linkUrl;
+            linkA.target = '_blank';
+            linkA.className = 'text-xs text-blue-600 hover:underline';
+            linkA.textContent = 'Ver enlace';
+            infoDiv.appendChild(linkA);
+            leftDiv.appendChild(infoDiv);
+
+            const rightDiv = document.createElement('div');
+            rightDiv.className = 'flex gap-2';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'text-blue-500';
+            editBtn.textContent = 'Editar';
+            editBtn.onclick = () => editAd(ad.id);
+            rightDiv.appendChild(editBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'text-red-500';
+            deleteBtn.textContent = 'X';
+            deleteBtn.onclick = () => window.deleteAdCloud(ad.id);
+            rightDiv.appendChild(deleteBtn);
+
+            adItem.appendChild(leftDiv);
+            adItem.appendChild(rightDiv);
+            adsList.appendChild(adItem);
+        });
     };
 
     adForm.addEventListener('submit', async (e) => {
@@ -183,16 +224,43 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!msgList) return;
         const msgs = window.appState.messages || [];
 
-        msgList.innerHTML = msgs.length === 0
-            ? '<p class="text-gray-500 text-sm italic col-span-full">No hay mensajes.</p>'
-            : msgs.map(msg => `
-                <div class="bg-purple-50 p-4 rounded-xl border relative">
-                    <button onclick="window.deleteMessageCloud('${msg.id}')" class="absolute top-2 right-2 text-red-500">X</button>
-                    <p class="font-bold">${msg.name}</p>
-                    <p class="text-xs text-gray-500 mb-2">📞 ${msg.phone || 'N/A'} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}</p>
-                    <p class="text-sm bg-white p-3 rounded-lg border">${msg.message}</p>
-                </div>
-            `).join('');
+        msgList.innerHTML = ''; // Clear previous content
+
+        if (msgs.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'text-gray-500 text-sm italic col-span-full';
+            p.textContent = 'No hay mensajes.';
+            msgList.appendChild(p);
+            return;
+        }
+
+        msgs.forEach(msg => {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'bg-purple-50 p-4 rounded-xl border relative';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'absolute top-2 right-2 text-red-500';
+            deleteBtn.textContent = 'X';
+            deleteBtn.onclick = () => window.deleteMessageCloud(msg.id);
+            msgDiv.appendChild(deleteBtn);
+
+            const nameP = document.createElement('p');
+            nameP.className = 'font-bold';
+            nameP.textContent = msg.name;
+            msgDiv.appendChild(nameP);
+
+            const contactP = document.createElement('p');
+            contactP.className = 'text-xs text-gray-500 mb-2';
+            contactP.textContent = `📞 ${msg.phone || 'N/A'} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}`;
+            msgDiv.appendChild(contactP);
+
+            const messageP = document.createElement('p');
+            messageP.className = 'text-sm bg-white p-3 rounded-lg border';
+            messageP.textContent = msg.message;
+            msgDiv.appendChild(messageP);
+
+            msgList.appendChild(msgDiv);
+        });
     };
 
     // --- INFO DE NAVBAR ---
@@ -253,20 +321,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const modalContent = document.getElementById('modal-content-body');
         const adminActions = document.getElementById('modal-admin-actions');
 
-        document.getElementById('modal-date').innerText = dateKey;
+        modalContent.innerHTML = ''; // Clear previous content
+        modalTitle.textContent = '';
+        document.getElementById('modal-date').textContent = dateKey;
 
         if (data) {
             modalHeader.className = 'p-4 flex justify-between items-center bg-red-600';
-            modalTitle.innerHTML = `Reporte de Corte`;
-            modalContent.innerHTML = `
-                <p><strong>Estado:</strong> ${data.status}</p>
-                <p><strong>Notas:</strong> ${data.notes || 'N/A'}</p>
-            `;
+            modalTitle.textContent = 'Reporte de Corte';
+            
+            const statusP = document.createElement('p');
+            statusP.innerHTML = '<strong>Estado:</strong> ';
+            statusP.appendChild(document.createTextNode(data.status));
+            modalContent.appendChild(statusP);
+
+            const notesP = document.createElement('p');
+            notesP.innerHTML = '<strong>Notas:</strong> ';
+            notesP.appendChild(document.createTextNode(data.notes || 'N/A'));
+            modalContent.appendChild(notesP);
+
             adminActions.classList.remove('hidden');
         } else {
             modalHeader.className = 'p-4 flex justify-between items-center bg-green-600';
-            modalTitle.innerHTML = `Servicio Normal`;
-            modalContent.innerHTML = `<p>No hay reportes para este día.</p>`;
+            modalTitle.textContent = 'Servicio Normal';
+            const noReportP = document.createElement('p');
+            noReportP.textContent = 'No hay reportes para este día.';
+            modalContent.appendChild(noReportP);
             adminActions.classList.add('hidden');
         }
         

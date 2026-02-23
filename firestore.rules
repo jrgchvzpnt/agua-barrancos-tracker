@@ -59,8 +59,8 @@ service cloud.firestore {
     match /ads/{adId} {
       allow read: if isPublicRead();
       allow write: if isAdmin() &&
-                      // Enforce strict data schema
-                      request.resource.data.keys().hasOnly(['name', 'imageUrls', 'linkUrl', 'createdAt']) &&
+                      // Enforce strict data schema, now including imageDescriptions
+                      request.resource.data.keys().hasOnly(['name', 'imageUrls', 'imageDescriptions', 'linkUrl', 'createdAt']) &&
                       // Validate field types and constraints
                       request.resource.data.name is string &&
                       request.resource.data.name.size() < 100 &&
@@ -68,6 +68,8 @@ service cloud.firestore {
                       request.resource.data.linkUrl.size() < 500 &&
                       request.resource.data.imageUrls is list &&
                       request.resource.data.imageUrls.size() < 10 && // Limit to 10 images
+                      request.resource.data.imageDescriptions is list &&
+                      request.resource.data.imageDescriptions.size() < 10 && // Match image count
                       request.resource.data.createdAt is timestamp;
     }
   }

@@ -107,7 +107,11 @@ window.openDayModal = function(dateKey) {
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content-body');
 
-    document.getElementById('modal-date').innerText = formatDatePretty(dateKey);
+    // Clear previous content
+    modalContent.innerHTML = '';
+    modalTitle.innerHTML = '';
+
+    document.getElementById('modal-date').textContent = formatDatePretty(dateKey);
     modalHeader.className = "p-4 flex justify-between items-center transition-colors duration-300";
 
     if (data) {
@@ -116,19 +120,35 @@ window.openDayModal = function(dateKey) {
         
         const estado = data.status || data.motivo || "Corte registrado";
         const detalle = data.notes || data.comentarios || "Sin comentarios";
-        const duracionHTML = data.duracion ? `<div><p class="text-xs text-slate-500 uppercase font-bold mt-3">Duración</p><p class="text-slate-800">${data.duracion}</p></div>` : '';
 
-        modalContent.innerHTML = `
-            <div>
-                <p class="text-xs text-slate-500 uppercase font-bold">Estado del Servicio</p>
-                <p class="text-slate-800 font-bold">${estado}</p>
-            </div>
-            ${duracionHTML}
-            <div class="mt-3">
-                <p class="text-xs text-slate-500 uppercase font-bold">Detalles / Notas</p>
-                <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1">${detalle}</p>
-            </div>
-        `;
+        // Safely create elements and assign text content
+        const estadoDiv = document.createElement('div');
+        estadoDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold">Estado del Servicio</p>`;
+        const estadoP = document.createElement('p');
+        estadoP.className = 'text-slate-800 font-bold';
+        estadoP.textContent = estado;
+        estadoDiv.appendChild(estadoP);
+        modalContent.appendChild(estadoDiv);
+
+        if (data.duracion) {
+            const duracionDiv = document.createElement('div');
+            duracionDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold mt-3">Duración</p>`;
+            const duracionP = document.createElement('p');
+            duracionP.className = 'text-slate-800';
+            duracionP.textContent = data.duracion;
+            duracionDiv.appendChild(duracionP);
+            modalContent.appendChild(duracionDiv);
+        }
+
+        const detalleDiv = document.createElement('div');
+        detalleDiv.className = 'mt-3';
+        detalleDiv.innerHTML = `<p class="text-xs text-slate-500 uppercase font-bold">Detalles / Notas</p>`;
+        const detalleP = document.createElement('p');
+        detalleP.className = 'text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1';
+        detalleP.textContent = detalle;
+        detalleDiv.appendChild(detalleP);
+        modalContent.appendChild(detalleDiv);
+
     } else {
         modalHeader.classList.add('bg-success-600');
         modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-white"></i> <span class="text-white">Servicio Normal</span></div>`;
@@ -264,6 +284,8 @@ function updateLatestReport() {
     const container = document.getElementById('latest-report-container');
     if (!container) return;
 
+    container.innerHTML = ''; // Clear previous content
+
     const reports = Object.entries(outages)
         .map(([date, data]) => ({ date, ...data }))
         .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
@@ -275,15 +297,31 @@ function updateLatestReport() {
         const estado = status || motivo || "Corte de agua reportado";
         const detalle = notes || comentarios || (duracion ? `Duración: ${duracion}` : "Sin detalles adicionales");
 
-        container.innerHTML = `
-            <div class="border-l-4 border-alert-500 pl-4 py-1">
-                <p class="text-xs text-slate-500 font-semibold uppercase mb-1">${formatDatePretty(date)}</p>
-                <p class="font-bold text-slate-800">${estado}</p>
-                <p class="text-sm text-slate-500 mt-1">${detalle}</p>
-            </div>
-        `;
+        // Safely create and append elements
+        const reportDiv = document.createElement('div');
+        reportDiv.className = 'border-l-4 border-alert-500 pl-4 py-1';
+
+        const dateP = document.createElement('p');
+        dateP.className = 'text-xs text-slate-500 font-semibold uppercase mb-1';
+        dateP.textContent = formatDatePretty(date);
+        reportDiv.appendChild(dateP);
+
+        const estadoP = document.createElement('p');
+        estadoP.className = 'font-bold text-slate-800';
+        estadoP.textContent = estado;
+        reportDiv.appendChild(estadoP);
+
+        const detalleP = document.createElement('p');
+        detalleP.className = 'text-sm text-slate-500 mt-1';
+        detalleP.textContent = detalle;
+        reportDiv.appendChild(detalleP);
+
+        container.appendChild(reportDiv);
     } else {
-        container.innerHTML = `<p class="text-sm text-slate-500 italic">No hay registros recientes.</p>`;
+        const noReportsP = document.createElement('p');
+        noReportsP.className = 'text-sm text-slate-500 italic';
+        noReportsP.textContent = 'No hay registros recientes.';
+        container.appendChild(noReportsP);
     }
 }
 
@@ -337,28 +375,41 @@ window.renderAdsPublic = function() {
     if (!bannerContainer) return;
     const ads = window.appState.ads || [];
 
+    bannerContainer.innerHTML = ''; // Clear previous content
+
     if (ads.length === 0) {
-        bannerContainer.innerHTML = `
-            <div class="col-span-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
-                <p class="text-slate-400 text-sm">Espacio para Patrocinadores</p>
-            </div>
-        `;
+        const placeholderDiv = document.createElement('div');
+        placeholderDiv.className = 'col-span-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center';
+        const placeholderP = document.createElement('p');
+        placeholderP.className = 'text-slate-400 text-sm';
+        placeholderP.textContent = 'Espacio para Patrocinadores';
+        placeholderDiv.appendChild(placeholderP);
+        bannerContainer.appendChild(placeholderDiv);
         return;
     }
 
-    bannerContainer.innerHTML = ''; 
     ads.forEach(ad => {
         const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
+        
+        // Safely create elements
         const adElement = document.createElement('div');
         adElement.className = 'group relative cursor-pointer';
         adElement.onclick = () => openSponsorModal(ad);
         
-        adElement.innerHTML = `
-            <div class="sponsor-logo-container transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1">
-                <img src="${imageUrl}" alt="${ad.name}">
-            </div>
-            <p class="text-xs text-center text-slate-500 mt-3 font-semibold truncate group-hover:text-water-600">${ad.name}</p>
-        `;
+        const logoContainer = document.createElement('div');
+        logoContainer.className = 'sponsor-logo-container transition-all duration-300 group-hover:shadow-lg group-hover:border-water-500 group-hover:-translate-y-1';
+        
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = ad.name; // Alt text is safe
+        logoContainer.appendChild(img);
+        
+        const nameP = document.createElement('p');
+        nameP.className = 'text-xs text-center text-slate-500 mt-3 font-semibold truncate group-hover:text-water-600';
+        nameP.textContent = ad.name;
+        
+        adElement.appendChild(logoContainer);
+        adElement.appendChild(nameP);
         bannerContainer.appendChild(adElement);
     });
 };

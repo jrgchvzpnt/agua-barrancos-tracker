@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Monitoreo en tiempo real del suministro de agua en el sector Barrancos, Culiacán. Consulta el calendario de cortes y estadísticas comunitarias.">
+    <meta name="keywords" content="Agua Barrancos, Culiacán, Corte de agua, JAPAC, Monitor H2O, Barrancos Culiacán">
+    <meta name="author" content="Monitor H2O">
+    <link rel="canonical" href="https://monitorbarrancos.com/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://monitorbarrancos.com/">
+    <meta property="og:title" content="Monitor H2O - Estado del Agua en Barrancos">
+    <meta property="og:description" content="Reporte ciudadano y calendario de suministro de agua para la comunidad de Barrancos.">
+    <meta property="og:image" content="https://monitorbarrancos.com/img/preview-image.jpg">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Monitor H2O - Barrancos">
+    <meta property="twitter:description" content="¿Hay agua hoy en Barrancos? Revisa el monitor ciudadano en tiempo real.">
+
     <title>Monitor H2O - Barrancos</title>
+    
+    <link rel="icon" type="image/png" href="favicon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,7 +125,7 @@
                                 <h3 class="text-2xl font-bold" id="status-text">...</h3>
                             </div>
                             <div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-white"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+                                <i data-lucide="droplet" class="w-6 h-6 text-white"></i>
                             </div>
                         </div>
                         <div class="mt-8 pt-6 border-t border-white/10">
@@ -205,25 +223,23 @@
              <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
                 <h2 class="text-2xl font-bold text-slate-900 mb-6 text-center">Contáctanos</h2>
                 <form id="contact-form" class="space-y-4">
-                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 p-3" placeholder="Nombre">
+                    <input type="text" name="name" required minlength="3" maxlength="100" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Nombre">
                     <input type="email" name="email" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Email">
                     <input type="tel" name="phone" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" title="El número de teléfono debe tener 10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <textarea name="message" required rows="4" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Mensaje..."></textarea>
+                    <textarea name="message" required minlength="10" maxlength="1000" rows="4" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Mensaje..."></textarea>
                     <p class="text-xs text-slate-500 text-center">Por favor, proporciona al menos un email o un teléfono.</p>
                     <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors">Enviar</button>
                 </form>
              </div>
         </div>
 
-        <!-- Banner de Anuncios -->
         <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 mt-12">
             <div class="text-center mb-8">
                 <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Nuestros Patrocinadores</h2>
                 <p class="text-slate-500 mt-2 text-sm sm:text-base">Empresas locales que apoyan nuestra comunidad.</p>
             </div>
             <div id="ads-banner-public" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 items-center">
-                <!-- Los anuncios se cargarán aquí -->
-            </div>
+                </div>
         </div>
     </main>
 
@@ -249,7 +265,6 @@
     <script src="script.js"></script>
     <script>lucide.createIcons();</script>
 
-    <!-- Sponsor Carousel Modal -->
     <dialog id="sponsor-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-full max-w-2xl open:animate-fade-in overflow-hidden">
         <div class="bg-white">
             <div class="p-4 flex justify-between items-center border-b">
@@ -260,8 +275,7 @@
                 <div id="sponsor-description" class="mb-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border"></div>
                 <div class="relative">
                     <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden" style="height: 400px;">
-                        <!-- Images will be loaded here -->
-                    </div>
+                        </div>
                     <button id="prev-btn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md"><i data-lucide="chevron-left"></i></button>
                     <button id="next-btn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md"><i data-lucide="chevron-right"></i></button>
                     <a id="sponsor-contact-link" href="#" target="_blank" class="absolute bottom-4 right-4 bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors shadow-lg" title="Contactar por WhatsApp">
