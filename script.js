@@ -227,17 +227,26 @@ const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = e.target.querySelector('input[type="text"]').value;
-        const phone = e.target.querySelector('input[type="email"]').value; 
-        const message = e.target.querySelector('textarea').value;
+        const formData = new FormData(e.target);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const phone = formData.get('phone');
+        const message = formData.get('message');
+        
+        if (!email && !phone) {
+            window.showToast("Debes proporcionar un email o un teléfono.", true);
+            return;
+        }
+
         const btn = e.target.querySelector('button');
         const originalText = btn.innerText;
-
         btn.disabled = true;
         btn.innerText = 'Enviando...';
 
         if (window.saveMessage) {
-            const result = await window.saveMessage(name, phone, message, new Date());
+            const contactInfo = email ? `Email: ${email}` : `Tel: ${phone}`;
+            const fullMessage = `${message}\n\nContacto: ${contactInfo}`;
+            const result = await window.saveMessage(name, contactInfo, message, new Date());
             if (result.success) {
                 window.showToast("¡Mensaje enviado con éxito!");
                 e.target.reset();

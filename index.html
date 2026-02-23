@@ -205,9 +205,11 @@
              <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
                 <h2 class="text-2xl font-bold text-slate-900 mb-6 text-center">Contáctanos</h2>
                 <form id="contact-form" class="space-y-4">
-                    <input type="text" required class="w-full rounded-lg border border-slate-300 p-3" placeholder="Nombre">
-                    <input type="email" required class="w-full rounded-lg border border-slate-300 p-3" placeholder="Email o Teléfono">
-                    <textarea required rows="4" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Mensaje..."></textarea>
+                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 p-3" placeholder="Nombre">
+                    <input type="email" name="email" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Email">
+                    <input type="tel" name="phone" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" title="El número de teléfono debe tener 10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <textarea name="message" required rows="4" class="w-full rounded-lg border border-slate-300 p-3" placeholder="Mensaje..."></textarea>
+                    <p class="text-xs text-slate-500 text-center">Por favor, proporciona al menos un email o un teléfono.</p>
                     <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors">Enviar</button>
                 </form>
              </div>

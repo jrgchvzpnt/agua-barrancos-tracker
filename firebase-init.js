@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
 const firebaseConfig = {
@@ -16,6 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const outagesCollection = collection(db, 'outages');
 const messagesCollection = collection(db, 'messages');
 const adsCollection = collection(db, 'ads');
@@ -210,4 +212,13 @@ window.deleteAdCloud = async function(id) {
     if (confirm("¿Seguro que quieres eliminar este anuncio?")) {
         await deleteDoc(doc(db, 'ads', id));
     }
+};
+
+window.uploadAdImages = async function(files) {
+    if (!window.appState.isAdmin) throw new Error("Permiso denegado.");
+    const uploadPromises = files.map(file => {
+        const storageRef = ref(storage, `ads/${Date.now()}-${file.name}`);
+        return uploadBytes(storageRef, file).then(snapshot => getDownloadURL(snapshot.ref));
+    });
+    return Promise.all(uploadPromises);
 };
