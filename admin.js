@@ -80,30 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA DE PUBLICIDAD (ADS) ---
     const adForm = document.getElementById('ad-form');
     const cancelEditAdBtn = document.getElementById('cancel-edit-ad');
-    const imageUploadInput = document.getElementById('ad-image-upload');
-    const imagePreviewContainer = document.getElementById('image-previews');
-    let uploadedFiles = [];
-
-    if (imageUploadInput) {
-        imageUploadInput.addEventListener('change', (e) => {
-            imagePreviewContainer.innerHTML = '';
-            uploadedFiles = Array.from(e.target.files);
-
-            uploadedFiles.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const previewElement = document.createElement('div');
-                    previewElement.className = 'relative border rounded-lg p-2';
-                    previewElement.innerHTML = `
-                        <img src="${event.target.result}" class="w-24 h-24 object-cover rounded-md">
-                        <textarea data-index="${index}" class="w-full mt-2 border rounded-md p-1 text-xs" placeholder="Descripción..."></textarea>
-                    `;
-                    imagePreviewContainer.appendChild(previewElement);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-    }
 
     window.renderAds = function() {
         const adsList = document.getElementById('ads-list');
@@ -136,31 +112,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = document.getElementById('ad-id').value;
         const name = document.getElementById('ad-name').value;
         const linkUrl = document.getElementById('ad-link').value;
+        const imageUrlsString = document.getElementById('ad-images').value;
+        const imageDescriptionsString = document.getElementById('ad-image-descriptions').value;
         const submitBtn = adForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerText;
 
+        if (!imageUrlsString || !name || !linkUrl) {
+            return alert("Por favor, completa todos los campos requeridos.");
+        }
+
         submitBtn.disabled = true;
-        submitBtn.innerText = 'Subiendo...';
+        submitBtn.innerText = 'Guardando...';
 
         try {
-            let imageUrls = [];
-            let imageDescriptions = [];
-
-            if (uploadedFiles.length > 0) {
-                imageUrls = await window.uploadAdImages(uploadedFiles);
-                const descriptionElements = imagePreviewContainer.querySelectorAll('textarea');
-                imageDescriptions = Array.from(descriptionElements).map(el => el.value);
-            } else if (id) {
-                // Editing without changing images
-                const existingAd = window.appState.ads.find(a => a.id === id);
-                imageUrls = existingAd.imageUrls;
-                // This part is tricky without a way to edit existing descriptions easily.
-                // For now, we assume descriptions are not editable without re-uploading.
-                imageDescriptions = existingAd.imageDescriptions || [];
-            }
+            const imageUrls = imageUrlsString.split('\n').map(url => url.trim()).filter(url => url);
+            const imageDescriptions = imageDescriptionsString.split('\n').map(desc => desc.trim());
 
             if (imageUrls.length === 0) {
-                alert("Por favor, selecciona al menos una imagen.");
+                alert("Por favor, ingresa al menos una URL de imagen.");
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalBtnText;
                 return;
@@ -170,9 +139,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (success) {
                 alert("✅ Anuncio guardado.");
                 adForm.reset();
-                imagePreviewContainer.innerHTML = '';
-                uploadedFiles = [];
+                document.getElementById('ad-id').value = '';
                 cancelEditAdBtn.classList.add('hidden');
+                submitBtn.innerText = '+ Agregar Publicidad';
+            } else {
+                alert("❌ Hubo un error al guardar el anuncio.");
             }
         } catch (error) {
             console.error("Error saving ad:", error);
@@ -190,32 +161,20 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('ad-id').value = ad.id;
         document.getElementById('ad-name').value = ad.name;
         document.getElementById('ad-link').value = ad.linkUrl;
-        
-        imagePreviewContainer.innerHTML = '';
-        uploadedFiles = [];
-        
-        if (ad.imageUrls && ad.imageUrls.length > 0) {
-            ad.imageUrls.forEach((url, index) => {
-                const description = (ad.imageDescriptions && ad.imageDescriptions[index]) ? ad.imageDescriptions[index] : '';
-                const previewElement = document.createElement('div');
-                previewElement.className = 'relative border rounded-lg p-2';
-                previewElement.innerHTML = `
-                    <img src="${url}" class="w-24 h-24 object-cover rounded-md">
-                    <p class="mt-2 text-xs text-gray-600 break-all"><strong>Actual:</strong> ${description || 'Sin descripción'}</p>
-                `;
-                imagePreviewContainer.appendChild(previewElement);
-            });
-        }
+        document.getElementById('ad-images').value = ad.imageUrls ? ad.imageUrls.join('\n') : '';
+        document.getElementById('ad-image-descriptions').value = ad.imageDescriptions ? ad.imageDescriptions.join('\n') : '';
 
+        adForm.querySelector('button[type="submit"]').innerText = 'Actualizar Publicidad';
         cancelEditAdBtn.classList.remove('hidden');
+        switchView('sponsors');
         window.scrollTo(0, 0);
     };
 
     cancelEditAdBtn.addEventListener('click', () => {
         adForm.reset();
-        imagePreviewContainer.innerHTML = '';
-        uploadedFiles = [];
+        document.getElementById('ad-id').value = '';
         cancelEditAdBtn.classList.add('hidden');
+        adForm.querySelector('button[type="submit"]').innerText = '+ Agregar Publicidad';
     });
 
     // --- LÓGICA DE MENSAJES ---
