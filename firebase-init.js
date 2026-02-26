@@ -332,11 +332,11 @@ function syncMessages() {
     });
 }
 
-window.saveMessage = async function(name, phone, message) {
+window.saveMessage = async function(name, email, phone, message) {
     try {
         const timestamp = new Date().toISOString();
         const docId = `${timestamp}-${name.replace(/\s+/g, '')}`;
-        await setDoc(doc(db, 'messages', docId), { name, phone, message, createdAt: timestamp, read: false });
+        await setDoc(doc(db, 'messages', docId), { name, email, phone, message, createdAt: timestamp, read: false });
         return { success: true };
     } catch (error) {
         // Do not log detailed error to console in production

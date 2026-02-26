@@ -269,7 +269,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const contactP = document.createElement('p');
             contactP.className = 'text-xs text-gray-500 mb-2';
-            contactP.textContent = `📞 ${msg.phone || 'N/A'} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}`;
+            contactP.innerHTML = `
+                📞 ${msg.phone || 'N/A'} | 
+                📧 ${msg.email || 'N/A'} • 
+                🗓️ ${new Date(msg.createdAt).toLocaleDateString()}
+            `;
             msgDiv.appendChild(contactP);
 
             const messageP = document.createElement('p');

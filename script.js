@@ -221,16 +221,14 @@ window.calculateStats = function() {
         }
     }
 
-    let streak = 0;
-    let checkDate = new Date();
-    for(let i = 0; i < 365; i++) {
-         const k = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2,'0')}-${String(checkDate.getDate()).padStart(2,'0')}`;
-         if(outages[k]) break;
-         streak++;
-         checkDate.setDate(checkDate.getDate() - 1);
-    }
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const daysInCurrentMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const outagesThisMonth = monthCounts[currentMonth];
+    const daysWithWater = daysInCurrentMonth - outagesThisMonth;
+    
     const elStreak = document.getElementById('stat-streak');
-    if (elStreak) elStreak.innerText = streak;
+    if (elStreak) elStreak.innerText = daysWithWater;
 
     const chartContainer = document.getElementById('chart-container');
     if (!chartContainer) return;
@@ -243,7 +241,7 @@ window.calculateStats = function() {
         barWrapper.className = 'w-full flex flex-col justify-end items-center h-full relative';
         
         const bar = document.createElement('div');
-        bar.className = 'w-full bg-water-100 group-hover:bg-water-500 transition-colors rounded-t-md';
+        bar.className = 'w-full chart-bar';
         bar.style.height = count > 0 ? `${Math.max(percent, 5)}%` : '4px';
         
         if(count > 0) {
@@ -289,8 +287,7 @@ if (contactForm) {
         btn.innerText = 'Enviando...';
 
         if (window.saveMessage) {
-            const contactInfo = phone || email;
-            const result = await window.saveMessage(name, contactInfo, message);
+            const result = await window.saveMessage(name, email, phone, message);
             
             if (result.success) {
                 window.showToast("¡Mensaje enviado con éxito!");
