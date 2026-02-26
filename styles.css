@@ -121,3 +121,13 @@ dialog.open\:animate-fade-in {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
 }
+
+/* --- LOADING OVERLAY --- */
+#loading-overlay {
+    transition: opacity 0.5s ease-out;
+}
+
+#loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}

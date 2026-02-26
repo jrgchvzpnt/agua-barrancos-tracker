@@ -283,6 +283,14 @@ async function syncOutages() {
         saveToCache('outagesCache', outagesData, remoteTimestamp);
         
         if (typeof window.renderCalendar === 'function') window.renderCalendar();
+
+        // Ocultar el overlay de carga después de la primera carga de datos
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay && !loadingOverlay.classList.contains('hidden')) {
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+            }, 500); // Un pequeño retraso para una transición más suave
+        }
         
         if (statusIndicator) {
             statusIndicator.classList.remove('bg-yellow-400', 'bg-red-500');

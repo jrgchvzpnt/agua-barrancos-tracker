@@ -42,6 +42,11 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center">
+        <div class="loader"></div>
+        <p class="text-slate-500 mt-4">Cargando información...</p>
+    </div>
+
     <header class="glass-header sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
