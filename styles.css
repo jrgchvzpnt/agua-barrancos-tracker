@@ -65,11 +65,11 @@ body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     background-color: white;
     border: 1px solid #e2e8f0; /* slate-200 */
     border-radius: 1rem; /* rounded-2xl */
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 2;
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 }
