@@ -422,13 +422,16 @@ window.renderAdsPublic = function() {
     ads.forEach(ad => {
         const imageUrl = Array.isArray(ad.imageUrls) && ad.imageUrls.length > 0 ? ad.imageUrls[0] : ad.imageUrl || 'https://via.placeholder.com/150';
         
+        const card = document.createElement('div');
+        card.className = 'sponsor-card';
+        card.onclick = () => openSponsorModal(ad);
+
         const img = document.createElement('img');
         img.src = imageUrl;
         img.alt = ad.name;
-        img.className = 'sponsor-logo';
-        img.onclick = () => openSponsorModal(ad);
         
-        bannerContainer.appendChild(img);
+        card.appendChild(img);
+        bannerContainer.appendChild(card);
     });
 };
 
@@ -455,9 +458,10 @@ function openSponsorModal(ad) {
 
 function updateCarousel() {
     const carousel = document.getElementById('sponsor-carousel');
-    const descriptionEl = document.getElementById('sponsor-description');
+    const descriptionContainer = document.getElementById('sponsor-description');
+    const descriptionTextEl = document.getElementById('sponsor-description-text');
 
-    if (carousel && descriptionEl) {
+    if (carousel && descriptionContainer && descriptionTextEl) {
         carousel.innerHTML = ''; // Clear previous image
         const img = document.createElement('img');
         img.src = currentSponsor.imageUrls[currentImageIndex];
@@ -468,10 +472,15 @@ function updateCarousel() {
         const description = descriptions[currentImageIndex];
 
         if (description) {
-            descriptionEl.innerText = description;
-            descriptionEl.classList.remove('hidden');
+            descriptionTextEl.textContent = description;
+            descriptionContainer.classList.remove('hidden');
         } else {
-            descriptionEl.classList.add('hidden');
+            descriptionContainer.classList.add('hidden');
+        }
+        
+        // Ensure icons are always rendered if they exist in the new structure
+        if (window.lucide) {
+            window.lucide.createIcons();
         }
     }
 }

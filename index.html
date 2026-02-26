@@ -137,16 +137,37 @@
                          <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Último Reporte</h4>
                          <div id="latest-report-container"><p class="text-sm text-slate-500 italic">Cargando datos...</p></div>
                     </div>
-                    <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
-                        <h5 class="font-bold text-slate-700">¿Quieres publicar tu empresa aquí?</h5>
-                        <p class="text-sm text-slate-500 mt-1">Llega a la comunidad local. Entra al <button onclick="router('contact')" class="font-semibold text-water-600 hover:underline">apartado de contacto</button> y envíanos un mensaje.</p>
-                    </div>
-                    <div class="bg-white rounded-2xl shadow-[0_4px_14px_rgba(0,0,0,0.05)] border border-slate-200 p-6">
-                         <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Nuestros Patrocinadores</h4>
-                         <div id="ads-banner-public" class="grid grid-cols-2 gap-4 items-center">
-                         </div>
-                    </div>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-8">
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+                    <h5 class="font-bold text-amber-800 text-sm mb-2 flex items-center"><span class="w-2 h-2 rounded-full bg-amber-400 mr-2"></span>TIP DE SUPERVIVENCIA</h5>
+                    <p class="text-amber-700 text-sm leading-relaxed">Revisa tu flotador del tinaco. Muchas fugas en Barrancos empiezan ahí y bajan la presión de toda la calle.</p>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+                    <h5 class="font-bold text-blue-800 text-sm mb-2 flex items-center"><span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>AVISO COMUNITARIO</h5>
+                    <p class="text-blue-700 text-sm leading-relaxed">Este monitor se alimenta de reportes ciudadanos verificados y datos oficiales de JAPAC.</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-600 text-white rounded-3xl p-8 sm:p-12 my-12 text-center overflow-hidden relative">
+                <div class="absolute -top-4 -left-10 text-blue-700/50">
+                    <svg width="160" height="160" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 3L4 14H11L11 21L20 10H13L13 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="relative z-10">
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3">¿Quieres anunciar tu negocio aquí?</h2>
+                    <p class="text-blue-200 max-w-2xl mx-auto mb-6">Llega a miles de vecinos en el sector Barrancos que consultan este monitor diariamente.</p>
+                    <button onclick="router('contact')" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-xl hover:bg-blue-50 transition-all transform hover:scale-105">
+                        Contáctanos ahora <i data-lucide="arrow-up-right" class="inline-block w-4 h-4 -mb-0.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center my-12">
+                <h3 class="text-base font-bold text-slate-500 uppercase tracking-widest">Nuestros Patrocinadores Aliados</h3>
+            </div>
+            <div id="ads-banner-public" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-center">
             </div>
         </div>
 
@@ -276,7 +297,10 @@
                 <button onclick="document.getElementById('sponsor-modal').close()" class="text-slate-500 hover:bg-slate-100 rounded-full p-1 transition-colors" aria-label="Cerrar modal de patrocinador"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6">
-                <div id="sponsor-description" class="mb-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border"></div>
+                <div id="sponsor-description" class="mb-6 text-sm text-blue-800 bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                    <span id="sponsor-description-text"></span>
+                </div>
                 <div class="relative">
                     <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden" style="height: 400px;">
                         </div>
