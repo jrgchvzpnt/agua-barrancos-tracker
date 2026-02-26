@@ -62,6 +62,11 @@ onAuthStateChanged(auth, async (user) => {
             // User is a verified admin
             window.appState.user = user;
             window.appState.isAdmin = true;
+
+            // Make the body visible only for admins on the admin page
+            if (path.includes('admin.html')) {
+                document.body.style.display = 'flex';
+            }
             
             if (path.includes('login.html')) {
                 window.location.href = 'admin.html';
@@ -72,6 +77,7 @@ onAuthStateChanged(auth, async (user) => {
                 syncOutages();
                 syncMessages();
                 syncAds();
+                setupAdminSessionTimeout(); // <-- INICIAR EL TEMPORIZADOR DE SESIÓN
             }
         } else {
             // User is authenticated but NOT an admin. Force sign out.
@@ -127,6 +133,27 @@ window.signOutUser = async function() {
     } catch (error) {
         // Do not log detailed error to console in production
     }
+}
+
+// --- LÓGICA DE TIEMPO DE ESPERA DE SESIÓN PARA ADMINS ---
+function setupAdminSessionTimeout() {
+    let sessionTimeout;
+
+    const resetSessionTimeout = () => {
+        clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+            alert("Tu sesión ha expirado por inactividad. Por favor, inicia sesión de nuevo.");
+            window.signOutUser(); // Llama a la función de cierre de sesión global
+        }, 1 * 60 * 1000); // 1 minuto
+    };
+
+    // Escuchar eventos de actividad para reiniciar el temporizador
+    ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        window.addEventListener(event, resetSessionTimeout);
+    });
+
+    // Iniciar el temporizador por primera vez
+    resetSessionTimeout();
 }
 
 // --- LÓGICA DE ANALYTICS ---

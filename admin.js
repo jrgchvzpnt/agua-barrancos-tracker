@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
     // --- NAVEGACIÓN DEL SIDEBAR ---
     const navLinks = {
         outages: document.getElementById('nav-outages'),
