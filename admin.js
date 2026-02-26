@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navLinks = {
         outages: document.getElementById('nav-outages'),
         sponsors: document.getElementById('nav-sponsors'),
+        notices: document.getElementById('nav-notices'),
         calendar: document.getElementById('nav-calendar'),
         messages: document.getElementById('nav-messages'),
         stats: document.getElementById('nav-stats'),
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sections = {
         outages: document.getElementById('section-outages'),
         sponsors: document.getElementById('section-sponsors'),
+        notices: document.getElementById('section-notices'),
         calendar: document.getElementById('section-calendar'),
         messages: document.getElementById('section-messages'),
         stats: document.getElementById('section-stats'),
@@ -26,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navLinks.outages.addEventListener('click', (e) => { e.preventDefault(); switchView('outages'); });
     navLinks.sponsors.addEventListener('click', (e) => { e.preventDefault(); switchView('sponsors'); });
+    navLinks.notices.addEventListener('click', (e) => { e.preventDefault(); switchView('notices'); });
     navLinks.calendar.addEventListener('click', (e) => { e.preventDefault(); switchView('calendar'); });
     navLinks.messages.addEventListener('click', (e) => { e.preventDefault(); switchView('messages'); });
     navLinks.stats.addEventListener('click', (e) => { 
@@ -236,6 +239,96 @@ document.addEventListener("DOMContentLoaded", () => {
         adForm.querySelector('button[type="submit"]').innerText = '+ Agregar Publicidad';
     });
 
+    // --- LÓGICA DE AVISOS ---
+    const noticeForm = document.getElementById('notice-form');
+    const cancelEditNoticeBtn = document.getElementById('cancel-edit-notice');
+
+    window.renderNotices = function() {
+        const noticesList = document.getElementById('notices-list');
+        if (!noticesList) return;
+        const notices = window.appState.notices || [];
+        
+        noticesList.innerHTML = '';
+
+        if (notices.length === 0) {
+            noticesList.innerHTML = '<p class="text-gray-500 text-sm italic">No hay avisos activos.</p>';
+            return;
+        }
+
+        notices.forEach(notice => {
+            const noticeItem = document.createElement('div');
+            const typeText = notice.type === 'community' ? 'Aviso' : 'Tip';
+            const typeColor = notice.type === 'community' ? 'blue' : 'amber';
+            
+            noticeItem.className = `flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-${typeColor}-200`;
+            noticeItem.innerHTML = `
+                <div class="overflow-hidden">
+                    <p class="font-bold text-sm truncate text-${typeColor}-800">${typeText}</p>
+                    <p class="text-xs text-gray-600 truncate">${notice.content}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="text-blue-500" onclick="editNotice('${notice.id}')">Editar</button>
+                    <button class="text-red-500" onclick="window.deleteNoticeCloud('${notice.id}')">X</button>
+                </div>
+            `;
+            noticesList.appendChild(noticeItem);
+        });
+    };
+
+    noticeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('notice-id').value;
+        const type = document.getElementById('notice-type').value;
+        const content = document.getElementById('notice-content').value;
+        const submitBtn = noticeForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+
+        if (!content) return alert("Por favor, escribe el contenido del aviso.");
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Guardando...';
+
+        try {
+            const success = await window.saveNoticeCloud(id, { type, content, createdAt: new Date() });
+            if (success) {
+                alert("✅ Aviso guardado.");
+                noticeForm.reset();
+                document.getElementById('notice-id').value = '';
+                cancelEditNoticeBtn.classList.add('hidden');
+                submitBtn.innerText = '+ Agregar Aviso';
+            } else {
+                alert("❌ Hubo un error al guardar el aviso.");
+            }
+        } catch (error) {
+            console.error("Error saving notice:", error);
+            alert("❌ Hubo un error al guardar el aviso.");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalBtnText;
+        }
+    });
+
+    window.editNotice = (id) => {
+        const notice = window.appState.notices.find(n => n.id === id);
+        if (!notice) return;
+
+        document.getElementById('notice-id').value = notice.id;
+        document.getElementById('notice-type').value = notice.type;
+        document.getElementById('notice-content').value = notice.content;
+
+        noticeForm.querySelector('button[type="submit"]').innerText = 'Actualizar Aviso';
+        cancelEditNoticeBtn.classList.remove('hidden');
+        switchView('notices');
+        window.scrollTo(0, 0);
+    };
+
+    cancelEditNoticeBtn.addEventListener('click', () => {
+        noticeForm.reset();
+        document.getElementById('notice-id').value = '';
+        cancelEditNoticeBtn.classList.add('hidden');
+        noticeForm.querySelector('button[type="submit"]').innerText = '+ Agregar Aviso';
+    });
+
     // --- LÓGICA DE MENSAJES ---
     window.renderMessages = function() {
         const msgList = document.getElementById('messages-list');
@@ -402,6 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Mantenemos esto para renderizar ads y mensajes que tienen su propia sincronización.
         window.renderAds();
         window.renderMessages();
+        window.renderNotices();
     }, 1000);
 
     // --- LÓGICA DE ESTADÍSTICAS ---

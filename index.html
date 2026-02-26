@@ -151,15 +151,8 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-8">
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-                    <h5 class="font-bold text-amber-800 text-sm mb-2 flex items-center"><span class="w-2 h-2 rounded-full bg-amber-400 mr-2"></span>TIP DE SUPERVIVENCIA</h5>
-                    <p class="text-amber-700 text-sm leading-relaxed">Revisa el flotador de tu tinaco. Muchas fugas en la zona empiezan ahí y bajan la presión de toda la calle</p>
-                </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-                    <h5 class="font-bold text-blue-800 text-sm mb-2 flex items-center"><span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span>AVISO COMUNITARIO</h5>
-                    <p class="text-blue-700 text-sm leading-relaxed">Este monitor se alimenta de reportes ciudadanos verificados y datos oficiales de JAPAC.</p>
-                </div>
+            <div id="notices-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-8">
+                <!-- Notices will be dynamically inserted here -->
             </div>
 
             <div class="bg-blue-600 text-white rounded-3xl p-8 sm:p-12 my-12 text-center overflow-hidden relative">
@@ -194,28 +187,28 @@
                  <p class="text-slate-500">Datos sincronizados en tiempo real.</p>
              </div>
              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600">
+                <div class="stat-card bg-gradient-to-br from-blue-400 to-blue-500">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-blue-100 uppercase tracking-wide">Total Año Actual</p>
                         <i data-lucide="calendar" class="w-6 h-6 text-blue-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-year-total">0</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-red-500 to-red-600">
+                <div class="stat-card bg-gradient-to-br from-red-400 to-red-500">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-red-100 uppercase tracking-wide">Peor Mes</p>
                         <i data-lucide="alert-triangle" class="w-6 h-6 text-red-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-worst-month">-</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600">
+                <div class="stat-card bg-gradient-to-br from-purple-400 to-purple-500">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-purple-100 uppercase tracking-wide">Promedio Cortes/Mes</p>
                         <i data-lucide="bar-chart-2" class="w-6 h-6 text-purple-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-average">0</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-green-500 to-green-600">
+                <div class="stat-card bg-gradient-to-br from-green-400 to-green-500">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-green-100 uppercase tracking-wide">Días con agua (Mes Actual)</p>
                         <i data-lucide="droplets" class="w-6 h-6 text-green-200"></i>
@@ -295,25 +288,25 @@
         <div id="view-contact" class="view-section hidden fade-in">
             <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden max-w-5xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <div class="bg-slate-900 text-white p-8 md:p-12">
+                    <div class="bg-water-900 text-white p-8 md:p-12">
                         <h2 class="text-3xl font-bold mb-4">¿Quieres anunciarte con nosotros?</h2>
-                        <p class="text-slate-300 mb-8">Estamos aquí para ayudarte a crecer.</p>
+                        <p class="text-slate-200 mb-8">Estamos aquí para ayudarte a crecer.</p>
                         
                         <h3 class="text-3xl font-bold mb-4 mt-12">¿Reporte ciudadano?</h3>
-                        <p class="text-slate-300 mb-8">Si tienes un reporte sobre el servicio de agua, por favor envíalo aquí.</p>
+                        <p class="text-slate-200 mb-8">Si tienes un reporte sobre el servicio de agua, por favor envíalo aquí.</p>
 
                         <div class="space-y-6 mt-12">
                             <div class="flex items-start gap-4">
-                                <i data-lucide="map-pin" class="w-6 h-6 text-slate-400 mt-1"></i>
+                                <i data-lucide="map-pin" class="w-6 h-6 text-slate-300 mt-1"></i>
                                 <div>
-                                    <p class="text-sm text-slate-400 uppercase">Ubicación</p>
+                                    <p class="text-sm text-slate-300 uppercase">Ubicación</p>
                                     <p class="font-semibold">Culiacán, Sinaloa, México</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="border-t border-slate-700 mt-12 pt-8">
-                            <p class="text-center text-slate-400 mb-4">Próximamente en redes sociales:</p>
+                        <div class="border-t border-water-600 mt-12 pt-8">
+                            <p class="text-center text-slate-300 mb-4">Próximamente en redes sociales:</p>
                             <div class="flex justify-center gap-6">
                                 <a href="#" class="social-icon instagram"><i data-lucide="instagram"></i></a>
                                 <a href="#" class="social-icon facebook"><i data-lucide="facebook"></i></a>

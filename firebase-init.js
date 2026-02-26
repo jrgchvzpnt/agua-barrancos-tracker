@@ -38,6 +38,7 @@ window.collection = collection;
 const outagesCollection = collection(db, 'outages');
 const messagesCollection = collection(db, 'messages');
 const adsCollection = collection(db, 'ads');
+const noticesCollection = collection(db, 'notices');
 
 // --- ESTADO GLOBAL ---
 window.appState = {
@@ -45,7 +46,8 @@ window.appState = {
     isAdmin: false,
     user: null,
     ads: [],
-    messages: []
+    messages: [],
+    notices: []
 };
 
 // --- LÓGICA DE AUTENTICACIÓN ---
@@ -77,6 +79,7 @@ onAuthStateChanged(auth, async (user) => {
                 syncOutages();
                 syncMessages();
                 syncAds();
+                syncNotices();
                 setupAdminSessionTimeout(); // <-- INICIAR EL TEMPORIZADOR DE SESIÓN
             }
         } else {
@@ -100,6 +103,7 @@ onAuthStateChanged(auth, async (user) => {
     if (isPublicPage) {
         syncOutages();
         syncAds();
+        syncNotices();
         trackVisit(); // <-- Llamada a la función de tracking
 
         if (!user) { // Solo intentar login anónimo si no hay ningún usuario
@@ -144,7 +148,7 @@ function setupAdminSessionTimeout() {
         sessionTimeout = setTimeout(() => {
             alert("Tu sesión ha expirado por inactividad. Por favor, inicia sesión de nuevo.");
             window.signOutUser(); // Llama a la función de cierre de sesión global
-        }, 1 * 60 * 1000); // 1 minuto
+        }, 5 * 60 * 1000); // 5 minutos
     };
 
     // Escuchar eventos de actividad para reiniciar el temporizador
@@ -401,6 +405,42 @@ window.deleteAdCloud = async function(id) {
         await window.touchDataVersion();
     }
 };
+
+// --- LÓGICA DE AVISOS (NOTICES) ---
+async function syncNotices() {
+    onSnapshot(noticesCollection, (snapshot) => {
+        const noticesData = [];
+        snapshot.forEach(doc => {
+            noticesData.push({ id: doc.id, ...doc.data() });
+        });
+        window.appState.notices = noticesData.sort((a, b) => new Date(b.createdAt.seconds * 1000) - new Date(a.createdAt.seconds * 1000));
+        
+        if (typeof window.renderNotices === 'function') window.renderNotices();
+        if (typeof window.renderNoticesPublic === 'function') window.renderNoticesPublic();
+    });
+}
+
+window.saveNoticeCloud = async function(id, data) {
+    if (!window.appState.isAdmin) return false;
+    try {
+        const docId = id || `${Date.now()}`;
+        await setDoc(doc(db, 'notices', docId), data, { merge: true });
+        await window.touchDataVersion();
+        return true;
+    } catch (error) {
+        console.error("Error saving notice:", error);
+        return false;
+    }
+};
+
+window.deleteNoticeCloud = async function(id) {
+    if (!window.appState.isAdmin) return;
+    if (confirm("¿Seguro que quieres eliminar este aviso?")) {
+        await deleteDoc(doc(db, 'notices', id));
+        await window.touchDataVersion();
+    }
+};
+
 
 window.uploadAdImages = async function(files) {
     if (!window.appState.isAdmin) throw new Error("Permiso denegado.");

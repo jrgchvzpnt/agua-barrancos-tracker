@@ -73,6 +73,20 @@ service cloud.firestore {
                       request.resource.data.createdAt is timestamp;
     }
 
+    // Notices Collection: Secured
+    match /notices/{noticeId} {
+      allow read: if isPublicRead();
+      allow write: if isAdmin() &&
+                      // Enforce strict data schema
+                      request.resource.data.keys().hasOnly(['type', 'content', 'createdAt']) &&
+                      // Validate field types and constraints
+                      request.resource.data.type is string &&
+                      (request.resource.data.type == 'community' || request.resource.data.type == 'survival') &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() > 1 && request.resource.data.content.size() < 1000 &&
+                      request.resource.data.createdAt is timestamp;
+    }
+
     // Analytics Collection: Secured
     match /analytics/{docId} {
       allow read: if isAdmin();

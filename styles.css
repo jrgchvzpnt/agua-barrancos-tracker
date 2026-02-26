@@ -96,8 +96,8 @@ dialog.open\:animate-fade-in {
     display: inline-block;
     padding: 0.75rem;
     border-radius: 9999px;
-    background-color: #334155; /* slate-700 */
-    color: #94a3b8; /* slate-400 */
+    background-color: #0d5f8a; /* A lighter shade of water-900 */
+    color: #e0f2fe; /* water-100 for better contrast */
     transition: all 0.2s ease-in-out;
 }
 .social-icon:hover {
