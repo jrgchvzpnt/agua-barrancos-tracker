@@ -286,19 +286,39 @@ if (contactForm) {
         btn.disabled = true;
         btn.innerText = 'Enviando...';
 
-        if (window.saveMessage) {
-            const result = await window.saveMessage(name, email, phone, message);
+        try {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzRNnuOm0vEs80fDPoH_etXwquhDYbZrz2vopw8Kos0Dj_UoztilrjZ8p8_csCOL0FXRw/exec';
             
-            if (result.success) {
+            const data = new FormData();
+            data.append('nombre', name || '');
+            data.append('correo', email || '');
+            data.append('telefono', phone || '');
+            data.append('descripcion', message || '');
+            
+            // Format date as DD/MM/YYYY HH:MM:SS
+            const now = new Date();
+            const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            data.append('fecha', formattedDate);
+
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                body: data
+            });
+
+            if (response.ok) {
                 window.showToast("¡Mensaje enviado con éxito!");
                 localStorage.setItem('lastMessageTimestamp', new Date().getTime());
                 e.target.reset();
             } else {
                 window.showToast("Error al enviar el mensaje.", true);
             }
+        } catch (error) {
+            console.error('Error!', error.message);
+            window.showToast("Error al enviar el mensaje.", true);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
-        btn.disabled = false;
-        btn.innerText = originalText;
     });
 }
 

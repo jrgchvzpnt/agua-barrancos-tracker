@@ -34,11 +34,9 @@ service cloud.firestore {
                       // Validate field types and constraints
                       request.resource.data.status is string &&
                       request.resource.data.status.size() < 100 &&
-                      request.resource.data.notes is string &&
-                      request.resource.data.notes.size() < 500 &&
-                      request.resource.data.duracion is string &&
-                      request.resource.data.duracion.size() < 50 &&
-                      request.resource.data.timestamp is timestamp; // Use proper timestamp
+                      (!('notes' in request.resource.data) || (request.resource.data.notes is string && request.resource.data.notes.size() < 500)) &&
+                      (!('duracion' in request.resource.data) || (request.resource.data.duracion is string && request.resource.data.duracion.size() < 50)) &&
+                      (!('timestamp' in request.resource.data) || request.resource.data.timestamp is string || request.resource.data.timestamp is timestamp);
     }
 
     // Messages Collection: Secured
