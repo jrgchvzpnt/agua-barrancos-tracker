@@ -287,7 +287,7 @@ if (contactForm) {
         btn.innerText = 'Enviando...';
 
         try {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzRNnuOm0vEs80fDPoH_etXwquhDYbZrz2vopw8Kos0Dj_UoztilrjZ8p8_csCOL0FXRw/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbw4YpUuxulX30Ib2e9e1P23BK9O4WbKIvW0jLh_5rXR9XsGLhcyNm9tib5Yb69_AqfSvQ/exec';
             
             const data = new FormData();
             data.append('nombre', name || '');
