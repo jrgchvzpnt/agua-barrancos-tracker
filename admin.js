@@ -390,6 +390,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentDate = new Date();
     window.selectedDateKey = null;
 
+    window.changeAdminMonth = function(delta) {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        window.renderCalendar();
+    };
+
     // Renombrado a renderCalendar y expuesto globalmente para ser llamado desde firebase-init.js
     window.renderCalendar = function() {
         const grid = document.getElementById('calendar-grid');
@@ -399,6 +404,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         
+        const titleEl = document.getElementById('admin-calendar-title');
+        if (titleEl) {
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            titleEl.textContent = `${monthNames[month]} ${year}`;
+        }
+        
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayIndex = new Date(year, month, 1).getDay();
         
@@ -407,10 +418,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const outages = window.appState ? window.appState.outages : {};
+        const pendingReports = window.appState ? window.appState.pendingReports : {};
 
         for (let day = 1; day <= daysInMonth; day++) {
             const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const hasOutage = outages[dateKey];
+            const hasPending = pendingReports[dateKey];
             
             const cell = document.createElement('div');
             cell.className = 'text-center py-2 border rounded-lg cursor-pointer';
@@ -418,7 +431,13 @@ document.addEventListener("DOMContentLoaded", () => {
             cell.onclick = () => openAdminDayModal(dateKey);
 
             if (hasOutage) {
-                cell.classList.add('bg-red-500', 'text-white');
+                if (hasOutage.status === 'Reporte ciudadano') {
+                    cell.classList.add('bg-yellow-500', 'text-white');
+                } else {
+                    cell.classList.add('bg-red-500', 'text-white');
+                }
+            } else if (hasPending) {
+                cell.classList.add('bg-orange-400', 'text-white');
             } else {
                 cell.classList.add('bg-gray-100');
             }
@@ -429,7 +448,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function openAdminDayModal(dateKey) {
         window.selectedDateKey = dateKey;
         const outages = window.appState ? window.appState.outages : {};
+        const pendingReports = window.appState ? window.appState.pendingReports : {};
         const data = outages[dateKey];
+        const pendingData = pendingReports[dateKey];
         
         const modal = document.getElementById('day-modal');
         const modalHeader = document.getElementById('modal-header');
@@ -442,8 +463,13 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('modal-date').textContent = dateKey;
 
         if (data) {
-            modalHeader.className = 'p-4 flex justify-between items-center bg-red-600';
-            modalTitle.textContent = 'Reporte de Corte';
+            if (data.status === 'Reporte ciudadano') {
+                modalHeader.className = 'p-4 flex justify-between items-center bg-yellow-500';
+                modalTitle.textContent = 'Reporte Ciudadano';
+            } else {
+                modalHeader.className = 'p-4 flex justify-between items-center bg-red-600';
+                modalTitle.textContent = 'Reporte de Corte';
+            }
             
             const statusP = document.createElement('p');
             statusP.innerHTML = '<strong>Estado:</strong> ';
@@ -454,6 +480,15 @@ document.addEventListener("DOMContentLoaded", () => {
             notesP.innerHTML = '<strong>Notas:</strong> ';
             notesP.appendChild(document.createTextNode(data.notes || 'N/A'));
             modalContent.appendChild(notesP);
+
+            adminActions.classList.remove('hidden');
+        } else if (pendingData) {
+            modalHeader.className = 'p-4 flex justify-between items-center bg-orange-500';
+            modalTitle.textContent = 'Reporte Pendiente';
+            
+            const statusP = document.createElement('p');
+            statusP.innerHTML = '<strong>Estado:</strong> Pendiente de revisión';
+            modalContent.appendChild(statusP);
 
             adminActions.classList.remove('hidden');
         } else {
@@ -471,7 +506,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.handleDeleteOutage = async function() {
         if (!window.selectedDateKey) return;
         if (confirm(`¿Seguro que quieres eliminar el registro para ${window.selectedDateKey}?`)) {
-            await window.deleteOutageCloud(window.selectedDateKey);
+            const outages = window.appState ? window.appState.outages : {};
+            const pendingReports = window.appState ? window.appState.pendingReports : {};
+            
+            if (outages[window.selectedDateKey]) {
+                await window.deleteOutageCloud(window.selectedDateKey);
+            } else if (pendingReports[window.selectedDateKey]) {
+                await window.deletePendingReportCloud(window.selectedDateKey);
+            }
+            
             document.getElementById('day-modal').close();
             // No es necesario llamar a renderCalendar aquí, onSnapshot lo hará automáticamente.
         }

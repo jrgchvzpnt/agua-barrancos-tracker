@@ -79,6 +79,7 @@ onAuthStateChanged(auth, async (user) => {
             // If on admin page, load admin data
             if (path.includes('admin.html')) {
                 syncOutages();
+                syncPendingReports();
                 syncMessages();
                 syncAds();
                 syncNotices();
@@ -347,6 +348,19 @@ window.savePendingReportCloud = async function(dateKey) {
     } catch (error) {
         console.error("Error saving pending report:", error);
         return false;
+    }
+};
+
+window.deletePendingReportCloud = async function(dateKey) {
+    if (!window.appState.isAdmin) return;
+    try {
+        const q = query(pendingReportsCollection, where("dateKey", "==", dateKey));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (docSnapshot) => {
+            await deleteDoc(doc(db, 'pending_reports', docSnapshot.id));
+        });
+    } catch (error) {
+        console.error("Error deleting pending report:", error);
     }
 };
 
