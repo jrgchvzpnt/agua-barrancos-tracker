@@ -54,10 +54,12 @@ window.renderCalendar = function() {
 
     let daysWithoutWaterThisMonth = 0;
     const outages = window.appState ? window.appState.outages : {};
+    const pendingReports = window.appState ? window.appState.pendingReports : {};
 
     for (let day = 1; day <= daysInMonth; day++) {
         const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const hasOutage = outages[dateKey];
+        const isPending = Object.values(pendingReports).some(report => report.dateKey === dateKey);
         
         const cell = document.createElement('div');
         cell.className = 'calendar-day font-medium text-sm border transition-colors cursor-pointer flex items-center justify-center py-2 rounded-md';
@@ -67,6 +69,8 @@ window.renderCalendar = function() {
         if (hasOutage) {
             cell.classList.add('bg-alert-500', 'text-white', 'border-alert-600', 'shadow-md');
             daysWithoutWaterThisMonth++;
+        } else if (isPending) {
+            cell.classList.add('bg-yellow-500', 'text-white', 'border-yellow-600', 'shadow-md');
         } else {
             cell.classList.add('bg-white', 'text-slate-700', 'border-slate-100', 'hover:bg-water-50', 'hover:border-water-200');
         }
@@ -157,7 +161,7 @@ window.openDayModal = function(dateKey) {
 
     } else {
         const pendingReports = window.appState ? window.appState.pendingReports : {};
-        const isPending = pendingReports[dateKey];
+        const isPending = Object.values(pendingReports).some(report => report.dateKey === dateKey);
 
         if (isPending) {
             modalHeader.classList.add('bg-yellow-500');
@@ -217,7 +221,24 @@ window.openDayModal = function(dateKey) {
     if (window.lucide) window.lucide.createIcons();
 }
 
-window.showReportForm = function() {
+window.showReportForm = async function() {
+    const pendingReports = window.appState ? window.appState.pendingReports : {};
+    const isPendingLocal = Object.values(pendingReports).some(report => report.dateKey === window.selectedDateKey);
+
+    if (isPendingLocal) {
+        window.showToast("Ya existe un reporte en revisión para este día.", true);
+        return;
+    }
+
+    // Check cloud just in case
+    if (window.checkPendingReportExists) {
+        const isPendingCloud = await window.checkPendingReportExists(window.selectedDateKey);
+        if (isPendingCloud) {
+            window.showToast("Ya existe un reporte en revisión para este día.", true);
+            return;
+        }
+    }
+
     const modalContent = document.getElementById('modal-content-body');
     modalContent.innerHTML = `
         <div class="animate-fade-in text-left">
@@ -281,18 +302,32 @@ window.showReportForm = function() {
             });
 
             if (response.ok) {
-                if (window.savePendingReportCloud) {
+                // Double check before saving to avoid race conditions
+                let canSave = true;
+                if (window.checkPendingReportExists) {
+                    const exists = await window.checkPendingReportExists(window.selectedDateKey);
+                    if (exists) {
+                        canSave = false;
+                        window.showToast("Alguien más acaba de reportar este día. ¡Gracias por tu reporte!", true);
+                        document.getElementById('day-modal').close();
+                        window.renderCalendar();
+                    }
+                }
+
+                if (canSave && window.savePendingReportCloud) {
                     const saved = await window.savePendingReportCloud(window.selectedDateKey);
                     if (saved) {
                         if (!window.appState.pendingReports) window.appState.pendingReports = {};
-                        window.appState.pendingReports[window.selectedDateKey] = { status: 'pending', createdAt: new Date().toISOString() };
+                        const tempId = 'temp_' + Date.now();
+                        window.appState.pendingReports[tempId] = { dateKey: window.selectedDateKey, status: 'pending', createdAt: new Date().toISOString() };
+                        window.showToast("¡Reporte enviado! Lo validaremos pronto.");
+                        document.getElementById('day-modal').close();
+                        window.renderCalendar(); // Re-render to update UI immediately
                     } else {
                         console.error("No se pudo guardar el reporte pendiente en Firestore.");
+                        window.showToast("Error al guardar el reporte.", true);
                     }
                 }
-                window.showToast("¡Reporte enviado! Lo validaremos pronto.");
-                document.getElementById('day-modal').close();
-                window.renderCalendar(); // Re-render to update UI immediately
             } else {
                 window.showToast("Error al enviar el reporte.", true);
             }
@@ -511,13 +546,12 @@ function updateLatestReport() {
     if (citizenContainer) {
         citizenContainer.innerHTML = '';
 
-        const cReports = Object.entries(pendingReports)
-            .map(([date, data]) => ({ date, ...data }))
-            .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
+        const cReports = Object.values(pendingReports)
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         if (cReports.length > 0) {
             const lastReport = cReports[0];
-            const { date } = lastReport;
+            const date = lastReport.dateKey;
             
             citizenContainer.innerHTML = `
                 <div class="bg-orange-50 rounded-xl p-4 border border-orange-100 relative overflow-hidden transition-all hover:shadow-md">

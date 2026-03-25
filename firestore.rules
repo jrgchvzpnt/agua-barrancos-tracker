@@ -86,10 +86,10 @@ service cloud.firestore {
     }
 
     // Pending Reports Collection: Public Read, Public Create
-    match /pending_reports/{dateId} {
+    match /pending_reports/{reportId} {
       allow read: if isPublicRead();
       allow create: if isPublicRead() &&
-                       request.resource.data.keys().hasOnly(['status', 'createdAt']) &&
+                       request.resource.data.keys().hasOnly(['dateKey', 'status', 'createdAt']) &&
                        request.resource.data.status == 'pending';
       allow update, delete: if isAdmin();
     }

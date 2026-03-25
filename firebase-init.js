@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment, query, where, documentId } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment, query, where, documentId, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
@@ -313,7 +313,10 @@ async function syncPendingReports() {
     onSnapshot(pendingReportsCollection, (snapshot) => {
         const pendingData = {};
         snapshot.forEach(doc => {
-            pendingData[doc.id] = doc.data();
+            const data = doc.data();
+            if (data.dateKey) {
+                pendingData[data.dateKey] = data;
+            }
         });
         window.appState.pendingReports = pendingData;
         // Re-render calendar or modal if needed
@@ -321,16 +324,25 @@ async function syncPendingReports() {
     });
 }
 
+window.checkPendingReportExists = async function(dateKey) {
+    try {
+        const q = query(pendingReportsCollection, where("dateKey", "==", dateKey));
+        const querySnapshot = await getDocs(q);
+        return !querySnapshot.empty;
+    } catch (error) {
+        console.error("Error checking pending reports:", error);
+        return false;
+    }
+};
+
 window.savePendingReportCloud = async function(dateKey) {
     try {
-        const docRef = doc(db, 'pending_reports', dateKey);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-            await setDoc(docRef, {
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            });
-        }
+        const newReportRef = doc(collection(db, 'pending_reports'));
+        await setDoc(newReportRef, {
+            dateKey: dateKey,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+        });
         return true;
     } catch (error) {
         console.error("Error saving pending report:", error);
