@@ -286,7 +286,7 @@ async function syncOutages() {
 
         // Ocultar el overlay de carga después de la primera carga de datos
         const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay && !loadingOverlay.classList.contains('hidden')) {
+        if (loadingOverlay) {
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
             }, 500); // Un pequeño retraso para una transición más suave
