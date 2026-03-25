@@ -1,7 +1,7 @@
 /* --- GLOBAL STYLES --- */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f8fafc; /* slate-50 */
+    /* background-color is handled by Tailwind classes in index.html */
 }
 
 .view-section {
@@ -21,9 +21,18 @@ body {
     border-bottom: 1px solid #e2e8f0; /* slate-200 */
 }
 
+.dark .glass-header {
+    background-color: rgba(15, 23, 42, 0.8); /* slate-900 */
+    border-bottom-color: #1e293b; /* slate-800 */
+}
+
 .nav-link.active-nav {
     color: #0284c7; /* water-600 */
     font-weight: 700;
+}
+
+.dark .nav-link.active-nav {
+    color: #38bdf8; /* water-400 */
 }
 
 .calendar-day.today-marker {
@@ -45,6 +54,13 @@ body {
 }
 .chart-bar:hover {
     background-color: #cbd5e1; /* slate-300 */
+}
+
+.dark .chart-bar {
+    background-color: #334155; /* slate-700 */
+}
+.dark .chart-bar:hover {
+    background-color: #475569; /* slate-600 */
 }
 
 .loader {
@@ -81,6 +97,14 @@ dialog.open\:animate-fade-in {
     transform: translateY(-4px);
     box-shadow: 0 4px 14px rgba(0,0,0,0.07);
     border-color: #94a3b8; /* slate-400 */
+}
+
+.dark .sponsor-card {
+    background-color: #1e293b; /* slate-800 */
+    border-color: #334155; /* slate-700 */
+}
+.dark .sponsor-card:hover {
+    border-color: #475569; /* slate-600 */
 }
 .sponsor-card img {
     max-width: 100%;

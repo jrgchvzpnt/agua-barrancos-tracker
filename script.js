@@ -72,7 +72,7 @@ window.renderCalendar = function() {
         } else if (isPending) {
             cell.classList.add('bg-yellow-500', 'text-white', 'border-yellow-600', 'shadow-md');
         } else {
-            cell.classList.add('bg-white', 'text-slate-700', 'border-slate-100', 'hover:bg-water-50', 'hover:border-water-200');
+            cell.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300', 'border-slate-100', 'dark:border-slate-700', 'hover:bg-water-50', 'dark:hover:bg-slate-700', 'hover:border-water-200', 'dark:hover:border-slate-600');
         }
 
         const today = new Date();
@@ -126,10 +126,10 @@ window.openDayModal = function(dateKey) {
 
         const estadoDiv = document.createElement('div');
         const estadoLabel = document.createElement('p');
-        estadoLabel.className = 'text-xs text-slate-500 uppercase font-bold';
+        estadoLabel.className = 'text-xs text-slate-500 dark:text-slate-400 uppercase font-bold';
         estadoLabel.textContent = 'Estado del Servicio';
         const estadoP = document.createElement('p');
-        estadoP.className = 'text-slate-800 font-bold';
+        estadoP.className = 'text-slate-800 dark:text-white font-bold';
         estadoP.textContent = estado;
         estadoDiv.append(estadoLabel, estadoP);
         modalContent.appendChild(estadoDiv);
@@ -137,10 +137,10 @@ window.openDayModal = function(dateKey) {
         if (data.duracion) {
             const duracionDiv = document.createElement('div');
             const duracionLabel = document.createElement('p');
-            duracionLabel.className = 'text-xs text-slate-500 uppercase font-bold mt-3';
+            duracionLabel.className = 'text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mt-3';
             duracionLabel.textContent = 'Duración';
             const duracionP = document.createElement('p');
-            duracionP.className = 'text-slate-800';
+            duracionP.className = 'text-slate-800 dark:text-white';
             duracionP.textContent = data.duracion;
             duracionDiv.append(duracionLabel, duracionP);
             modalContent.appendChild(duracionDiv);
@@ -149,10 +149,10 @@ window.openDayModal = function(dateKey) {
         const detalleDiv = document.createElement('div');
         detalleDiv.className = 'mt-3';
         const detalleLabel = document.createElement('p');
-        detalleLabel.className = 'text-xs text-slate-500 uppercase font-bold';
+        detalleLabel.className = 'text-xs text-slate-500 dark:text-slate-400 uppercase font-bold';
         detalleLabel.textContent = 'Detalles / Notas';
         const detalleP = document.createElement('p');
-        detalleP.className = 'text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100 mt-1';
+        detalleP.className = 'text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 mt-1';
         detalleP.style.whiteSpace = 'pre-wrap';
         const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">");
         detalleP.innerHTML = escapedDetalle.replace(/\*(.*?)\*/g, '<b>$1</b>');
@@ -175,11 +175,11 @@ window.openDayModal = function(dateKey) {
             iconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-8 h-8 text-yellow-600"></i>';
             
             const p1 = document.createElement('p');
-            p1.className = 'text-slate-800 font-bold';
+            p1.className = 'text-slate-800 dark:text-white font-bold';
             p1.textContent = 'Ya existe un reporte ciudadano para este día.';
             
             const p2 = document.createElement('p');
-            p2.className = 'text-sm text-slate-600 mt-2';
+            p2.className = 'text-sm text-slate-600 dark:text-slate-300 mt-2';
             p2.textContent = 'Estamos validando la información. Una vez confirmada, se actualizará el calendario oficial.';
             
             container.append(iconContainer, p1, p2);
@@ -196,17 +196,17 @@ window.openDayModal = function(dateKey) {
             iconContainer.innerHTML = '<i data-lucide="thumbs-up" class="w-8 h-8 text-success-600"></i>';
             
             const p1 = document.createElement('p');
-            p1.className = 'text-slate-600';
+            p1.className = 'text-slate-600 dark:text-slate-300';
             p1.textContent = 'No hay reportes de fallas para este día.';
             
             const p2 = document.createElement('p');
-            p2.className = 'text-xs text-slate-400 mt-2';
+            p2.className = 'text-xs text-slate-400 dark:text-slate-500 mt-2';
             p2.textContent = 'El suministro operó con normalidad.';
             
             const reportPrompt = document.createElement('div');
-            reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 text-center';
+            reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-center';
             reportPrompt.innerHTML = `
-                <p class="text-sm text-slate-600 mb-3">¿Tuviste problemas con el agua en tu colonia este día?</p>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">¿Tuviste problemas con el agua en tu colonia este día?</p>
                 <button onclick="window.showReportForm()" class="text-water-600 font-bold text-sm hover:underline flex items-center justify-center gap-1 mx-auto">
                     <i data-lucide="alert-circle" class="w-4 h-4"></i> Reportar una falla
                 </button>
@@ -242,26 +242,26 @@ window.showReportForm = async function() {
     const modalContent = document.getElementById('modal-content-body');
     modalContent.innerHTML = `
         <div class="animate-fade-in text-left">
-            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
-                <p class="text-xs text-blue-800 leading-relaxed">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-lg p-3 mb-4">
+                <p class="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
                     <strong>Nota importante:</strong> Este espacio es exclusivo para reportar fallas de agua en tu colonia. Cualquier otro tipo de mensaje será eliminado sin previo aviso. La información será validada antes de publicarse.
                 </p>
             </div>
             <form id="citizen-report-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombre</label>
-                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="Tu nombre">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Nombre</label>
+                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Tu nombre">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono</label>
-                    <input type="tel" name="phone" required pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="10 dígitos">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Teléfono</label>
+                    <input type="tel" name="phone" required pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="10 dígitos">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Descripción de la falla</label>
-                    <textarea name="message" required rows="3" class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="Ej. Sin agua desde las 10 AM en la etapa 2..."></textarea>
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Descripción de la falla</label>
+                    <textarea name="message" required rows="3" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Ej. Sin agua desde las 10 AM en la etapa 2..."></textarea>
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="window.openDayModal(window.selectedDateKey)" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                    <button type="button" onclick="window.openDayModal(window.selectedDateKey)" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm">Cancelar</button>
                     <button type="submit" class="flex-1 bg-water-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-water-700 transition-colors text-sm flex items-center justify-center gap-2">
                         Enviar Reporte
                     </button>
@@ -506,35 +506,35 @@ function updateLatestReport() {
             const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">").replace(/\*(.*?)\*/g, '<b>$1</b>');
             
             const duracionBadge = duracion ? 
-                `<span class="bg-white text-alert-600 text-[10px] font-bold px-2 py-1 rounded-full border border-alert-100 shadow-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${duracion}</span>` : '';
+                `<span class="bg-white dark:bg-slate-800 text-alert-600 dark:text-alert-400 text-[10px] font-bold px-2 py-1 rounded-full border border-alert-100 dark:border-alert-900/50 shadow-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${duracion}</span>` : '';
 
             container.innerHTML = `
-                <div class="bg-alert-50 rounded-xl p-4 border border-alert-100 relative overflow-hidden transition-all hover:shadow-md">
+                <div class="bg-alert-50 dark:bg-alert-900/20 rounded-xl p-4 border border-alert-100 dark:border-alert-900/50 relative overflow-hidden transition-all hover:shadow-md">
                     <div class="absolute top-0 left-0 w-1 h-full bg-alert-500"></div>
                     <div class="flex items-start gap-3">
-                        <div class="bg-white p-2 rounded-lg shadow-sm border border-alert-100 mt-1 shrink-0">
-                            <i data-lucide="alert-triangle" class="w-5 h-5 text-alert-500"></i>
+                        <div class="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm dark:shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-alert-100 dark:border-alert-900/50 mt-1 shrink-0 transition-shadow">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-alert-500 dark:text-alert-400"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start mb-1 gap-2">
-                                <p class="text-xs font-bold text-alert-600 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
+                                <p class="text-xs font-bold text-alert-600 dark:text-alert-400 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
                                 ${duracionBadge}
                             </div>
-                            <h4 class="font-bold text-slate-800 text-base mb-1 leading-tight">${estado}</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${escapedDetalle}</p>
+                            <h4 class="font-bold text-slate-800 dark:text-white text-base mb-1 leading-tight">${estado}</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">${escapedDetalle}</p>
                         </div>
                     </div>
                 </div>
             `;
         } else {
             container.innerHTML = `
-                <div class="flex items-center gap-3 text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div class="bg-white p-2 rounded-full shadow-sm border border-slate-100 shrink-0">
+                <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-2 rounded-full shadow-sm border border-slate-100 dark:border-slate-600 shrink-0">
                         <i data-lucide="check-circle" class="w-5 h-5 text-success-500"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-sm text-slate-700">Servicio Normal</p>
-                        <p class="text-xs text-slate-500 mt-0.5">No hay cortes registrados recientemente.</p>
+                        <p class="font-bold text-sm text-slate-700 dark:text-slate-200">Servicio Normal</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">No hay cortes registrados recientemente.</p>
                     </div>
                 </div>
             `;
@@ -554,31 +554,31 @@ function updateLatestReport() {
             const date = lastReport.dateKey;
             
             citizenContainer.innerHTML = `
-                <div class="bg-orange-50 rounded-xl p-4 border border-orange-100 relative overflow-hidden transition-all hover:shadow-md">
+                <div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border border-orange-100 dark:border-orange-900/50 relative overflow-hidden transition-all hover:shadow-md">
                     <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
                     <div class="flex items-start gap-3">
-                        <div class="bg-white p-2 rounded-lg shadow-sm border border-orange-100 mt-1 shrink-0">
-                            <i data-lucide="users" class="w-5 h-5 text-orange-500"></i>
+                        <div class="bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm border border-orange-100 dark:border-orange-900/50 mt-1 shrink-0">
+                            <i data-lucide="users" class="w-5 h-5 text-orange-500 dark:text-orange-400"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-start mb-1 gap-2">
-                                <p class="text-xs font-bold text-orange-600 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
+                                <p class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
                             </div>
-                            <h4 class="font-bold text-slate-800 text-base mb-1 leading-tight">Reporte en Revisión</h4>
-                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">Un vecino ha reportado problemas con el suministro. Estamos validando la información.</p>
+                            <h4 class="font-bold text-slate-800 dark:text-white text-base mb-1 leading-tight">Reporte en Revisión</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">Un vecino ha reportado problemas con el suministro. Estamos validando la información.</p>
                         </div>
                     </div>
                 </div>
             `;
         } else {
             citizenContainer.innerHTML = `
-                <div class="flex items-center gap-3 text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div class="bg-white p-2 rounded-full shadow-sm border border-slate-100 shrink-0">
+                <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <div class="bg-white dark:bg-slate-700 p-2 rounded-full shadow-sm border border-slate-100 dark:border-slate-600 shrink-0">
                         <i data-lucide="check-circle" class="w-5 h-5 text-success-500"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-sm text-slate-700">Sin reportes</p>
-                        <p class="text-xs text-slate-500 mt-0.5">No hay reportes ciudadanos pendientes.</p>
+                        <p class="font-bold text-sm text-slate-700 dark:text-slate-200">Sin reportes</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">No hay reportes ciudadanos pendientes.</p>
                     </div>
                 </div>
             `;

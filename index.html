@@ -32,9 +32,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-
     <script>
+        // Check theme before page load to prevent flash
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
         tailwind.config = {
+            darkMode: 'class',
             theme: { extend: { colors: {
                 water: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' },
                 alert: { 500: '#ef4444', 600: '#dc2626' },
@@ -43,9 +50,9 @@
         }
     </script>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 antialiased min-h-screen flex flex-col transition-colors duration-300 ease-in-out">
 
-    <header class="glass-header sticky top-0 z-50">
+    <header class="glass-header dark:bg-slate-900/80 dark:border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center cursor-pointer" onclick="router('home')">
@@ -53,30 +60,34 @@
                         <i data-lucide="droplet" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 leading-none">Monitor H2O</h1>
-                        <p class="text-xs text-slate-500 font-medium tracking-wide">BARRANCOS</p>
+                        <h1 class="text-xl font-bold text-slate-900 dark:text-white leading-none">Monitor H2O</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide">BARRANCOS</p>
                     </div>
                 </div>
 
                 <nav class="hidden md:flex space-x-8">
-                    <button onclick="router('home')" class="nav-link text-slate-600 hover:text-water-600 font-medium transition-colors" id="nav-home">Calendario</button>
-                    <button onclick="router('stats')" class="nav-link text-slate-600 hover:text-water-600 font-medium transition-colors" id="nav-stats">Estadísticas</button>
-                    <button onclick="router('about')" class="nav-link text-slate-600 hover:text-water-600 font-medium transition-colors" id="nav-about">Misión</button>
-                    <button onclick="router('contact')" class="nav-link text-slate-600 hover:text-water-600 font-medium transition-colors" id="nav-contact">Contacto</button>
+                    <button onclick="router('home')" class="nav-link text-slate-600 dark:text-slate-300 hover:text-water-600 dark:hover:text-water-400 font-medium transition-colors" id="nav-home">Calendario</button>
+                    <button onclick="router('stats')" class="nav-link text-slate-600 dark:text-slate-300 hover:text-water-600 dark:hover:text-water-400 font-medium transition-colors" id="nav-stats">Estadísticas</button>
+                    <button onclick="router('about')" class="nav-link text-slate-600 dark:text-slate-300 hover:text-water-600 dark:hover:text-water-400 font-medium transition-colors" id="nav-about">Misión</button>
+                    <button onclick="router('contact')" class="nav-link text-slate-600 dark:text-slate-300 hover:text-water-600 dark:hover:text-water-400 font-medium transition-colors" id="nav-contact">Contacto</button>
                 </nav>
 
                 <div class="flex items-center gap-2">
-                    <button class="md:hidden p-2 text-slate-600" onclick="toggleMobileMenu()" aria-label="Abrir menú de navegación"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                    <button id="theme-toggle" class="p-2 text-slate-600 dark:text-slate-300 hover:text-water-600 dark:hover:text-water-400 transition-all duration-300 active:rotate-90" aria-label="Cambiar tema">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    <button class="md:hidden p-2 text-slate-600 dark:text-slate-300" onclick="toggleMobileMenu()" aria-label="Abrir menú de navegación"><i data-lucide="menu" class="w-6 h-6"></i></button>
                 </div>
             </div>
         </div>
 
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full left-0 shadow-lg">
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 absolute w-full left-0 shadow-lg">
             <div class="px-4 pt-2 pb-4 space-y-1">
-                <button onclick="router('home')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Calendario</button>
-                <button onclick="router('stats')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Estadísticas</button>
-                <button onclick="router('about')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Misión</button>
-                <button onclick="router('contact')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 hover:bg-slate-50">Contacto</button>
+                <button onclick="router('home')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">Calendario</button>
+                <button onclick="router('stats')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">Estadísticas</button>
+                <button onclick="router('about')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">Misión</button>
+                <button onclick="router('contact')" class="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">Contacto</button>
             </div>
         </div>
     </header>
@@ -101,76 +112,105 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                <!-- Left Column: Main Content (Calendar & Info) -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Calendar -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 transition-all hover:shadow-md">
+                <!-- Calendar -->
+                <div class="lg:col-span-2 order-1">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6 transition-all hover:shadow-md">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg sm:text-2xl font-bold text-slate-800" id="calendar-title">Cargando...</h2>
+                            <h2 class="text-lg sm:text-2xl font-bold text-slate-800 dark:text-white" id="calendar-title">Cargando...</h2>
                             <div class="flex gap-2">
-                                <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-full transition-colors" aria-label="Mes anterior"><i data-lucide="chevron-left" class="w-5 h-5 text-slate-600"></i></button>
-                                <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-full transition-colors" aria-label="Siguiente mes"><i data-lucide="chevron-right" class="w-5 h-5 text-slate-600"></i></button>
+                                <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors" aria-label="Mes anterior"><i data-lucide="chevron-left" class="w-5 h-5 text-slate-600 dark:text-slate-300"></i></button>
+                                <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors" aria-label="Siguiente mes"><i data-lucide="chevron-right" class="w-5 h-5 text-slate-600 dark:text-slate-300"></i></button>
                             </div>
                         </div>
                         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center">
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Dom</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">D</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Lun</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">L</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Mar</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">M</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Mié</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">M</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Jue</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">J</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Vie</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">V</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase hidden sm:block">Sáb</span>
-                            <span class="text-xs font-semibold text-slate-400 uppercase sm:hidden">S</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Dom</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">D</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Lun</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">L</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Mar</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">M</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Mié</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">M</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Jue</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">J</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Vie</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">V</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Sáb</span>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">S</span>
                         </div>
                         <div class="overflow-x-auto pb-2">
                             <div id="calendar-grid" class="calendar-grid min-h-[350px] gap-2 sm:gap-3" style="min-width: 24rem;">
                                 <div class="col-span-7 flex justify-center items-center h-full"><div class="loader"></div></div>
                             </div>
                         </div>
-                        <div class="mt-6 flex items-center gap-4 text-sm text-slate-500 justify-end">
-                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-water-100 border border-water-200"></div><span>Normal</span></div>
+                        <div class="mt-6 flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 justify-end">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-water-100 dark:bg-water-900 border border-water-200 dark:border-water-700"></div><span>Normal</span></div>
                             <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-yellow-500"></div><span>Revisión</span></div>
                             <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-alert-500"></div><span>Corte</span></div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Información Útil (Moved below calendar) -->
-                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
-                        <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-water-600"></i> Información Útil</h4>
+                <!-- Right Column: Sidebar (Reports) -->
+                <div class="space-y-6 order-2 lg:col-start-3 lg:row-span-2">
+                    <!-- Reports Grid (Moved to sidebar) -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-all hover:shadow-md flex flex-col">
+                        <h4 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="shield-check" class="w-5 h-5 text-water-600 dark:text-water-400"></i> Último Reporte Oficial</h4>
+                        <div id="latest-report-container" class="flex-grow">
+                            <div class="loading-placeholder">
+                                <div class="text-center">
+                                    <div class="loader mx-auto mb-2"></div>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Cargando información...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 transition-all hover:shadow-md flex flex-col">
+                        <h4 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-orange-500 dark:text-orange-400"></i> Último Reporte Ciudadano</h4>
+                        <div id="latest-citizen-report-container" class="flex-grow">
+                            <div class="loading-placeholder">
+                                <div class="text-center">
+                                    <div class="loader mx-auto mb-2"></div>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Cargando información...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Útil -->
+                <div class="lg:col-span-2 order-3 lg:col-start-1">
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
+                        <h4 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2"><i data-lucide="info" class="w-5 h-5 text-water-600 dark:text-water-400"></i> Información Útil</h4>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-4">
                                 <!-- Aviso Comunitario -->
-                                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm h-full">
-                                    <h5 class="font-bold text-blue-800 text-sm mb-1 flex items-center"><i data-lucide="users" class="w-4 h-4 mr-2 text-blue-500"></i>Aviso Comunitario</h5>
-                                    <p class="text-slate-600 text-sm leading-relaxed">Este monitor se alimenta de reportes ciudadanos verificados y datos oficiales de JAPAC.</p>
+                                <div class="bg-white dark:bg-slate-700 rounded-xl p-4 border border-slate-200 dark:border-slate-600 shadow-sm h-full">
+                                    <h5 class="font-bold text-blue-800 dark:text-blue-300 text-sm mb-1 flex items-center"><i data-lucide="users" class="w-4 h-4 mr-2 text-blue-500 dark:text-blue-400"></i>Aviso Comunitario</h5>
+                                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Este monitor se alimenta de reportes ciudadanos verificados y datos oficiales de JAPAC.</p>
                                 </div>
                             </div>
 
                             <div class="space-y-4">
                                 <!-- Como funciona -->
-                                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm h-full">
-                                    <h5 class="font-bold text-blue-800 text-sm mb-1 flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-2 text-blue-500"></i>¿Cómo funciona?</h5>
-                                    <p class="text-slate-600 text-sm leading-relaxed">Los días en color rojo muestran cuando se ha tenido una falla, selecciona uno para más detalles.</p>
+                                <div class="bg-white dark:bg-slate-700 rounded-xl p-4 border border-slate-200 dark:border-slate-600 shadow-sm h-full">
+                                    <h5 class="font-bold text-blue-800 dark:text-blue-300 text-sm mb-1 flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-2 text-blue-500 dark:text-blue-400"></i>¿Cómo funciona?</h5>
+                                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Los días en color rojo muestran cuando se ha tenido una falla, selecciona uno para más detalles.</p>
                                 </div>
                             </div>
 
                             <!-- Tips -->
-                            <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200 shadow-sm md:col-span-2">
-                                <h5 class="font-bold text-yellow-800 text-sm mb-2 flex items-center"><i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-yellow-600"></i>Tips de Supervivencia</h5>
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-900/50 shadow-sm md:col-span-2">
+                                <h5 class="font-bold text-yellow-800 dark:text-yellow-300 text-sm mb-2 flex items-center"><i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-500"></i>Tips de Supervivencia</h5>
                                 <ul class="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
-                                    <li class="text-sm text-yellow-800 leading-relaxed border-b md:border-b-0 md:border-r border-yellow-100/50 pb-2 md:pb-0 md:pr-4">
-                                        <strong class="block text-yellow-900 mb-0.5">Fugas Invisibles</strong>
+                                    <li class="text-sm text-yellow-800 dark:text-yellow-200 leading-relaxed border-b md:border-b-0 md:border-r border-yellow-100/50 dark:border-yellow-800/50 pb-2 md:pb-0 md:pr-4">
+                                        <strong class="block text-yellow-900 dark:text-yellow-100 mb-0.5">Fugas Invisibles</strong>
                                         Antes de dormir, anota la lectura de tu medidor y no uses agua. Si cambia, tienes una fuga.
                                     </li>
-                                    <li class="text-sm text-yellow-800 leading-relaxed md:pl-4">
-                                        <strong class="block text-yellow-900 mb-0.5">Revisa tu Tinaco</strong>
+                                    <li class="text-sm text-yellow-800 dark:text-yellow-200 leading-relaxed md:pl-4">
+                                        <strong class="block text-yellow-900 dark:text-yellow-100 mb-0.5">Revisa tu Tinaco</strong>
                                         Revisa el flotador de tu tinaco. Muchas fugas empiezan ahí y bajan la presión de la calle.
                                     </li>
                                 </ul>
@@ -178,57 +218,29 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Right Column: Sidebar (Reports) -->
-                <div class="space-y-6">
-                    <!-- Reports Grid (Moved to sidebar) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 transition-all hover:shadow-md flex flex-col">
-                        <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="shield-check" class="w-5 h-5 text-water-600"></i> Último Reporte Oficial</h4>
-                        <div id="latest-report-container" class="flex-grow">
-                            <div class="loading-placeholder">
-                                <div class="text-center">
-                                    <div class="loader mx-auto mb-2"></div>
-                                    <p class="text-sm text-slate-500">Cargando información...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 transition-all hover:shadow-md flex flex-col">
-                        <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-orange-500"></i> Último Reporte Ciudadano</h4>
-                        <div id="latest-citizen-report-container" class="flex-grow">
-                            <div class="loading-placeholder">
-                                <div class="text-center">
-                                    <div class="loader mx-auto mb-2"></div>
-                                    <p class="text-sm text-slate-500">Cargando información...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="bg-blue-600 text-white rounded-3xl p-8 sm:p-12 my-12 text-center overflow-hidden relative">
-                <div class="absolute -top-4 -left-10 text-blue-700/50">
+            <div class="bg-blue-600 dark:bg-blue-800 text-white rounded-3xl p-8 sm:p-12 mt-12 mb-24 text-center overflow-hidden relative">
+                <div class="absolute -top-4 -left-10 text-blue-700/50 dark:text-blue-900/50">
                     <svg width="160" height="160" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 3L4 14H11L11 21L20 10H13L13 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <div class="relative z-10">
                     <h2 class="text-2xl sm:text-3xl font-bold mb-3">¿Quieres anunciar tu negocio aquí?</h2>
-                    <p class="text-blue-200 max-w-2xl mx-auto mb-6">Llega a miles de vecinos en el sector Barrancos que consultan este monitor diariamente.</p>
-                    <button onclick="router('contact')" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-xl hover:bg-blue-50 transition-all transform hover:scale-105">
+                    <p class="text-blue-200 dark:text-blue-100 max-w-2xl mx-auto mb-6">Llega a miles de vecinos en el sector Barrancos que consultan este monitor diariamente.</p>
+                    <button onclick="router('contact')" class="bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 font-bold py-3 px-6 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-800 transition-all transform hover:scale-105">
                         Contáctanos ahora <i data-lucide="arrow-up-right" class="inline-block w-4 h-4 -mb-0.5"></i>
                     </button>
                 </div>
             </div>
 
             <div class="text-center my-12">
-                <h3 class="text-base font-bold text-slate-500 uppercase tracking-widest">Nuestros Patrocinadores Aliados</h3>
+                <h3 class="text-base font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nuestros Patrocinadores Aliados</h3>
             </div>
             <div id="ads-banner-public" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-center">
                 <div class="loading-placeholder col-span-full">
                     <div class="text-center">
                         <div class="loader mx-auto mb-2"></div>
-                        <p class="text-sm text-slate-500">Cargando información, espere un momento...</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Cargando información, espere un momento...</p>
                     </div>
                 </div>
             </div>
@@ -236,39 +248,39 @@
 
         <div id="view-stats" class="view-section hidden fade-in">
              <div class="mb-8">
-                 <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Evidencia Comunitaria</h2>
-                 <p class="text-slate-500">Datos sincronizados en tiempo real.</p>
+                 <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Evidencia Comunitaria</h2>
+                 <p class="text-slate-500 dark:text-slate-400">Datos sincronizados en tiempo real.</p>
              </div>
              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                <div class="stat-card bg-gradient-to-br from-blue-400 to-blue-500">
+                <div class="stat-card bg-gradient-to-br from-blue-400 to-blue-500 dark:from-blue-600 dark:to-blue-700">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-blue-100 uppercase tracking-wide">Total Año Actual</p>
                         <i data-lucide="calendar" class="w-6 h-6 text-blue-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-year-total">0</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-red-400 to-red-500">
+                <div class="stat-card bg-gradient-to-br from-red-400 to-red-500 dark:from-red-600 dark:to-red-700">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-red-100 uppercase tracking-wide">Peor Mes</p>
                         <i data-lucide="alert-triangle" class="w-6 h-6 text-red-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-worst-month">-</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-purple-400 to-purple-500">
+                <div class="stat-card bg-gradient-to-br from-purple-400 to-purple-500 dark:from-purple-600 dark:to-purple-700">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-purple-100 uppercase tracking-wide">Promedio Cortes/Mes</p>
                         <i data-lucide="bar-chart-2" class="w-6 h-6 text-purple-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-average">0</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-green-400 to-green-500">
+                <div class="stat-card bg-gradient-to-br from-green-400 to-green-500 dark:from-green-600 dark:to-green-700">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-green-100 uppercase tracking-wide">Días con agua (Mes Actual)</p>
                         <i data-lucide="droplets" class="w-6 h-6 text-green-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-streak">0</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-orange-400 to-orange-500">
+                <div class="stat-card bg-gradient-to-br from-orange-400 to-orange-500 dark:from-orange-600 dark:to-orange-700">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-orange-100 uppercase tracking-wide">Reportes Ciudadanos</p>
                         <i data-lucide="users" class="w-6 h-6 text-orange-200"></i>
@@ -276,10 +288,10 @@
                     <p class="text-4xl font-bold text-white mt-2" id="stat-citizen-reports">0</p>
                 </div>
              </div>
-             <div class="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
-                 <h3 class="font-bold text-lg mb-6">Frecuencia de cortes por mes</h3>
+             <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                 <h3 class="font-bold text-lg mb-6 dark:text-white">Frecuencia de cortes por mes</h3>
                  <div class="flex items-end justify-between h-64 gap-1 sm:gap-2" id="chart-container"></div>
-                 <div class="flex justify-between mt-4 text-xs text-slate-400 uppercase font-bold">
+                 <div class="flex justify-between mt-4 text-xs text-slate-400 dark:text-slate-500 uppercase font-bold">
                      <span class="hidden sm:inline">Ene</span><span class="sm:hidden">E</span>
                      <span class="hidden sm:inline">Feb</span><span class="sm:hidden">F</span>
                      <span class="hidden sm:inline">Mar</span><span class="sm:hidden">M</span>
@@ -297,76 +309,76 @@
         </div>
 
         <div id="view-about" class="view-section hidden fade-in max-w-3xl mx-auto">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-8">
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900 mb-4">Nuestra Misión</h2>
-                    <p class="text-slate-600 leading-relaxed">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Nuestra Misión</h2>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                         Empoderar a la comunidad de Barrancos a través de la transparencia y la colaboración, proporcionando una plataforma digital robusta y accesible para el monitoreo del servicio de agua. Buscamos ser un punto de encuentro ciudadano donde la información veraz y en tiempo real sobre el suministro fomente la participación, la rendición de cuentas y la búsqueda conjunta de soluciones para garantizar un servicio de calidad para todos.
                     </p>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-3">Visión</h3>
-                    <p class="text-slate-600 leading-relaxed">
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3">Visión</h3>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                         Convertirnos en un referente de iniciativa comunitaria y tecnológica, demostrando cómo la acción colectiva y el uso de herramientas digitales pueden generar un impacto positivo y duradero en la calidad de los servicios públicos. Aspiramos a un futuro donde cada residente tenga acceso constante a información fiable, promoviendo una comunidad más informada, unida y resiliente.
                     </p>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-4">Nuestros Valores</h3>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Nuestros Valores</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
-                            <i data-lucide="eye" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <i data-lucide="eye" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
                             <div>
-                                <h4 class="font-semibold text-slate-700">Transparencia</h4>
-                                <p class="text-slate-500">Creemos en el libre acceso a la información como pilar de la confianza y la participación ciudadana.</p>
+                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Transparencia</h4>
+                                <p class="text-slate-500 dark:text-slate-400">Creemos en el libre acceso a la información como pilar de la confianza y la participación ciudadana.</p>
                             </div>
                         </li>
                         <li class="flex items-start">
-                            <i data-lucide="users" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <i data-lucide="users" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
                             <div>
-                                <h4 class="font-semibold text-slate-700">Comunidad</h4>
-                                <p class="text-slate-500">Fomentamos la colaboración y el apoyo mutuo entre vecinos como motor de cambio.</p>
+                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Comunidad</h4>
+                                <p class="text-slate-500 dark:text-slate-400">Fomentamos la colaboración y el apoyo mutuo entre vecinos como motor de cambio.</p>
                             </div>
                         </li>
                         <li class="flex items-start">
-                            <i data-lucide="cpu" class="w-5 h-5 text-water-600 mr-3 mt-1"></i>
+                            <i data-lucide="cpu" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
                             <div>
-                                <h4 class="font-semibold text-slate-700">Tecnología para el Bien</h4>
-                                <p class="text-slate-500">Utilizamos la innovación como una herramienta para resolver problemas locales y mejorar la calidad de vida.</p>
+                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Tecnología para el Bien</h4>
+                                <p class="text-slate-500 dark:text-slate-400">Utilizamos la innovación como una herramienta para resolver problemas locales y mejorar la calidad de vida.</p>
                             </div>
                         </li>
                     </ul>
                 </div>
-                <div class="border-t border-slate-200 pt-6 mt-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-3">Una plataforma para toda la ciudad</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Aunque nuestro enfoque inicial es Barrancos, esta plataforma está diseñada para crecer. Si en tu colonia de Culiacán también enfrentan problemas con el suministro de agua y no encuentras información aquí, te invitamos a que nos lo hagas saber. Utiliza nuestro <button onclick="router('contact')" class="font-semibold text-water-600 hover:underline">formulario de contacto</button> para enviarnos los detalles. Juntos podemos ampliar este monitor a más comunidades.
+                <div class="border-t border-slate-200 dark:border-slate-700 pt-6 mt-6">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-3">Una plataforma para toda la ciudad</h3>
+                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Aunque nuestro enfoque inicial es Barrancos, esta plataforma está diseñada para crecer. Si en tu colonia de Culiacán también enfrentan problemas con el suministro de agua y no encuentras información aquí, te invitamos a que nos lo hagas saber. Utiliza nuestro <button onclick="router('contact')" class="font-semibold text-water-600 dark:text-water-400 hover:underline">formulario de contacto</button> para enviarnos los detalles. Juntos podemos ampliar este monitor a más comunidades.
                     </p>
                 </div>
             </div>
         </div>
 
         <div id="view-contact" class="view-section hidden fade-in">
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden max-w-5xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <div class="bg-water-900 text-white p-8 md:p-12">
+                    <div class="bg-water-900 dark:bg-slate-900 text-white p-8 md:p-12">
                         <h2 class="text-3xl font-bold mb-4">¿Quieres anunciarte con nosotros?</h2>
-                        <p class="text-slate-200 mb-8">Estamos aquí para ayudarte a crecer.</p>
+                        <p class="text-slate-200 dark:text-slate-400 mb-8">Estamos aquí para ayudarte a crecer.</p>
                         
                         <h3 class="text-3xl font-bold mb-4 mt-12">¿Reporte ciudadano?</h3>
-                        <p class="text-slate-200 mb-8">Si tienes un reporte sobre el servicio de agua, por favor envíalo aquí.</p>
+                        <p class="text-slate-200 dark:text-slate-400 mb-8">Si tienes un reporte sobre el servicio de agua, por favor envíalo aquí.</p>
 
                         <div class="space-y-6 mt-12">
                             <div class="flex items-start gap-4">
-                                <i data-lucide="map-pin" class="w-6 h-6 text-slate-300 mt-1"></i>
+                                <i data-lucide="map-pin" class="w-6 h-6 text-slate-300 dark:text-slate-500 mt-1"></i>
                                 <div>
-                                    <p class="text-sm text-slate-300 uppercase">Ubicación</p>
+                                    <p class="text-sm text-slate-300 dark:text-slate-500 uppercase">Ubicación</p>
                                     <p class="font-semibold">Culiacán, Sinaloa, México</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="border-t border-water-600 mt-12 pt-8">
-                            <p class="text-center text-slate-300 mb-4">Próximamente en redes sociales:</p>
+                        <div class="border-t border-water-600 dark:border-slate-700 mt-12 pt-8">
+                            <p class="text-center text-slate-300 dark:text-slate-500 mb-4">Próximamente en redes sociales:</p>
                             <div class="flex justify-center gap-6">
                                 <a href="#" class="social-icon instagram"><i data-lucide="instagram"></i></a>
                                 <a href="#" class="social-icon facebook"><i data-lucide="facebook"></i></a>
@@ -375,27 +387,27 @@
                         </div>
                     </div>
                     <div class="p-8 md:p-12">
-                        <h2 class="text-2xl font-bold text-slate-900 mb-2">Formulario de Contacto</h2>
-                        <p class="text-slate-500 mb-8">Completa el formulario y nos pondremos en contacto contigo.</p>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Formulario de Contacto</h2>
+                        <p class="text-slate-500 dark:text-slate-400 mb-8">Completa el formulario y nos pondremos en contacto contigo.</p>
                         <form id="contact-form" class="space-y-6">
                             <div class="relative">
                                 <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                                <input type="text" name="name" required minlength="3" maxlength="100" class="w-full rounded-lg border border-slate-300 p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Nombre completo">
+                                <input type="text" name="name" required minlength="3" maxlength="100" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Nombre completo">
                             </div>
                             <div class="relative">
                                 <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                                <input type="email" name="email" class="w-full rounded-lg border border-slate-300 p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Correo electrónico">
+                                <input type="email" name="email" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Correo electrónico">
                             </div>
                             <div class="relative">
                                 <i data-lucide="phone" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                                <input type="tel" name="phone" class="w-full rounded-lg border border-slate-300 p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" title="El número de teléfono debe tener 10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="tel" name="phone" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Teléfono (10 dígitos)" pattern="[0-9]{10}" title="El número de teléfono debe tener 10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="relative">
                                  <i data-lucide="message-square" class="absolute left-3 top-4 w-5 h-5 text-slate-400"></i>
-                                <textarea name="message" required minlength="10" maxlength="1000" rows="4" class="w-full rounded-lg border border-slate-300 p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+                                <textarea name="message" required minlength="10" maxlength="1000" rows="4" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white p-3 pl-10 focus:ring-2 focus:ring-water-500 focus:border-water-500 transition" placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
                             </div>
-                            <p class="text-xs text-slate-500 !mt-2">* Por favor, proporciona al menos un email o un teléfono para contactarte.</p>
-                            <button type="submit" class="w-full bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-800 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 !mt-2">* Por favor, proporciona al menos un email o un teléfono para contactarte.</p>
+                            <button type="submit" class="w-full bg-slate-900 dark:bg-water-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-800 dark:hover:bg-water-700 transition-all transform hover:scale-105 flex items-center justify-center gap-2">
                                 Enviar Mensaje <i data-lucide="send" class="w-4 h-4"></i>
                             </button>
                         </form>
@@ -406,20 +418,20 @@
 
     </main>
 
-    <dialog id="day-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-11/12 max-w-md open:animate-fade-in overflow-hidden">
-        <div class="bg-white">
+    <dialog id="day-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-11/12 max-w-md open:animate-fade-in overflow-hidden dark:bg-slate-800">
+        <div class="bg-white dark:bg-slate-800">
             <div id="modal-header" class="p-4 flex justify-between items-center transition-colors duration-300">
                 <h3 class="text-white font-bold flex items-center gap-2" id="modal-title"></h3>
                 <button onclick="document.getElementById('day-modal').close()" class="text-white hover:bg-white/20 rounded-full p-1 transition-colors" aria-label="Cerrar modal"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6 space-y-4">
-                <div><p class="text-xs text-slate-500 uppercase font-bold">Fecha</p><p class="text-lg font-medium text-slate-900" id="modal-date">--</p></div>
+                <div><p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">Fecha</p><p class="text-lg font-medium text-slate-900 dark:text-white" id="modal-date">--</p></div>
                 <div id="modal-content-body"></div>
             </div>
         </div>
     </dialog>
 
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 border dark:border-slate-700">
     <div id="toast-icon"></div>
         <span id="toast-msg">Operación exitosa</span>
     </div>
@@ -427,24 +439,36 @@
     <script type="module" src="/firebase-init.js"></script>
     <script src="/script.js"></script>
     <script src="/main.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+        
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const isDark = document.documentElement.classList.contains('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+        }
+    </script>
 
-    <dialog id="sponsor-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-full max-w-2xl open:animate-fade-in overflow-hidden">
-        <div class="bg-white">
-            <div class="p-4 flex justify-between items-center border-b">
-                <h3 class="text-lg font-bold" id="sponsor-modal-title"></h3>
-                <button onclick="document.getElementById('sponsor-modal').close()" class="text-slate-500 hover:bg-slate-100 rounded-full p-1 transition-colors" aria-label="Cerrar modal de patrocinador"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <dialog id="sponsor-modal" class="rounded-2xl shadow-2xl p-0 backdrop:bg-slate-900/50 w-full max-w-2xl open:animate-fade-in overflow-hidden dark:bg-slate-800">
+        <div class="bg-white dark:bg-slate-800">
+            <div class="p-4 flex justify-between items-center border-b dark:border-slate-700">
+                <h3 class="text-lg font-bold dark:text-white" id="sponsor-modal-title"></h3>
+                <button onclick="document.getElementById('sponsor-modal').close()" class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full p-1 transition-colors" aria-label="Cerrar modal de patrocinador"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6">
-                <div id="sponsor-description" class="mb-6 text-sm text-blue-800 bg-blue-50 p-4 rounded-lg border border-blue-200 flex items-start gap-3">
-                    <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                <div id="sponsor-description" class="mb-6 text-sm text-blue-800 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"></i>
                     <span id="sponsor-description-text"></span>
                 </div>
                 <div class="relative">
-                    <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 rounded-lg overflow-hidden" style="height: 400px;">
+                    <div id="sponsor-carousel" class="flex items-center justify-center bg-slate-100 dark:bg-slate-900 rounded-lg overflow-hidden" style="height: 400px;">
                         </div>
-                    <button id="prev-btn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md" aria-label="Imagen anterior"><i data-lucide="chevron-left"></i></button>
-                    <button id="next-btn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full shadow-md" aria-label="Siguiente imagen"><i data-lucide="chevron-right"></i></button>
+                    <button id="prev-btn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800/80 dark:text-white p-2 rounded-full shadow-md" aria-label="Imagen anterior"><i data-lucide="chevron-left"></i></button>
+                    <button id="next-btn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800/80 dark:text-white p-2 rounded-full shadow-md" aria-label="Siguiente imagen"><i data-lucide="chevron-right"></i></button>
                     <a id="sponsor-contact-link" href="#" target="_blank" class="absolute bottom-4 right-4 bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors shadow-lg" title="Contactar por WhatsApp" aria-label="Contactar por WhatsApp">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-6 h-6" viewBox="0 0 16 16">
                             <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
