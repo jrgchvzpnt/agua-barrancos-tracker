@@ -138,8 +138,19 @@
                         </div>
                     </div>
                     <div class="bg-white rounded-2xl shadow-[0_4px_14px_rgba(0,0,0,0.05)] border border-slate-200 p-6">
-                         <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Último Reporte</h4>
+                         <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Último Reporte Oficial</h4>
                          <div id="latest-report-container">
+                            <div class="loading-placeholder">
+                                <div class="text-center">
+                                    <div class="loader mx-auto mb-2"></div>
+                                    <p class="text-sm text-slate-500">Cargando información, espere un momento...</p>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-[0_4px_14px_rgba(0,0,0,0.05)] border border-slate-200 p-6">
+                         <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Último Reporte Ciudadano</h4>
+                         <div id="latest-citizen-report-container">
                             <div class="loading-placeholder">
                                 <div class="text-center">
                                     <div class="loader mx-auto mb-2"></div>
@@ -186,7 +197,7 @@
                  <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Evidencia Comunitaria</h2>
                  <p class="text-slate-500">Datos sincronizados en tiempo real.</p>
              </div>
-             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <div class="stat-card bg-gradient-to-br from-blue-400 to-blue-500">
                     <div class="flex justify-between items-center">
                         <p class="text-sm font-medium text-blue-100 uppercase tracking-wide">Total Año Actual</p>
@@ -214,6 +225,13 @@
                         <i data-lucide="droplets" class="w-6 h-6 text-green-200"></i>
                     </div>
                     <p class="text-4xl font-bold text-white mt-2" id="stat-streak">0</p>
+                </div>
+                <div class="stat-card bg-gradient-to-br from-orange-400 to-orange-500">
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-medium text-orange-100 uppercase tracking-wide">Reportes Ciudadanos</p>
+                        <i data-lucide="users" class="w-6 h-6 text-orange-200"></i>
+                    </div>
+                    <p class="text-4xl font-bold text-white mt-2" id="stat-citizen-reports">0</p>
                 </div>
              </div>
              <div class="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-200">

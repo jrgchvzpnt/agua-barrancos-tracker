@@ -39,10 +39,12 @@ const outagesCollection = collection(db, 'outages');
 const messagesCollection = collection(db, 'messages');
 const adsCollection = collection(db, 'ads');
 const noticesCollection = collection(db, 'notices');
+const pendingReportsCollection = collection(db, 'pending_reports');
 
 // --- ESTADO GLOBAL ---
 window.appState = {
     outages: {},
+    pendingReports: {},
     isAdmin: false,
     user: null,
     ads: [],
@@ -102,6 +104,7 @@ onAuthStateChanged(auth, async (user) => {
     // Sincronizar datos y hacer login anónimo solo en páginas públicas
     if (isPublicPage) {
         syncOutages();
+        syncPendingReports();
         syncAds();
         syncNotices();
         trackVisit(); // <-- Llamada a la función de tracking
@@ -305,6 +308,35 @@ async function syncOutages() {
         }
     });
 }
+
+async function syncPendingReports() {
+    onSnapshot(pendingReportsCollection, (snapshot) => {
+        const pendingData = {};
+        snapshot.forEach(doc => {
+            pendingData[doc.id] = doc.data();
+        });
+        window.appState.pendingReports = pendingData;
+        // Re-render calendar or modal if needed
+        if (typeof window.renderCalendar === 'function') window.renderCalendar();
+    });
+}
+
+window.savePendingReportCloud = async function(dateKey) {
+    try {
+        const docRef = doc(db, 'pending_reports', dateKey);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            await setDoc(docRef, {
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            });
+        }
+        return true;
+    } catch (error) {
+        console.error("Error saving pending report:", error);
+        return false;
+    }
+};
 
 window.saveOutageCloud = async function(dateKey, data) {
     if (!window.appState.isAdmin) return false;

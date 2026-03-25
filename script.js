@@ -156,30 +156,154 @@ window.openDayModal = function(dateKey) {
         modalContent.appendChild(detalleDiv);
 
     } else {
-        modalHeader.classList.add('bg-success-600');
-        modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-white"></i> <span class="text-white">Servicio Normal</span></div>`;
-        
-        const container = document.createElement('div');
-        container.className = 'text-center py-4';
-        
-        const iconContainer = document.createElement('div');
-        iconContainer.className = 'bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3';
-        iconContainer.innerHTML = '<i data-lucide="thumbs-up" class="w-8 h-8 text-success-600"></i>';
-        
-        const p1 = document.createElement('p');
-        p1.className = 'text-slate-600';
-        p1.textContent = 'No hay reportes de fallas para este día.';
-        
-        const p2 = document.createElement('p');
-        p2.className = 'text-xs text-slate-400 mt-2';
-        p2.textContent = 'El suministro operó con normalidad.';
-        
-        container.append(iconContainer, p1, p2);
-        modalContent.appendChild(container);
+        const pendingReports = window.appState ? window.appState.pendingReports : {};
+        const isPending = pendingReports[dateKey];
+
+        if (isPending) {
+            modalHeader.classList.add('bg-yellow-500');
+            modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="clock" class="w-5 h-5 text-white"></i> <span class="text-white">Reporte en Revisión</span></div>`;
+            
+            const container = document.createElement('div');
+            container.className = 'text-center py-4';
+            
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'bg-yellow-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3';
+            iconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-8 h-8 text-yellow-600"></i>';
+            
+            const p1 = document.createElement('p');
+            p1.className = 'text-slate-800 font-bold';
+            p1.textContent = 'Ya existe un reporte ciudadano para este día.';
+            
+            const p2 = document.createElement('p');
+            p2.className = 'text-sm text-slate-600 mt-2';
+            p2.textContent = 'Estamos validando la información. Una vez confirmada, se actualizará el calendario oficial.';
+            
+            container.append(iconContainer, p1, p2);
+            modalContent.appendChild(container);
+        } else {
+            modalHeader.classList.add('bg-success-600');
+            modalTitle.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-5 h-5 text-white"></i> <span class="text-white">Servicio Normal</span></div>`;
+            
+            const container = document.createElement('div');
+            container.className = 'text-center py-4';
+            
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3';
+            iconContainer.innerHTML = '<i data-lucide="thumbs-up" class="w-8 h-8 text-success-600"></i>';
+            
+            const p1 = document.createElement('p');
+            p1.className = 'text-slate-600';
+            p1.textContent = 'No hay reportes de fallas para este día.';
+            
+            const p2 = document.createElement('p');
+            p2.className = 'text-xs text-slate-400 mt-2';
+            p2.textContent = 'El suministro operó con normalidad.';
+            
+            const reportPrompt = document.createElement('div');
+            reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 text-center';
+            reportPrompt.innerHTML = `
+                <p class="text-sm text-slate-600 mb-3">¿Tuviste problemas con el agua en tu colonia este día?</p>
+                <button onclick="window.showReportForm()" class="text-water-600 font-bold text-sm hover:underline flex items-center justify-center gap-1 mx-auto">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i> Reportar una falla
+                </button>
+            `;
+
+            container.append(iconContainer, p1, p2, reportPrompt);
+            modalContent.appendChild(container);
+        }
     }
     
     if (modal) modal.showModal();
     if (window.lucide) window.lucide.createIcons();
+}
+
+window.showReportForm = function() {
+    const modalContent = document.getElementById('modal-content-body');
+    modalContent.innerHTML = `
+        <div class="animate-fade-in text-left">
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
+                <p class="text-xs text-blue-800 leading-relaxed">
+                    <strong>Nota importante:</strong> Este espacio es exclusivo para reportar fallas de agua en tu colonia. Cualquier otro tipo de mensaje será eliminado sin previo aviso. La información será validada antes de publicarse.
+                </p>
+            </div>
+            <form id="citizen-report-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombre</label>
+                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="Tu nombre">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Teléfono</label>
+                    <input type="tel" name="phone" required pattern="[0-9]{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="10 dígitos">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Descripción de la falla</label>
+                    <textarea name="message" required rows="3" class="w-full rounded-lg border border-slate-300 p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500" placeholder="Ej. Sin agua desde las 10 AM en la etapa 2..."></textarea>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="window.openDayModal(window.selectedDateKey)" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                    <button type="submit" class="flex-1 bg-water-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-water-700 transition-colors text-sm flex items-center justify-center gap-2">
+                        Enviar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+
+    document.getElementById('citizen-report-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Enviando...';
+
+        const formData = new FormData(e.target);
+        const name = formData.get('name');
+        const phone = formData.get('phone');
+        const message = formData.get('message');
+        
+        try {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbw4YpUuxulX30Ib2e9e1P23BK9O4WbKIvW0jLh_5rXR9XsGLhcyNm9tib5Yb69_AqfSvQ/exec';
+            
+            const data = new FormData();
+            data.append('nombre', name || '');
+            data.append('correo', 'REPORTE CIUDADANO'); 
+            data.append('telefono', phone || '');
+            data.append('descripcion', `[REPORTE FECHA: ${window.selectedDateKey}] ${message}`);
+            
+            const now = new Date();
+            const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            data.append('fecha', formattedDate);
+
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                body: data
+            });
+
+            if (response.ok) {
+                if (window.savePendingReportCloud) {
+                    const saved = await window.savePendingReportCloud(window.selectedDateKey);
+                    if (saved) {
+                        if (!window.appState.pendingReports) window.appState.pendingReports = {};
+                        window.appState.pendingReports[window.selectedDateKey] = { status: 'pending', createdAt: new Date().toISOString() };
+                    } else {
+                        console.error("No se pudo guardar el reporte pendiente en Firestore.");
+                    }
+                }
+                window.showToast("¡Reporte enviado! Lo validaremos pronto.");
+                document.getElementById('day-modal').close();
+                window.renderCalendar(); // Re-render to update UI immediately
+            } else {
+                window.showToast("Error al enviar el reporte.", true);
+            }
+        } catch (error) {
+            console.error('Error!', error);
+            window.showToast("Error al enviar el reporte.", true);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    });
 }
 
 window.changeMonth = function(delta) {
@@ -229,6 +353,11 @@ window.calculateStats = function() {
     
     const elStreak = document.getElementById('stat-streak');
     if (elStreak) elStreak.innerText = daysWithWater;
+
+    const pendingReports = window.appState ? window.appState.pendingReports : {};
+    const citizenReportsCount = Object.keys(pendingReports).length;
+    const elCitizenReports = document.getElementById('stat-citizen-reports');
+    if (elCitizenReports) elCitizenReports.innerText = citizenReportsCount;
 
     const chartContainer = document.getElementById('chart-container');
     if (!chartContainer) return;
@@ -325,52 +454,104 @@ if (contactForm) {
 function updateLatestReport() {
     const outages = window.appState ? window.appState.outages : {};
     const container = document.getElementById('latest-report-container');
-    if (!container) return;
+    if (container) {
+        container.innerHTML = ''; // Clear previous content
 
-    container.innerHTML = ''; // Clear previous content
+        const reports = Object.entries(outages)
+            .map(([date, data]) => ({ date, ...data }))
+            .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
 
-    const reports = Object.entries(outages)
-        .map(([date, data]) => ({ date, ...data }))
-        .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
+        if (reports.length > 0) {
+            const lastReport = reports[0];
+            const { date, status, motivo, notes, comentarios, duracion } = lastReport;
+            
+            const estado = status || motivo || "Corte de agua reportado";
+            const detalle = notes || comentarios || "Sin detalles adicionales";
 
-    if (reports.length > 0) {
-        const lastReport = reports[0];
-        const { date, status, motivo, notes, comentarios, duracion } = lastReport;
-        
-        const estado = status || motivo || "Corte de agua reportado";
-        const detalle = notes || comentarios || (duracion ? `Duración: ${duracion}` : "Sin detalles adicionales");
+            const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">").replace(/\*(.*?)\*/g, '<b>$1</b>');
+            
+            const duracionBadge = duracion ? 
+                `<span class="bg-white text-alert-600 text-[10px] font-bold px-2 py-1 rounded-full border border-alert-100 shadow-sm flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${duracion}</span>` : '';
 
-        // Safely create and append elements
-        const reportDiv = document.createElement('div');
-        reportDiv.className = 'border-l-4 border-alert-500 pl-4 py-1';
-
-        const dateP = document.createElement('p');
-        dateP.className = 'text-xs text-slate-500 font-semibold uppercase mb-1';
-        dateP.textContent = formatDatePretty(date);
-        reportDiv.appendChild(dateP);
-
-        const estadoP = document.createElement('p');
-        estadoP.className = 'font-bold text-slate-800';
-        estadoP.textContent = estado;
-        reportDiv.appendChild(estadoP);
-
-        const detalleP = document.createElement('p');
-        detalleP.className = 'text-sm text-slate-500 mt-1';
-        
-        // Aplicar formato para saltos de línea y negritas
-        detalleP.style.whiteSpace = 'pre-wrap';
-        const escapedDetalle = detalle.replace(/</g, "<").replace(/>/g, ">");
-        detalleP.innerHTML = escapedDetalle.replace(/\*(.*?)\*/g, '<b>$1</b>');
-
-        reportDiv.appendChild(detalleP);
-
-        container.appendChild(reportDiv);
-    } else {
-        const noReportsP = document.createElement('p');
-        noReportsP.className = 'text-sm text-slate-500 italic';
-        noReportsP.textContent = 'No hay registros recientes.';
-        container.appendChild(noReportsP);
+            container.innerHTML = `
+                <div class="bg-alert-50 rounded-xl p-4 border border-alert-100 relative overflow-hidden transition-all hover:shadow-md">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-alert-500"></div>
+                    <div class="flex items-start gap-3">
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-alert-100 mt-1 shrink-0">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-alert-500"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-1 gap-2">
+                                <p class="text-xs font-bold text-alert-600 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
+                                ${duracionBadge}
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base mb-1 leading-tight">${estado}</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${escapedDetalle}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="flex items-center gap-3 text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="bg-white p-2 rounded-full shadow-sm border border-slate-100 shrink-0">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-success-500"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-slate-700">Servicio Normal</p>
+                        <p class="text-xs text-slate-500 mt-0.5">No hay cortes registrados recientemente.</p>
+                    </div>
+                </div>
+            `;
+        }
     }
+
+    const pendingReports = window.appState ? window.appState.pendingReports : {};
+    const citizenContainer = document.getElementById('latest-citizen-report-container');
+    if (citizenContainer) {
+        citizenContainer.innerHTML = '';
+
+        const cReports = Object.entries(pendingReports)
+            .map(([date, data]) => ({ date, ...data }))
+            .sort((a, b) => (b.timestamp || 0) < (a.timestamp || 0) ? -1 : 1);
+
+        if (cReports.length > 0) {
+            const lastReport = cReports[0];
+            const { date } = lastReport;
+            
+            citizenContainer.innerHTML = `
+                <div class="bg-orange-50 rounded-xl p-4 border border-orange-100 relative overflow-hidden transition-all hover:shadow-md">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                    <div class="flex items-start gap-3">
+                        <div class="bg-white p-2 rounded-lg shadow-sm border border-orange-100 mt-1 shrink-0">
+                            <i data-lucide="users" class="w-5 h-5 text-orange-500"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start mb-1 gap-2">
+                                <p class="text-xs font-bold text-orange-600 uppercase tracking-wide truncate">${formatDatePretty(date)}</p>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base mb-1 leading-tight">Reporte en Revisión</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">Un vecino ha reportado problemas con el suministro. Estamos validando la información.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            citizenContainer.innerHTML = `
+                <div class="flex items-center gap-3 text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="bg-white p-2 rounded-full shadow-sm border border-slate-100 shrink-0">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-success-500"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-slate-700">Sin reportes</p>
+                        <p class="text-xs text-slate-500 mt-0.5">No hay reportes ciudadanos pendientes.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    if (window.lucide) window.lucide.createIcons();
 }
 
 // --- UTILS ---

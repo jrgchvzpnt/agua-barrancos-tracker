@@ -85,6 +85,15 @@ service cloud.firestore {
                       request.resource.data.createdAt is timestamp;
     }
 
+    // Pending Reports Collection: Public Read, Public Create
+    match /pending_reports/{dateId} {
+      allow read: if isPublicRead();
+      allow create: if isPublicRead() &&
+                       request.resource.data.keys().hasOnly(['status', 'createdAt']) &&
+                       request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
     // Metadata Collection: Public Read, Admin Write
     match /metadata/{docId} {
       allow read: if isPublicRead();
