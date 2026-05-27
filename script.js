@@ -643,13 +643,19 @@ window.renderAdsPublic = function() {
     bannerContainer.innerHTML = ''; // Clear previous content
 
     if (ads.length === 0) {
-        const placeholderDiv = document.createElement('div');
-        placeholderDiv.className = 'col-span-full bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-6 text-center';
-        const placeholderP = document.createElement('p');
-        placeholderP.className = 'text-slate-400 text-sm';
-        placeholderP.textContent = 'Espacio para Patrocinadores';
-        placeholderDiv.appendChild(placeholderP);
-        bannerContainer.appendChild(placeholderDiv);
+        // Mostrar 6 tarjetas placeholder atractivas
+        for (let i = 0; i < 6; i++) {
+            const card = document.createElement('div');
+            card.className = 'sponsor-placeholder-card';
+            card.onclick = () => router('contact');
+            card.innerHTML = `
+                <div style="color:#0ea5e9; opacity:0.5;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </div>
+                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 leading-tight">Tu negocio<br>aquí</p>
+            `;
+            bannerContainer.appendChild(card);
+        }
         return;
     }
 

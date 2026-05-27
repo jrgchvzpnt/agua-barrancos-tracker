@@ -80,40 +80,6 @@ dialog.open\:animate-fade-in {
     animation: fadeInAnimation ease 0.3s;
 }
 
-.sponsor-card {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0; /* slate-200 */
-    border-radius: 0.75rem;
-    padding: 0.5rem;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 3 / 2;
-}
-.sponsor-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.07);
-    border-color: #94a3b8; /* slate-400 */
-}
-
-.dark .sponsor-card {
-    background-color: #1e293b; /* slate-800 */
-    border-color: #334155; /* slate-700 */
-}
-.dark .sponsor-card:hover {
-    border-color: #475569; /* slate-600 */
-}
-.sponsor-card img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transition: all 0.2s ease-in-out;
-}
-.sponsor-card:hover img {
-    opacity: 1;
-}
 
 .social-icon {
     display: inline-block;
@@ -231,6 +197,180 @@ dialog.open\:animate-fade-in {
 
 .calendar-day.today-marker {
     animation: today-pulse 2s ease-in-out infinite;
+}
+
+/* --- ADS PREMIUM BANNER --- */
+.ads-premium-banner {
+    background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 50%, #0284c7 100%);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.3);
+}
+
+.dark .ads-premium-banner {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #0c4a6e 100%);
+    box-shadow: 0 20px 40px rgba(29, 78, 216, 0.15);
+}
+
+/* Elementos decorativos flotantes */
+.ads-banner-deco-1,
+.ads-banner-deco-2,
+.ads-banner-deco-3 {
+    position: absolute;
+    opacity: 0.08;
+    color: white;
+    pointer-events: none;
+}
+
+.ads-banner-deco-1 {
+    top: -20px;
+    right: -20px;
+    animation: float-slow 6s ease-in-out infinite;
+}
+
+.ads-banner-deco-2 {
+    bottom: -10px;
+    left: 30%;
+    animation: float-slow 8s ease-in-out infinite reverse;
+}
+
+.ads-banner-deco-3 {
+    top: 10px;
+    left: 10%;
+    animation: float-slow 5s ease-in-out infinite 1s;
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(5deg); }
+}
+
+/* Botón CTA del banner de anuncios */
+.ads-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    color: #1d4ed8;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.75rem;
+    border-radius: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.ads-cta-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    background: #f0f9ff;
+}
+
+.ads-cta-btn:active {
+    transform: translateY(0) scale(1);
+}
+
+/* --- SPONSORS SECTION --- */
+.sponsors-section {
+    /* contenedor general */
+}
+
+/* Tarjeta de patrocinador mejorada */
+.sponsor-card {
+    background-color: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 0.75rem;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 3 / 2;
+    position: relative;
+    overflow: hidden;
+}
+
+.sponsor-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+    border-radius: inherit;
+}
+
+.sponsor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(2, 132, 199, 0.15);
+    border-color: #0ea5e9;
+}
+
+.sponsor-card:hover::before {
+    opacity: 1;
+}
+
+.dark .sponsor-card {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .sponsor-card:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 12px 28px rgba(56, 189, 248, 0.12);
+}
+
+.sponsor-card img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.25s ease-in-out;
+    position: relative;
+    z-index: 1;
+}
+
+.sponsor-card:hover img {
+    transform: scale(1.06);
+}
+
+/* Placeholder de patrocinadores (cuando no hay ninguno) */
+.sponsor-placeholder-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.875rem;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+    aspect-ratio: 3 / 2;
+    text-align: center;
+}
+
+.sponsor-placeholder-card:hover {
+    border-color: #0ea5e9;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.1);
+}
+
+.dark .sponsor-placeholder-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #334155;
+}
+
+.dark .sponsor-placeholder-card:hover {
+    border-color: #38bdf8;
+    background: linear-gradient(135deg, #0c4a6e 0%, #1e293b 100%);
 }
 
 /* --- LOADING OVERLAY --- */
