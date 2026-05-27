@@ -365,13 +365,16 @@ window.deletePendingReportCloud = async function(dateKey) {
 };
 
 window.saveOutageCloud = async function(dateKey, data) {
-    if (!window.appState.isAdmin) return false;
+    if (!window.appState || !window.appState.isAdmin) {
+        console.warn("saveOutageCloud: intento de guardar sin permisos de admin.");
+        return false;
+    }
     try {
         await setDoc(doc(db, 'outages', dateKey), data);
         await window.touchDataVersion();
         return true;
     } catch (error) {
-        // Do not log detailed error to console in production
+        console.error("saveOutageCloud error:", error.code, error.message);
         return false;
     }
 };

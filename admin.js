@@ -48,6 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const dateVal = document.getElementById('outage-date').value;
         if (!dateVal) return alert("Selecciona una fecha válida.");
 
+        // Verificar que la sesión de admin esté activa antes de intentar guardar
+        if (!window.appState || !window.appState.isAdmin) {
+            alert("⚠️ Tu sesión no está lista o no tienes permisos de administrador. Espera un momento y vuelve a intentarlo.");
+            return;
+        }
+
         const submitBtn = outageForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerText;
         submitBtn.disabled = true;
@@ -67,7 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('outage-date').disabled = false;
                 cancelEditOutageBtn.classList.add('hidden');
             } else {
-                alert("❌ Hubo un error al guardar.");
+                if (!window.appState || !window.appState.isAdmin) {
+                    alert("❌ Error: No tienes permisos de administrador activos. Intenta cerrar sesión y volver a entrar.");
+                } else {
+                    alert("❌ Hubo un error al guardar. Verifica tu conexión e inténtalo de nuevo.");
+                }
             }
         } catch (error) {
             console.error("Error al guardar el reporte:", error);
