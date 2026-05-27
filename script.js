@@ -364,6 +364,12 @@ window.calculateStats = function() {
         }
     });
 
+    // Actualizar etiqueta del año
+    const yearLabel = document.getElementById('stats-year-label');
+    const yearLabel2 = document.getElementById('stats-year-label-2');
+    if (yearLabel) yearLabel.innerText = currentYear;
+    if (yearLabel2) yearLabel2.innerText = currentYear;
+
     const elTotal = document.getElementById('stat-year-total');
     if (elTotal) elTotal.innerText = totalYear;
     
@@ -373,6 +379,7 @@ window.calculateStats = function() {
 
     const maxVal = Math.max(...monthCounts);
     const monthNamesShort = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthNamesFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     const elWorst = document.getElementById('stat-worst-month');
     if (elWorst) {
         if (maxVal > 0) {
@@ -396,30 +403,129 @@ window.calculateStats = function() {
     const elCitizenReports = document.getElementById('stat-citizen-reports');
     if (elCitizenReports) elCitizenReports.innerText = citizenReportsCount;
 
+    // --- GRÁFICO AVANZADO ---
     const chartContainer = document.getElementById('chart-container');
+    const gridLinesContainer = document.getElementById('chart-grid-lines');
     if (!chartContainer) return;
     chartContainer.innerHTML = '';
-    
-    monthCounts.forEach((count) => {
-        const maxScale = Math.max(maxVal, 5); 
-        const percent = (count / maxScale) * 100;
-        const barWrapper = document.createElement('div');
-        barWrapper.className = 'w-full flex flex-col justify-end items-center h-full relative';
-        
-        const bar = document.createElement('div');
-        bar.className = 'w-full chart-bar';
-        bar.style.height = count > 0 ? `${Math.max(percent, 5)}%` : '4px';
-        
-        if(count > 0) {
-            const label = document.createElement('div');
-            label.className = 'absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-600';
-            label.innerText = count;
-            barWrapper.appendChild(label);
+
+    // Líneas de guía horizontales
+    if (gridLinesContainer) {
+        gridLinesContainer.innerHTML = '';
+        const numLines = 4;
+        for (let i = 0; i <= numLines; i++) {
+            const line = document.createElement('div');
+            line.className = 'chart-grid-line';
+            gridLinesContainer.appendChild(line);
         }
-        barWrapper.appendChild(bar);
-        chartContainer.appendChild(barWrapper);
+    }
+
+    const maxScale = Math.max(maxVal, 5);
+    const worstMonthIdx = monthCounts.indexOf(maxVal);
+
+    monthCounts.forEach((count, idx) => {
+        const percent = count > 0 ? Math.max((count / maxScale) * 100, 6) : 3;
+        const isCritical = count >= 5 || (maxVal > 0 && count === maxVal && count >= 3);
+        const isWorst = idx === worstMonthIdx && maxVal > 0;
+        const isCurrent = idx === currentMonth;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chart-bar-wrapper';
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'chart-tooltip';
+        tooltip.innerHTML = `<strong>${monthNamesFull[idx]}</strong>: ${count} corte${count !== 1 ? 's' : ''}`;
+
+        // Barra
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar-new';
+        bar.style.height = `${percent}%`;
+
+        if (count === 0) {
+            bar.style.background = '#e2e8f0';
+            bar.style.height = '3px';
+            bar.style.borderRadius = '2px';
+        } else if (isCritical) {
+            bar.style.background = isWorst
+                ? 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)'
+                : 'linear-gradient(180deg, #f87171 0%, #ef4444 100%)';
+        } else {
+            bar.style.background = isCurrent
+                ? 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)'
+                : 'linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%)';
+        }
+
+        // Etiqueta de valor
+        if (count > 0) {
+            const label = document.createElement('div');
+            label.className = 'chart-bar-label';
+            label.innerText = count;
+            wrapper.appendChild(label);
+        }
+
+        wrapper.appendChild(tooltip);
+        wrapper.appendChild(bar);
+        chartContainer.appendChild(wrapper);
+    });
+
+    // --- PANEL DE INSIGHTS ---
+    const insightsContainer = document.getElementById('stats-insights');
+    if (!insightsContainer) return;
+    insightsContainer.innerHTML = '';
+
+    const insights = [];
+    const avg = totalYear / (currentMonthIndex + 1);
+
+    // Insight 1: Estado general
+    if (totalYear === 0) {
+        insights.push({ icon: '✅', color: 'bg-green-100 dark:bg-green-900/40', text: `Sin cortes registrados en ${currentYear}. ¡Excelente servicio hasta ahora!` });
+    } else if (avg <= 2) {
+        insights.push({ icon: '🟡', color: 'bg-yellow-100 dark:bg-yellow-900/40', text: `Servicio intermitente. Promedio de ${avg.toFixed(1)} cortes por mes en ${currentYear}.` });
+    } else {
+        insights.push({ icon: '🔴', color: 'bg-red-100 dark:bg-red-900/40', text: `Servicio crítico. Promedio de ${avg.toFixed(1)} cortes por mes. Se recomienda almacenar agua.` });
+    }
+
+    // Insight 2: Peor mes
+    if (maxVal > 0) {
+        insights.push({ icon: '📅', color: 'bg-orange-100 dark:bg-orange-900/40', text: `${monthNamesFull[worstMonthIdx]} fue el mes más afectado con ${maxVal} día${maxVal !== 1 ? 's' : ''} sin agua.` });
+    }
+
+    // Insight 3: Mes actual
+    if (outagesThisMonth === 0) {
+        insights.push({ icon: '💧', color: 'bg-blue-100 dark:bg-blue-900/40', text: `Este mes (${monthNamesFull[currentMonth]}) no hay cortes registrados aún.` });
+    } else {
+        insights.push({ icon: '⚠️', color: 'bg-amber-100 dark:bg-amber-900/40', text: `Este mes hay ${outagesThisMonth} corte${outagesThisMonth !== 1 ? 's' : ''} registrado${outagesThisMonth !== 1 ? 's' : ''}. Mantén tu tinaco lleno.` });
+    }
+
+    // Insight 4: Recomendación
+    insights.push({ icon: '💡', color: 'bg-slate-100 dark:bg-slate-700/60', text: 'Revisa el flotador de tu tinaco regularmente. Muchas fugas empiezan ahí y reducen la presión.' });
+
+    insights.forEach(({ icon, color, text }) => {
+        const item = document.createElement('div');
+        item.className = 'insight-item';
+        item.innerHTML = `
+            <div class="insight-icon ${color} text-lg shrink-0">${icon}</div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${text}</p>
+        `;
+        insightsContainer.appendChild(item);
     });
 }
+
+// --- PREFILL CONTACT FORM ---
+window.prefillContactForm = function(type) {
+    router('contact');
+    setTimeout(() => {
+        const textarea = document.querySelector('#contact-form textarea[name="message"]');
+        if (textarea) {
+            if (type === 'ad') {
+                textarea.value = 'Hola, me interesa anunciar mi negocio en Monitor H2O Barrancos. Por favor contáctenme para más información.';
+            }
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 200);
+};
 
 // --- FORM HANDLERS ---
 const contactForm = document.getElementById('contact-form');

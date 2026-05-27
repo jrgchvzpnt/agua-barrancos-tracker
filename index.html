@@ -296,65 +296,106 @@
         </div>
 
         <div id="view-stats" class="view-section hidden fade-in">
-             <div class="mb-8">
-                 <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Evidencia Comunitaria</h2>
-                 <p class="text-slate-500 dark:text-slate-400">Datos sincronizados en tiempo real.</p>
-             </div>
-             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                <div class="stat-card bg-gradient-to-br from-blue-400 to-blue-500 dark:from-blue-600 dark:to-blue-700">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-medium text-blue-100 uppercase tracking-wide">Total Año Actual</p>
-                        <i data-lucide="calendar" class="w-6 h-6 text-blue-200"></i>
-                    </div>
-                    <p class="text-4xl font-bold text-white mt-2" id="stat-year-total">0</p>
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Evidencia Comunitaria</h2>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1">Datos sincronizados en tiempo real · <span class="text-water-600 dark:text-water-400 font-medium" id="stats-year-label"></span></p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-red-400 to-red-500 dark:from-red-600 dark:to-red-700">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-medium text-red-100 uppercase tracking-wide">Peor Mes</p>
-                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-200"></i>
-                    </div>
-                    <p class="text-4xl font-bold text-white mt-2" id="stat-worst-month">-</p>
+                <div class="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-xl px-3 py-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wide">En vivo</span>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-purple-400 to-purple-500 dark:from-purple-600 dark:to-purple-700">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-medium text-purple-100 uppercase tracking-wide">Promedio Cortes/Mes</p>
-                        <i data-lucide="bar-chart-2" class="w-6 h-6 text-purple-200"></i>
+            </div>
+
+            <!-- Stat Cards Mejoradas -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <!-- Total año -->
+                <div class="stat-card-pro col-span-1">
+                    <div class="stat-card-icon bg-blue-100 dark:bg-blue-900/40">
+                        <i data-lucide="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
                     </div>
-                    <p class="text-4xl font-bold text-white mt-2" id="stat-average">0</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-1" id="stat-year-total">0</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Cortes este año</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Acumulado <span id="stats-year-label-2"></span></p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-green-400 to-green-500 dark:from-green-600 dark:to-green-700">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-medium text-green-100 uppercase tracking-wide">Días con agua (Mes Actual)</p>
-                        <i data-lucide="droplets" class="w-6 h-6 text-green-200"></i>
+                <!-- Peor mes -->
+                <div class="stat-card-pro col-span-1">
+                    <div class="stat-card-icon bg-red-100 dark:bg-red-900/40">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
                     </div>
-                    <p class="text-4xl font-bold text-white mt-2" id="stat-streak">0</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-1" id="stat-worst-month">-</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Peor mes</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Más días sin agua</p>
                 </div>
-                <div class="stat-card bg-gradient-to-br from-orange-400 to-orange-500 dark:from-orange-600 dark:to-orange-700">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-medium text-orange-100 uppercase tracking-wide">Reportes Ciudadanos</p>
-                        <i data-lucide="users" class="w-6 h-6 text-orange-200"></i>
+                <!-- Promedio -->
+                <div class="stat-card-pro col-span-1">
+                    <div class="stat-card-icon bg-purple-100 dark:bg-purple-900/40">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
                     </div>
-                    <p class="text-4xl font-bold text-white mt-2" id="stat-citizen-reports">0</p>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-1" id="stat-average">0</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Promedio/mes</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Cortes por mes</p>
                 </div>
-             </div>
-             <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                 <h3 class="font-bold text-lg mb-6 dark:text-white">Frecuencia de cortes por mes</h3>
-                 <div class="flex items-end justify-between h-64 gap-1 sm:gap-2" id="chart-container"></div>
-                 <div class="flex justify-between mt-4 text-xs text-slate-400 dark:text-slate-500 uppercase font-bold">
-                     <span class="hidden sm:inline">Ene</span><span class="sm:hidden">E</span>
-                     <span class="hidden sm:inline">Feb</span><span class="sm:hidden">F</span>
-                     <span class="hidden sm:inline">Mar</span><span class="sm:hidden">M</span>
-                     <span class="hidden sm:inline">Abr</span><span class="sm:hidden">A</span>
-                     <span class="hidden sm:inline">May</span><span class="sm:hidden">M</span>
-                     <span class="hidden sm:inline">Jun</span><span class="sm:hidden">J</span>
-                     <span class="hidden sm:inline">Jul</span><span class="sm:hidden">J</span>
-                     <span class="hidden sm:inline">Ago</span><span class="sm:hidden">A</span>
-                     <span class="hidden sm:inline">Sep</span><span class="sm:hidden">S</span>
-                     <span class="hidden sm:inline">Oct</span><span class="sm:hidden">O</span>
-                     <span class="hidden sm:inline">Nov</span><span class="sm:hidden">N</span>
-                     <span class="hidden sm:inline">Dic</span><span class="sm:hidden">D</span>
-                 </div>
-             </div>
+                <!-- Días con agua -->
+                <div class="stat-card-pro col-span-1">
+                    <div class="stat-card-icon bg-green-100 dark:bg-green-900/40">
+                        <i data-lucide="droplets" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-1" id="stat-streak">0</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Días con agua</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Mes actual</p>
+                </div>
+                <!-- Reportes ciudadanos -->
+                <div class="stat-card-pro col-span-2 lg:col-span-1">
+                    <div class="stat-card-icon bg-orange-100 dark:bg-orange-900/40">
+                        <i data-lucide="users" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>
+                    </div>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white mt-3 mb-1" id="stat-citizen-reports">0</p>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Reportes ciudadanos</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Enviados por vecinos</p>
+                </div>
+            </div>
+
+            <!-- Gráfico + Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Gráfico principal -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 sm:p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white">Cortes por mes</h3>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Pasa el cursor sobre una barra para ver el detalle</p>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm bg-blue-400"></div><span>Normal</span></div>
+                            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-sm bg-red-400"></div><span>Crítico</span></div>
+                        </div>
+                    </div>
+                    <!-- Área del gráfico con líneas de guía -->
+                    <div class="relative">
+                        <div class="chart-grid-lines" id="chart-grid-lines"></div>
+                        <div class="flex items-end justify-between gap-1 sm:gap-2 relative z-10" id="chart-container" style="height: 200px;"></div>
+                    </div>
+                    <div class="flex justify-between mt-3 text-xs text-slate-400 dark:text-slate-500 font-semibold uppercase">
+                        <span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span>
+                        <span>Jul</span><span>Ago</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dic</span>
+                    </div>
+                </div>
+
+                <!-- Panel de Insights -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col gap-4">
+                    <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                        Análisis Inteligente
+                    </h3>
+                    <div id="stats-insights" class="flex flex-col gap-3 flex-grow">
+                        <!-- Generado por JS -->
+                        <div class="flex justify-center items-center h-full py-8">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="view-about" class="view-section hidden fade-in max-w-3xl mx-auto">
@@ -409,29 +450,72 @@
         <div id="view-contact" class="view-section hidden fade-in">
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden max-w-5xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2">
-                    <div class="bg-water-900 dark:bg-slate-900 text-white p-8 md:p-12">
-                        <h2 class="text-3xl font-bold mb-4">¿Quieres anunciarte con nosotros?</h2>
-                        <p class="text-slate-200 dark:text-slate-400 mb-8">Estamos aquí para ayudarte a crecer.</p>
-                        
-                        <h3 class="text-3xl font-bold mb-4 mt-12">¿Reporte ciudadano?</h3>
-                        <p class="text-slate-200 dark:text-slate-400 mb-8">Si tienes un reporte sobre el servicio de agua, por favor envíalo aquí.</p>
+                    <div class="bg-gradient-to-b from-water-900 to-slate-900 dark:from-slate-950 dark:to-slate-900 text-white p-8 md:p-10 flex flex-col gap-6">
 
-                        <div class="space-y-6 mt-12">
-                            <div class="flex items-start gap-4">
-                                <i data-lucide="map-pin" class="w-6 h-6 text-slate-300 dark:text-slate-500 mt-1"></i>
-                                <div>
-                                    <p class="text-sm text-slate-300 dark:text-slate-500 uppercase">Ubicación</p>
-                                    <p class="font-semibold">Culiacán, Sinaloa, México</p>
+                        <!-- Bloque 1: Anunciarse -->
+                        <div class="contact-info-card border border-white/10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-blue-500/20 p-2.5 rounded-xl">
+                                    <i data-lucide="megaphone" class="w-5 h-5 text-blue-300"></i>
                                 </div>
+                                <h2 class="text-xl font-bold text-white">¿Quieres anunciarte?</h2>
                             </div>
+                            <p class="text-slate-300 text-sm mb-4 leading-relaxed">Llega directamente a miles de familias del sector Barrancos. Tu marca apoya una causa comunitaria.</p>
+                            <ul class="space-y-2.5 mb-5">
+                                <li class="flex items-start gap-2.5 text-sm text-slate-200">
+                                    <i data-lucide="target" class="w-4 h-4 text-blue-400 shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-white">Audiencia local:</strong> Vecinos activos que consultan el monitor diariamente.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5 text-sm text-slate-200">
+                                    <i data-lucide="heart-handshake" class="w-4 h-4 text-pink-400 shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-white">Imagen positiva:</strong> Tu negocio se asocia con una causa social y de utilidad pública.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5 text-sm text-slate-200">
+                                    <i data-lucide="eye" class="w-4 h-4 text-green-400 shrink-0 mt-0.5"></i>
+                                    <span><strong class="text-white">Alta visibilidad:</strong> Banner en la página principal, visible las 24 horas.</span>
+                                </li>
+                            </ul>
+                            <button onclick="window.prefillContactForm('ad')" class="contact-action-btn bg-blue-500/20 hover:bg-blue-500/30 border-blue-400/30 text-blue-200">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                Quiero anunciarme — Contactar
+                            </button>
                         </div>
 
-                        <div class="border-t border-water-600 dark:border-slate-700 mt-12 pt-8">
-                            <p class="text-center text-slate-300 dark:text-slate-500 mb-4">Próximamente en redes sociales:</p>
-                            <div class="flex justify-center gap-6">
-                                <a href="#" class="social-icon instagram"><i data-lucide="instagram"></i></a>
-                                <a href="#" class="social-icon facebook"><i data-lucide="facebook"></i></a>
-                                <a href="#" class="social-icon twitter"><i data-lucide="twitter"></i></a>
+                        <!-- Bloque 2: Reporte ciudadano -->
+                        <div class="contact-info-card border border-white/10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="bg-red-500/20 p-2.5 rounded-xl">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-300"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-white">¿Reporte ciudadano?</h2>
+                            </div>
+                            <p class="text-slate-300 text-sm mb-4 leading-relaxed">Para reportar una falla de agua en un día específico, hazlo directamente desde el <strong class="text-white">calendario</strong> para que quede registrado en la fecha exacta.</p>
+                            <div class="bg-white/5 rounded-xl p-3 mb-4 border border-white/10">
+                                <ol class="space-y-1.5 text-xs text-slate-300">
+                                    <li class="flex items-center gap-2"><span class="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0">1</span> Toca un día del calendario.</li>
+                                    <li class="flex items-center gap-2"><span class="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0">2</span> Presiona "🚨 Reportar falla de agua".</li>
+                                    <li class="flex items-center gap-2"><span class="bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0">3</span> Llena el formulario y envía.</li>
+                                </ol>
+                            </div>
+                            <button onclick="router('home')" class="contact-action-btn bg-red-500/20 hover:bg-red-500/30 border-red-400/30 text-red-200">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                Ir al Calendario para Reportar
+                            </button>
+                        </div>
+
+                        <!-- Ubicación y redes -->
+                        <div class="mt-auto">
+                            <div class="flex items-center gap-3 mb-4 text-slate-300">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                                <span class="text-sm">Culiacán, Sinaloa, México</span>
+                            </div>
+                            <div class="border-t border-white/10 pt-4">
+                                <p class="text-center text-slate-400 text-xs mb-3">Próximamente en redes sociales:</p>
+                                <div class="flex justify-center gap-4">
+                                    <a href="#" class="social-icon instagram"><i data-lucide="instagram"></i></a>
+                                    <a href="#" class="social-icon facebook"><i data-lucide="facebook"></i></a>
+                                    <a href="#" class="social-icon twitter"><i data-lucide="twitter"></i></a>
+                                </div>
                             </div>
                         </div>
                     </div>
