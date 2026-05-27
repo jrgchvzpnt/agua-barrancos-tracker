@@ -39,6 +39,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     switchView('outages');
 
+    // --- CONTADORES DE CARACTERES ---
+    const outageNotesTextarea = document.getElementById('outage-notes');
+    const outageNotesCounter = document.getElementById('outage-notes-counter');
+    if (outageNotesTextarea && outageNotesCounter) {
+        outageNotesTextarea.addEventListener('input', () => {
+            const len = outageNotesTextarea.value.length;
+            outageNotesCounter.textContent = `${len} / 499`;
+            outageNotesCounter.classList.toggle('text-red-500', len >= 480);
+            outageNotesCounter.classList.toggle('text-gray-400', len < 480);
+        });
+    }
+
+    const noticeContentTextarea = document.getElementById('notice-content');
+    const noticeContentCounter = document.getElementById('notice-content-counter');
+    if (noticeContentTextarea && noticeContentCounter) {
+        noticeContentTextarea.addEventListener('input', () => {
+            const len = noticeContentTextarea.value.length;
+            noticeContentCounter.textContent = `${len} / 999`;
+            noticeContentCounter.classList.toggle('text-red-500', len >= 950);
+            noticeContentCounter.classList.toggle('text-gray-400', len < 950);
+        });
+    }
+
     // --- LÓGICA DE FALLOS DE AGUA ---
     const outageForm = document.getElementById('outage-form');
     const cancelEditOutageBtn = document.getElementById('cancel-edit-outage');
@@ -60,9 +83,19 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.innerText = 'Guardando...';
 
         try {
+            const notesValue = document.getElementById('outage-notes').value.trim();
+
+            // Validación de longitud antes de enviar a Firestore
+            if (notesValue.length >= 500) {
+                alert("⚠️ Las notas no pueden superar los 499 caracteres. Por favor, acórtalas.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+                return;
+            }
+
             const data = {
                 status: document.getElementById('outage-status').value,
-                notes: document.getElementById('outage-notes').value,
+                notes: notesValue,
                 timestamp: new Date().toISOString()
             };
 
@@ -70,6 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (success) {
                 alert(`✅ Se guardó el registro para el día ${dateVal}`);
                 outageForm.reset();
+                // Resetear el contador de notas
+                if (outageNotesCounter) outageNotesCounter.textContent = '0 / 499';
                 document.getElementById('outage-date').disabled = false;
                 cancelEditOutageBtn.classList.add('hidden');
             } else {
@@ -80,8 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         } catch (error) {
-            console.error("Error al guardar el reporte:", error);
-            alert(`❌ Hubo un error: ${error.message}`);
+            if (error.code === 'permission-denied') {
+                alert("❌ Permiso denegado por Firestore. Verifica que los datos cumplan con las reglas de validación o que tu sesión no haya expirado.");
+            } else {
+                alert(`❌ Hubo un error al guardar: ${error.message}`);
+            }
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = originalBtnText;
@@ -95,7 +133,15 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('outage-date').value = dateKey;
         document.getElementById('outage-date').disabled = true;
         document.getElementById('outage-status').value = outage.status;
-        document.getElementById('outage-notes').value = outage.notes;
+        // Corrección: usar || '' para evitar que se muestre "undefined" si no hay notas
+        const notesVal = outage.notes || '';
+        document.getElementById('outage-notes').value = notesVal;
+        // Actualizar el contador de caracteres al cargar el registro
+        if (outageNotesCounter) {
+            outageNotesCounter.textContent = `${notesVal.length} / 499`;
+            outageNotesCounter.classList.toggle('text-red-500', notesVal.length >= 480);
+            outageNotesCounter.classList.toggle('text-gray-400', notesVal.length < 480);
+        }
         
         cancelEditOutageBtn.classList.remove('hidden');
         switchView('outages');
@@ -106,6 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
         outageForm.reset();
         document.getElementById('outage-date').disabled = false;
         cancelEditOutageBtn.classList.add('hidden');
+        // Resetear el contador al cancelar edición
+        if (outageNotesCounter) outageNotesCounter.textContent = '0 / 499';
     });
 
     // --- LÓGICA DE PUBLICIDAD (ADS) ---
@@ -289,11 +337,15 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const id = document.getElementById('notice-id').value;
         const type = document.getElementById('notice-type').value;
-        const content = document.getElementById('notice-content').value;
+        const content = document.getElementById('notice-content').value.trim();
         const submitBtn = noticeForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerText;
 
         if (!content) return alert("Por favor, escribe el contenido del aviso.");
+
+        if (content.length >= 1000) {
+            return alert("⚠️ El contenido del aviso no puede superar los 999 caracteres. Por favor, acórtalo.");
+        }
 
         submitBtn.disabled = true;
         submitBtn.innerText = 'Guardando...';
@@ -306,12 +358,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('notice-id').value = '';
                 cancelEditNoticeBtn.classList.add('hidden');
                 submitBtn.innerText = '+ Agregar Aviso';
+                // Resetear el contador de avisos
+                if (noticeContentCounter) noticeContentCounter.textContent = '0 / 999';
             } else {
                 alert("❌ Hubo un error al guardar el aviso.");
             }
         } catch (error) {
-            console.error("Error saving notice:", error);
-            alert("❌ Hubo un error al guardar el aviso.");
+            if (error.code === 'permission-denied') {
+                alert("❌ Permiso denegado. Verifica que el contenido cumpla con las reglas o que tu sesión no haya expirado.");
+            } else {
+                alert("❌ Hubo un error al guardar el aviso.");
+            }
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = originalBtnText;
@@ -324,7 +381,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById('notice-id').value = notice.id;
         document.getElementById('notice-type').value = notice.type;
-        document.getElementById('notice-content').value = notice.content;
+        const contentVal = notice.content || '';
+        document.getElementById('notice-content').value = contentVal;
+        // Actualizar el contador de caracteres al cargar el aviso
+        if (noticeContentCounter) {
+            noticeContentCounter.textContent = `${contentVal.length} / 999`;
+            noticeContentCounter.classList.toggle('text-red-500', contentVal.length >= 950);
+            noticeContentCounter.classList.toggle('text-gray-400', contentVal.length < 950);
+        }
 
         noticeForm.querySelector('button[type="submit"]').innerText = 'Actualizar Aviso';
         cancelEditNoticeBtn.classList.remove('hidden');
@@ -337,6 +401,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('notice-id').value = '';
         cancelEditNoticeBtn.classList.add('hidden');
         noticeForm.querySelector('button[type="submit"]').innerText = '+ Agregar Aviso';
+        // Resetear el contador al cancelar edición
+        if (noticeContentCounter) noticeContentCounter.textContent = '0 / 999';
     });
 
     // --- LÓGICA DE MENSAJES ---
