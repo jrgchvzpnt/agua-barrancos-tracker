@@ -138,6 +138,17 @@
                             <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase hidden sm:block">Sáb</span>
                             <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase sm:hidden">S</span>
                         </div>
+                        <!-- Banner CTA: Instrucción para reportar falla -->
+                        <div class="report-cta-banner">
+                            <div class="shrink-0 bg-orange-100 dark:bg-orange-900/40 rounded-full p-2">
+                                <i data-lucide="hand-pointer" class="w-5 h-5 text-orange-600 dark:text-orange-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-orange-800 dark:text-orange-200 leading-tight">¿Sin agua hoy o en días pasados?</p>
+                                <p class="text-xs text-orange-700 dark:text-orange-300 mt-0.5">👆 Toca un día del calendario y presiona <strong>"🚨 Reportar falla de agua"</strong> para registrar tu queja.</p>
+                            </div>
+                        </div>
+
                         <div class="overflow-x-auto pb-2">
                             <div id="calendar-grid" class="calendar-grid min-h-[350px] gap-2 sm:gap-3" style="min-width: 24rem;">
                                 <div class="col-span-7 flex justify-center items-center h-full"><div class="loader"></div></div>
@@ -195,9 +206,13 @@
 
                             <div class="space-y-4">
                                 <!-- Como funciona -->
-                                <div class="bg-white dark:bg-slate-700 rounded-xl p-4 border border-slate-200 dark:border-slate-600 shadow-sm h-full">
-                                    <h5 class="font-bold text-blue-800 dark:text-blue-300 text-sm mb-1 flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-2 text-blue-500 dark:text-blue-400"></i>¿Cómo funciona?</h5>
-                                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Los días en color rojo muestran cuando se ha tenido una falla, selecciona uno para más detalles.</p>
+                                <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-900/50 shadow-sm h-full">
+                                    <h5 class="font-bold text-red-800 dark:text-red-300 text-sm mb-2 flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-2 text-red-500 dark:text-red-400"></i>¿Cómo reportar una falla?</h5>
+                                    <ol class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed space-y-1 list-none">
+                                        <li class="flex items-start gap-1.5"><span class="font-bold text-red-600 dark:text-red-400 shrink-0">1.</span> Toca cualquier <strong>día del calendario</strong>.</li>
+                                        <li class="flex items-start gap-1.5"><span class="font-bold text-red-600 dark:text-red-400 shrink-0">2.</span> Presiona el botón rojo <strong>"🚨 Reportar falla"</strong>.</li>
+                                        <li class="flex items-start gap-1.5"><span class="font-bold text-red-600 dark:text-red-400 shrink-0">3.</span> Llena el formulario y envía tu queja.</li>
+                                    </ol>
                                 </div>
                             </div>
 

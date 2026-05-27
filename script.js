@@ -204,12 +204,14 @@ window.openDayModal = function(dateKey) {
             p2.textContent = 'El suministro operó con normalidad.';
             
             const reportPrompt = document.createElement('div');
-            reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-center';
+            reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 dark:border-slate-700';
             reportPrompt.innerHTML = `
-                <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">¿Tuviste problemas con el agua en tu colonia este día?</p>
-                <button onclick="window.showReportForm()" class="text-water-600 font-bold text-sm hover:underline flex items-center justify-center gap-1 mx-auto">
-                    <i data-lucide="alert-circle" class="w-4 h-4"></i> Reportar una falla
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 text-center">¿Tuviste problemas con el agua en tu colonia este día?</p>
+                <button onclick="window.showReportForm()" class="btn-report-outage">
+                    <span class="pulse-icon">🚨</span>
+                    <span>Reportar falla de agua en este día</span>
                 </button>
+                <p class="text-xs text-slate-400 dark:text-slate-500 text-center mt-2">Tu reporte será validado antes de publicarse</p>
             `;
 
             container.append(iconContainer, p1, p2, reportPrompt);
