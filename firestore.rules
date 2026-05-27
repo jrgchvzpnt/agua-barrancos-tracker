@@ -26,13 +26,15 @@ service cloud.firestore {
     // Outages Collection: Secured
     match /outages/{outageId} {
       allow read: if isPublicRead();
+      allow delete: if isAdmin();
       allow write: if isAdmin() &&
                       // Validate document ID format (YYYY-MM-DD)
                       outageId.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
-                      // Enforce strict data schema
+                      // Enforce strict data schema (campos opcionales permitidos)
                       request.resource.data.keys().hasOnly(['status', 'notes', 'duracion', 'timestamp']) &&
                       // Validate field types and constraints
                       request.resource.data.status is string &&
+                      request.resource.data.status.size() > 0 &&
                       request.resource.data.status.size() < 100 &&
                       (!('notes' in request.resource.data) || (request.resource.data.notes is string && request.resource.data.notes.size() < 500)) &&
                       (!('duracion' in request.resource.data) || (request.resource.data.duracion is string && request.resource.data.duracion.size() < 50)) &&
@@ -57,8 +59,8 @@ service cloud.firestore {
     match /ads/{adId} {
       allow read: if isPublicRead();
       allow write: if isAdmin() &&
-                      // Enforce strict data schema, now including imageDescriptions
-                      request.resource.data.keys().hasOnly(['name', 'imageUrls', 'imageDescriptions', 'linkUrl', 'createdAt']) &&
+                      // Enforce strict data schema, now including imageDescriptions and active flag
+                      request.resource.data.keys().hasOnly(['name', 'imageUrls', 'imageDescriptions', 'linkUrl', 'createdAt', 'active']) &&
                       // Validate field types and constraints
                       request.resource.data.name is string &&
                       request.resource.data.name.size() < 100 &&
@@ -67,8 +69,7 @@ service cloud.firestore {
                       request.resource.data.imageUrls is list &&
                       request.resource.data.imageUrls.size() < 10 && // Limit to 10 images
                       request.resource.data.imageDescriptions is list &&
-                      request.resource.data.imageDescriptions.size() < 10 && // Match image count
-                      request.resource.data.createdAt is timestamp;
+                      request.resource.data.imageDescriptions.size() < 10; // Match image count
     }
 
     // Notices Collection: Secured
