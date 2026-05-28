@@ -62,13 +62,35 @@ window.renderCalendar = function() {
         const isPending = Object.values(pendingReports).some(report => report.dateKey === dateKey);
         
         const cell = document.createElement('div');
-        cell.className = 'calendar-day font-medium text-sm border transition-colors cursor-pointer flex items-center justify-center py-2 rounded-md';
-        cell.innerText = day;
+        cell.className = 'calendar-day font-medium text-sm border transition-colors cursor-pointer flex flex-col items-center justify-center py-1 rounded-md relative';
         cell.onclick = () => window.openDayModal(dateKey);
 
+        // Número del día
+        const dayNum = document.createElement('span');
+        dayNum.textContent = day;
+        cell.appendChild(dayNum);
+
+        // Iconos de servicio (gota y/o rayo)
         if (hasOutage) {
+            const serviceType = hasOutage.serviceType || 'water'; // 'water', 'power', 'both'
+            const iconsRow = document.createElement('div');
+            iconsRow.className = 'flex gap-0.5 mt-0.5';
+
+            if (serviceType === 'water' || serviceType === 'both') {
+                const dropIcon = document.createElement('span');
+                dropIcon.textContent = '💧';
+                dropIcon.className = 'text-[9px] leading-none';
+                iconsRow.appendChild(dropIcon);
+                daysWithoutWaterThisMonth++;
+            }
+            if (serviceType === 'power' || serviceType === 'both') {
+                const zapIcon = document.createElement('span');
+                zapIcon.textContent = '⚡';
+                zapIcon.className = 'text-[9px] leading-none';
+                iconsRow.appendChild(zapIcon);
+            }
+            cell.appendChild(iconsRow);
             cell.classList.add('bg-alert-500', 'text-white', 'border-alert-600', 'shadow-md');
-            daysWithoutWaterThisMonth++;
         } else if (isPending) {
             cell.classList.add('bg-yellow-500', 'text-white', 'border-yellow-600', 'shadow-md');
         } else {
@@ -206,10 +228,10 @@ window.openDayModal = function(dateKey) {
             const reportPrompt = document.createElement('div');
             reportPrompt.className = 'mt-6 pt-4 border-t border-slate-100 dark:border-slate-700';
             reportPrompt.innerHTML = `
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 text-center">¿Tuviste problemas con el agua en tu colonia este día?</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 text-center">¿Tuviste problemas de agua o luz en tu colonia este día?</p>
                 <button onclick="window.showReportForm()" class="btn-report-outage">
                     <span class="pulse-icon">🚨</span>
-                    <span>Reportar falla de agua en este día</span>
+                    <span>Reportar falla en este día</span>
                 </button>
                 <p class="text-xs text-slate-400 dark:text-slate-500 text-center mt-2">Tu reporte será validado antes de publicarse</p>
             `;

@@ -66,6 +66,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const outageForm = document.getElementById('outage-form');
     const cancelEditOutageBtn = document.getElementById('cancel-edit-outage');
 
+    // --- INTERACTIVIDAD DE BOTONES DE TIPO DE SERVICIO ---
+    const serviceTypeOptions = document.querySelectorAll('.service-type-option');
+    serviceTypeOptions.forEach(option => {
+        const radio = option.querySelector('input[type="radio"]');
+        const btn = option.querySelector('.service-type-btn');
+
+        // Estilos activos por tipo
+        const activeStyles = {
+            water: ['border-blue-500', 'bg-blue-50', 'text-blue-700'],
+            power: ['border-yellow-500', 'bg-yellow-50', 'text-yellow-700'],
+            both: ['border-purple-500', 'bg-purple-50', 'text-purple-700'],
+        };
+        const inactiveStyles = ['border-gray-200', 'bg-gray-50', 'text-gray-500'];
+
+        option.addEventListener('click', () => {
+            // Desactivar todos
+            serviceTypeOptions.forEach(opt => {
+                const r = opt.querySelector('input[type="radio"]');
+                const b = opt.querySelector('.service-type-btn');
+                const styles = activeStyles[r.value] || inactiveStyles;
+                styles.forEach(cls => b.classList.remove(cls));
+                inactiveStyles.forEach(cls => b.classList.add(cls));
+            });
+            // Activar el seleccionado
+            const styles = activeStyles[radio.value] || inactiveStyles;
+            inactiveStyles.forEach(cls => btn.classList.remove(cls));
+            styles.forEach(cls => btn.classList.add(cls));
+        });
+    });
+
     outageForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const dateVal = document.getElementById('outage-date').value;
@@ -93,9 +123,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // Leer el tipo de servicio seleccionado
+            const serviceTypeRadio = outageForm.querySelector('input[name="serviceType"]:checked');
+            const serviceType = serviceTypeRadio ? serviceTypeRadio.value : 'water';
+
             const data = {
                 status: document.getElementById('outage-status').value,
                 notes: notesValue,
+                serviceType: serviceType,
                 timestamp: new Date().toISOString()
             };
 
@@ -142,6 +177,28 @@ document.addEventListener("DOMContentLoaded", () => {
             outageNotesCounter.classList.toggle('text-red-500', notesVal.length >= 480);
             outageNotesCounter.classList.toggle('text-gray-400', notesVal.length < 480);
         }
+
+        // Restaurar el tipo de servicio seleccionado
+        const savedServiceType = outage.serviceType || 'water';
+        const activeStyles = {
+            water: ['border-blue-500', 'bg-blue-50', 'text-blue-700'],
+            power: ['border-yellow-500', 'bg-yellow-50', 'text-yellow-700'],
+            both: ['border-purple-500', 'bg-purple-50', 'text-purple-700'],
+        };
+        const inactiveStyles = ['border-gray-200', 'bg-gray-50', 'text-gray-500'];
+        serviceTypeOptions.forEach(opt => {
+            const r = opt.querySelector('input[type="radio"]');
+            const b = opt.querySelector('.service-type-btn');
+            if (r.value === savedServiceType) {
+                r.checked = true;
+                inactiveStyles.forEach(cls => b.classList.remove(cls));
+                (activeStyles[r.value] || []).forEach(cls => b.classList.add(cls));
+            } else {
+                r.checked = false;
+                (activeStyles[r.value] || []).forEach(cls => b.classList.remove(cls));
+                inactiveStyles.forEach(cls => b.classList.add(cls));
+            }
+        });
         
         cancelEditOutageBtn.classList.remove('hidden');
         switchView('outages');
@@ -546,6 +603,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 modalHeader.className = 'p-4 flex justify-between items-center bg-red-600';
                 modalTitle.textContent = 'Reporte de Corte';
             }
+
+            // Mostrar tipo de servicio afectado
+            const serviceLabels = { water: '💧 Agua (JAPAC)', power: '⚡ Luz (CFE)', both: '💧⚡ Agua y Luz' };
+            const serviceType = data.serviceType || 'water';
+            const serviceP = document.createElement('p');
+            serviceP.className = 'text-sm font-bold mt-1 mb-2';
+            serviceP.innerHTML = `<span class="text-gray-500">Servicio:</span> ${serviceLabels[serviceType] || serviceLabels.water}`;
+            modalContent.appendChild(serviceP);
             
             const statusP = document.createElement('p');
             statusP.innerHTML = '<strong>Estado:</strong> ';

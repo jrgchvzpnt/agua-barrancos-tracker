@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Monitor H2O</title>
+    <title>Panel Admin - Monitor Vecinal</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -13,13 +13,14 @@
 
     <!-- Sidebar -->
     <aside class="bg-slate-800 text-white w-64 min-h-screen p-4 flex flex-col">
-        <div class="text-2xl font-bold flex items-center gap-2 mb-10">
+        <div class="text-xl font-bold flex items-center gap-2 mb-10">
             <i data-lucide="droplet" class="text-blue-400"></i>
-            <span>Admin H2O</span>
+            <i data-lucide="zap" class="text-yellow-400"></i>
+            <span>Monitor Vecinal</span>
         </div>
         <nav class="flex flex-col space-y-2">
             <a href="#" id="nav-outages" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-700">
-                <i data-lucide="cloud-rain"></i> Registrar Fallo de Agua
+                <i data-lucide="alert-triangle"></i> Registrar Fallo
             </a>
             <a href="#" id="nav-sponsors" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-700">
                 <i data-lucide="gem"></i> Gestionar Patrocinadores
@@ -47,26 +48,59 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-8">
-        <!-- Sección: Registrar Fallo de Agua -->
+        <!-- Sección: Registrar Fallo -->
         <section id="section-outages" class="admin-section">
             <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-blue-500">
-                <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Registrar Fallo de Agua</h2>
+                <h2 class="text-xl font-bold mb-1 text-gray-800">Registrar Fallo de Servicio</h2>
+                <p class="text-sm text-gray-500 mb-4 border-b pb-3">Registra cortes de agua (JAPAC) o luz (CFE) en el calendario.</p>
                 <form id="outage-form" class="space-y-4">
                     <div>
                         <label class="block text-sm font-bold mb-1">Fecha del problema</label>
                         <input type="date" id="outage-date" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
                     </div>
+
+                    <!-- Selector de tipo de servicio -->
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Servicio Afectado</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="service-type-option">
+                                <input type="radio" name="serviceType" value="water" checked class="sr-only">
+                                <div class="service-type-btn border-2 border-blue-500 bg-blue-50 text-blue-700 rounded-lg p-3 text-center cursor-pointer transition-all">
+                                    <div class="text-2xl mb-1">💧</div>
+                                    <div class="text-xs font-bold">Agua</div>
+                                    <div class="text-[10px] text-blue-500">JAPAC</div>
+                                </div>
+                            </label>
+                            <label class="service-type-option">
+                                <input type="radio" name="serviceType" value="power" class="sr-only">
+                                <div class="service-type-btn border-2 border-gray-200 bg-gray-50 text-gray-500 rounded-lg p-3 text-center cursor-pointer transition-all">
+                                    <div class="text-2xl mb-1">⚡</div>
+                                    <div class="text-xs font-bold">Luz</div>
+                                    <div class="text-[10px] text-gray-400">CFE</div>
+                                </div>
+                            </label>
+                            <label class="service-type-option">
+                                <input type="radio" name="serviceType" value="both" class="sr-only">
+                                <div class="service-type-btn border-2 border-gray-200 bg-gray-50 text-gray-500 rounded-lg p-3 text-center cursor-pointer transition-all">
+                                    <div class="text-2xl mb-1">💧⚡</div>
+                                    <div class="text-xs font-bold">Ambos</div>
+                                    <div class="text-[10px] text-gray-400">JAPAC + CFE</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-bold mb-1">Estado del Servicio</label>
                         <select id="outage-status" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
-                            <option value="Cortado (Sin servicio)">🔴 Cortado (Sin agua)</option>
-                            <option value="Intermitente (Baja presión)">🟡 Intermitente (Baja presión)</option>
+                            <option value="Cortado (Sin servicio)">🔴 Cortado (Sin servicio)</option>
+                            <option value="Intermitente (Baja presión/voltaje)">🟡 Intermitente (Baja presión/voltaje)</option>
                             <option value="Reporte ciudadano">🟠 Reporte ciudadano</option>
                         </select>
                     </div>
                     <div>
                         <label for="outage-notes" class="block text-sm font-bold mb-1">Notas / Descripción</label>
-                        <textarea id="outage-notes" rows="3" maxlength="499" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Ej: Reparación de tubería en la calle principal."></textarea>
+                        <textarea id="outage-notes" rows="3" maxlength="499" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Ej: Reparación de tubería en la calle principal. / Corte de CFE por mantenimiento."></textarea>
                         <div class="flex justify-between items-center mt-1">
                             <p class="text-xs text-gray-500">Puedes usar *asteriscos* para poner texto en <b>negrita</b>.</p>
                             <span id="outage-notes-counter" class="text-xs text-gray-400">0 / 499</span>
