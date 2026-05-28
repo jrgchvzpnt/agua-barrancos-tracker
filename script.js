@@ -520,6 +520,8 @@ window.prefillContactForm = function(type) {
         if (textarea) {
             if (type === 'ad') {
                 textarea.value = 'Hola, me interesa anunciar mi negocio en Monitor H2O Barrancos. Por favor contáctenme para más información.';
+            } else if (type === 'expansion') {
+                textarea.value = 'Hola, me gustaría que Monitor H2O llegue a mi colonia en Culiacán. Les comparto los detalles del problema con el suministro de agua en mi sector:';
             }
             textarea.focus();
             textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });

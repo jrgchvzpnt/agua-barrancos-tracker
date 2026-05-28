@@ -398,53 +398,107 @@
             </div>
         </div>
 
-        <div id="view-about" class="view-section hidden fade-in max-w-3xl mx-auto">
-            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Nuestra Misión</h2>
-                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Empoderar a la comunidad de Barrancos a través de la transparencia y la colaboración, proporcionando una plataforma digital robusta y accesible para el monitoreo del servicio de agua. Buscamos ser un punto de encuentro ciudadano donde la información veraz y en tiempo real sobre el suministro fomente la participación, la rendición de cuentas y la búsqueda conjunta de soluciones para garantizar un servicio de calidad para todos.
+        <div id="view-about" class="view-section hidden fade-in max-w-4xl mx-auto">
+
+            <!-- Hero Header de Misión -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 bg-water-50 dark:bg-water-900/30 text-water-700 dark:text-water-300 text-xs font-bold px-4 py-2 rounded-full mb-4 border border-water-200 dark:border-water-800">
+                    <i data-lucide="droplet" class="w-3.5 h-3.5"></i>
+                    NUESTRO PROPÓSITO
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-3 leading-tight">
+                    Uniendo tecnología y<br class="hidden sm:block"> comunidad por el agua
+                </h2>
+                <p class="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+                    Una iniciativa ciudadana que nació en Barrancos para garantizar que cada vecino tenga acceso a información veraz sobre el suministro de agua.
+                </p>
+            </div>
+
+            <!-- Misión y Visión en Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                <!-- Misión -->
+                <div class="about-card-mission">
+                    <div class="about-card-icon-wrap bg-water-600">
+                        <i data-lucide="target" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Nuestra Misión</h3>
+                    <p class="text-water-100 text-sm leading-relaxed">
+                        Empoderar a la comunidad de Barrancos a través de la <strong class="text-white">transparencia y la colaboración</strong>, proporcionando una plataforma digital accesible para el monitoreo del servicio de agua. Buscamos ser el punto de encuentro ciudadano donde la información veraz fomente la participación y la rendición de cuentas.
                     </p>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-3">Visión</h3>
-                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Convertirnos en un referente de iniciativa comunitaria y tecnológica, demostrando cómo la acción colectiva y el uso de herramientas digitales pueden generar un impacto positivo y duradero en la calidad de los servicios públicos. Aspiramos a un futuro donde cada residente tenga acceso constante a información fiable, promoviendo una comunidad más informada, unida y resiliente.
-                    </p>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Nuestros Valores</h3>
-                    <ul class="space-y-4">
-                        <li class="flex items-start">
-                            <i data-lucide="eye" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
-                            <div>
-                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Transparencia</h4>
-                                <p class="text-slate-500 dark:text-slate-400">Creemos en el libre acceso a la información como pilar de la confianza y la participación ciudadana.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start">
-                            <i data-lucide="users" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
-                            <div>
-                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Comunidad</h4>
-                                <p class="text-slate-500 dark:text-slate-400">Fomentamos la colaboración y el apoyo mutuo entre vecinos como motor de cambio.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start">
-                            <i data-lucide="cpu" class="w-5 h-5 text-water-600 dark:text-water-400 mr-3 mt-1"></i>
-                            <div>
-                                <h4 class="font-semibold text-slate-700 dark:text-slate-200">Tecnología para el Bien</h4>
-                                <p class="text-slate-500 dark:text-slate-400">Utilizamos la innovación como una herramienta para resolver problemas locales y mejorar la calidad de vida.</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="border-t border-slate-200 dark:border-slate-700 pt-6 mt-6">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-3">Una plataforma para toda la ciudad</h3>
-                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Aunque nuestro enfoque inicial es Barrancos, esta plataforma está diseñada para crecer. Si en tu colonia de Culiacán también enfrentan problemas con el suministro de agua y no encuentras información aquí, te invitamos a que nos lo hagas saber. Utiliza nuestro <button onclick="router('contact')" class="font-semibold text-water-600 dark:text-water-400 hover:underline">formulario de contacto</button> para enviarnos los detalles. Juntos podemos ampliar este monitor a más comunidades.
+
+                <!-- Visión -->
+                <div class="about-card-vision">
+                    <div class="about-card-icon-wrap bg-indigo-600">
+                        <i data-lucide="sparkles" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Nuestra Visión</h3>
+                    <p class="text-indigo-100 text-sm leading-relaxed">
+                        Convertirnos en un <strong class="text-white">referente de iniciativa comunitaria y tecnológica</strong>, demostrando cómo la acción colectiva puede generar un impacto positivo en los servicios públicos. Aspiramos a una comunidad más informada, unida y resiliente.
                     </p>
                 </div>
             </div>
+
+            <!-- Valores -->
+            <div class="mb-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
+                    <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest shrink-0">Nuestros Valores</h3>
+                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Transparencia -->
+                    <div class="about-value-card group">
+                        <div class="about-value-icon bg-blue-100 dark:bg-blue-900/40 group-hover:bg-blue-600 transition-colors duration-300">
+                            <i data-lucide="eye" class="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors duration-300"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mt-4 mb-2">Transparencia</h4>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Creemos en el libre acceso a la información como pilar de la confianza y la participación ciudadana.</p>
+                    </div>
+                    <!-- Comunidad -->
+                    <div class="about-value-card group">
+                        <div class="about-value-icon bg-green-100 dark:bg-green-900/40 group-hover:bg-green-600 transition-colors duration-300">
+                            <i data-lucide="users" class="w-6 h-6 text-green-600 dark:text-green-400 group-hover:text-white transition-colors duration-300"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mt-4 mb-2">Comunidad</h4>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Fomentamos la colaboración y el apoyo mutuo entre vecinos como motor de cambio social.</p>
+                    </div>
+                    <!-- Tecnología -->
+                    <div class="about-value-card group">
+                        <div class="about-value-icon bg-purple-100 dark:bg-purple-900/40 group-hover:bg-purple-600 transition-colors duration-300">
+                            <i data-lucide="cpu" class="w-6 h-6 text-purple-600 dark:text-purple-400 group-hover:text-white transition-colors duration-300"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-white text-base mt-4 mb-2">Tecnología para el Bien</h4>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Utilizamos la innovación como herramienta para resolver problemas locales y mejorar la calidad de vida.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banner de Expansión -->
+            <div class="about-expansion-banner">
+                <div class="about-expansion-deco">
+                    <i data-lucide="map" class="w-40 h-40"></i>
+                </div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                    <div class="flex-1 text-center md:text-left">
+                        <div class="inline-flex items-center gap-2 bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-3 border border-white/30">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            EXPANSIÓN A CULIACÁN
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Una plataforma para toda la ciudad</h3>
+                        <p class="text-emerald-100 text-sm leading-relaxed max-w-md">
+                            Aunque nuestro enfoque inicial es Barrancos, esta plataforma está diseñada para crecer. Si en tu colonia también enfrentan problemas con el agua, ¡cuéntanos!
+                        </p>
+                    </div>
+                    <div class="shrink-0">
+                        <button onclick="window.prefillContactForm('expansion')" class="about-expansion-btn">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            Llevar Monitor H2O a mi colonia
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div id="view-contact" class="view-section hidden fade-in">

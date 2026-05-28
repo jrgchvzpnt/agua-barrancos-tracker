@@ -199,6 +199,139 @@ dialog.open\:animate-fade-in {
     animation: today-pulse 2s ease-in-out infinite;
 }
 
+/* --- ABOUT / MISSION SECTION --- */
+
+/* Tarjetas de Misión y Visión */
+.about-card-mission {
+    background: linear-gradient(135deg, #0284c7 0%, #0c4a6e 100%);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(2, 132, 199, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-card-mission:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(2, 132, 199, 0.3);
+}
+
+.about-card-vision {
+    background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-card-vision:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
+}
+
+.about-card-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Tarjetas de Valores */
+.about-value-card {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 1.125rem;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.25s ease-in-out;
+    cursor: default;
+}
+
+.about-value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+.dark .about-value-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark .about-value-card:hover {
+    border-color: #475569;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.about-value-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    margin: 0 auto;
+}
+
+/* Banner de Expansión */
+.about-expansion-banner {
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(5, 150, 105, 0.25);
+}
+
+.dark .about-expansion-banner {
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%);
+    box-shadow: 0 16px 40px rgba(5, 150, 105, 0.12);
+}
+
+.about-expansion-deco {
+    position: absolute;
+    right: -30px;
+    top: -20px;
+    opacity: 0.07;
+    color: white;
+    pointer-events: none;
+    animation: float-slow 7s ease-in-out infinite;
+}
+
+.about-expansion-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    color: #059669;
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.about-expansion-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    background: #f0fdf4;
+}
+
+.about-expansion-btn:active {
+    transform: translateY(0) scale(1);
+}
+
 /* --- CONTACT INFO CARDS --- */
 .contact-info-card {
     background: rgba(255, 255, 255, 0.05);
