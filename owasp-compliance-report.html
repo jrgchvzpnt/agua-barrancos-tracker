@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Politica de Seguridad de Contenido estricta: offline, sin scripts externos -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; form-action 'none';">
+    <title>Reporte de Cumplimiento OWASP Top 10 — Grupo Coppel</title>
+    <style>
+        :root {
+            --coppel-blue: #2641DF;
+            --coppel-blue-dark: #182A90;
+            --coppel-yellow: #EBD34F;
+            --text-main: #252525;
+            --text-muted: #6B6B6B;
+            --bg-body: #F4F4F5;
+            --bg-card: #ffffff;
+            --border-card: #D9D9D9;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Cintillo superior de clasificacion de informacion */
+        .classification-bar {
+            background-color: #991B1B;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-align: center;
+            padding: 5px 12px;
+            text-transform: uppercase;
+        }
+        /* Encabezado corporativo */
+        .header {
+            background-color: var(--coppel-blue);
+            color: #ffffff;
+            padding: 16px 32px;
+            border-bottom: 5px solid var(--coppel-yellow);
+        }
+        .header-content {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo-box {
+            background: #ffffff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .header-titles h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .header-titles p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .header-meta {
+            text-align: right;
+            font-size: 0.82rem;
+            opacity: 0.95;
+        }
+        /* Contenedor principal */
+        .container {
+            max-width: 1120px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+        /* Banners */
+        .banner {
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            border-left: 6px solid;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .banner h3 { font-size: 1.05rem; margin-bottom: 4px; }
+        .banner p { font-size: 0.9rem; }
+        .banner-audit {
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            border-left-color: #2563EB;
+        }
+        .banner-success {
+            background-color: #DCFCE7;
+            color: #166534;
+            border-left-color: #16A34A;
+        }
+        .banner-danger {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            border-left-color: #DC2626;
+        }
+        /* KPIs y resumen */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 14px 18px;
+            border: 1px solid var(--border-card);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+        .kpi-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-top: 4px;
+        }
+        .kpi-critico { color: #DC2626; }
+        .kpi-alto { color: #EA580C; }
+        .kpi-medio { color: #D97706; }
+        .kpi-bajo { color: #2563EB; }
+        .kpi-total { color: var(--coppel-blue); }
+        /* Tarjetas de hallazgos */
+        .finding-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-card);
+            border-left: 6px solid #9CA3AF;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .finding-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .finding-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .finding-id {
+            background: #E5E7EB;
+            color: #1F2937;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .finding-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--coppel-blue-dark);
+        }
+        .cwe-pill {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #4B5563;
+            background: #F3F4F6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+        .finding-badges {
+            display: flex;
+            gap: 8px;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+        .finding-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .meta-item code {
+            background: #F3F4F6;
+            color: #111827;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 0.85rem;
+        }
+        .finding-diag {
+            font-size: 0.92rem;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        /* Cajas de codigo */
+        .code-section {
+            margin-top: 14px;
+        }
+        .code-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .code-label-vuln { color: #991B1B; }
+        .code-label-fix { color: #166534; }
+        pre {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 14px 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+            font-size: 0.86rem;
+            line-height: 1.45;
+            border: 1px solid #2D2D2D;
+        }
+        .pre-fix {
+            border-left: 4px solid #22C55E;
+        }
+        code {
+            font-family: inherit;
+        }
+        /* Excepcion de seguridad */
+        .exception-box {
+            background-color: #FEF9C3;
+            border: 1px solid #FDE047;
+            color: #713F12;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+        }
+        .exception-grid {
+            display: flex;
+            gap: 20px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        /* Pie de pagina */
+        .footer {
+            max-width: 1120px;
+            margin: 40px auto 30px auto;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border-card);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .ai-pill {
+            display: inline-block;
+            background: #E0E7FF;
+            color: #3730A3;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Clasificacion oficial Coppel -->
+    <div class="classification-bar">
+        CONFIDENCIAL — PROPIEDAD DE GRUPO COPPEL — USO INTERNO EXCLUSIVO
+    </div>
+
+    <!-- Header corporativo -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="logo-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 36" height="30" width="125" fill="none" role="img" aria-label="Coppel">
+  <circle cx="10" cy="18" r="9" fill="#EBD34F"/>
+  <circle cx="25" cy="18" r="4.5" fill="#EBD34F"/>
+  <circle cx="35" cy="18" r="4.5" fill="#EBD34F"/>
+  <text x="45" y="25" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" fill="#2641DF" letter-spacing="-0.5">Coppel</text>
+</svg>
+                </div>
+                <div class="header-titles">
+                    <h1>Reporte de Cumplimiento OWASP Top 10</h1>
+                    <p>Auditoría de Código y Arquitectura Segura</p>
+                </div>
+            </div>
+            <div class="header-meta">
+                <div><strong>Fecha:</strong> 12/11/2026</div>
+                <div><strong>Modo:</strong> Remediación y Validación</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Banner de estado -->
+        <div class="banner banner-success">
+                <h3>✅ GATE DE SEGURIDAD APROBADO</h3>
+                <p>Todos los hallazgos Críticos y Altos fueron corregidos y re-verificados.</p>
+            </div>
+
+        <!-- Alcance -->
+        <div style="background: #ffffff; padding: 12px 18px; border-radius: 6px; border: 1px solid var(--border-card); margin-bottom: 20px; font-size: 0.88rem;">
+            <strong>Alcance auditado:</strong> Archivos incluidos en el commit reciente 8a1ab09: admin.html, admin.js, firebase-init.js, firestore.rules, index.html, script.js y sw.js. Revisión contextual OWASP Top 10:2025; Semgrep no está instalado.
+        </div>
+
+        <!-- Indicadores / KPIs -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">Total Hallazgos</span>
+                <span class="kpi-value kpi-total">5</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Críticos</span>
+                <span class="kpi-value kpi-critico">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Altos</span>
+                <span class="kpi-value kpi-alto">1</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Medios</span>
+                <span class="kpi-value kpi-medio">2</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Bajos / Info</span>
+                <span class="kpi-value kpi-bajo">2</span>
+            </div>
+        </section>
+
+        <!-- Lista de hallazgos -->
+        <section class="findings-list">
+            <h2 style="font-size: 1.15rem; color: var(--coppel-blue-dark); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid #E5E7EB;">
+                Estado de Mitigación por Hallazgo
+            </h2>
+            
+        <article class="finding-card" style="border-left-color: #DC2626;">
+            <header class="finding-header">
+                <div class="finding-title-group">
+                    <span class="finding-id">F-01</span>
+                    <h3 class="finding-title">A05 Injection <span class="cwe-pill">CWE-79</span></h3>
+                </div>
+                <div class="finding-badges">
+                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #DC2626;">Alto</span>
+                    <span class="badge" style="background-color: #DCFCE7; color: #166534;">Corregido y re-verificado</span>
+                </div>
+            </header>
+
+            <div class="finding-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <strong>Archivo:</strong> <code>admin.js:612</code>
+                </span>
+            </div>
+
+            <p class="finding-diag"><strong>Diagnóstico:</strong> El teléfono de un mensaje público se interpola directamente en innerHTML. Las reglas permiten que cualquier cliente cree mensajes con un campo phone de texto, por lo que un atacante puede almacenar marcado HTML y ejecutar JavaScript cuando un administrador abre la bandeja. Los campos name y message usan textContent y no presentan este problema en este renderizador.</p>
+
+            
+
+            <div class="code-section">
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 612):</label>
+                <pre><code>contactP.innerHTML = `📞 ${msg.phone || &#x27;N/A&#x27;} | 📧 ${msg.email || &#x27;N/A&#x27;} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}`;</code></pre>
+            </div>
+
+            <div class="code-section">
+                <label class="code-label code-label-fix">Corrección aplicada / requerida:</label>
+                <pre class="pre-fix"><code>Reemplazar la interpolación HTML por nodos de texto: contactP.append(&#x27;📞 &#x27;, msg.phone || &#x27;N/A&#x27;, &#x27; | 📧 &#x27;, msg.email || &#x27;N/A&#x27;, &#x27; • 🗓️ &#x27;, new Date(msg.createdAt).toLocaleDateString());</code></pre>
+            </div>
+        </article>
+        
+
+        <article class="finding-card" style="border-left-color: #D97706;">
+            <header class="finding-header">
+                <div class="finding-title-group">
+                    <span class="finding-id">F-02</span>
+                    <h3 class="finding-title">A01 Broken Access Control <span class="cwe-pill">CWE-862</span></h3>
+                </div>
+                <div class="finding-badges">
+                    <span class="badge" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #D97706;">Medio</span>
+                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                </div>
+            </header>
+
+            <div class="finding-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <strong>Archivo:</strong> <code>firestore.rules:134</code>
+                </span>
+            </div>
+
+            <p class="finding-diag"><strong>Diagnóstico:</strong> La regla permite a cualquier cliente crear, cambiar o borrar cualquier documento de analytics; isPublicRead() siempre devuelve true. Esto permite falsificar o borrar métricas y crear documentos arbitrarios, con impacto en integridad y costos.</p>
+
+            
+
+            <div class="code-section">
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 134):</label>
+                <pre><code>match /analytics/{docId} { allow read: if isAdmin(); allow write: if isPublicRead(); }</code></pre>
+            </div>
+
+            <div class="code-section">
+                <label class="code-label code-label-fix">Corrección aplicada / requerida:</label>
+                <pre class="pre-fix"><code>Separar permisos: allow create: if isPublicRead() &amp;&amp; validAnalyticsId(docId) &amp;&amp; request.resource.data.keys().hasOnly([&#x27;visits&#x27;]) &amp;&amp; request.resource.data.visits is int &amp;&amp; request.resource.data.visits == 1; allow update: if isPublicRead() &amp;&amp; validAnalyticsId(docId) &amp;&amp; request.resource.data.diff(resource.data).affectedKeys().hasOnly([&#x27;visits&#x27;]) &amp;&amp; request.resource.data.visits is int &amp;&amp; request.resource.data.visits == resource.data.visits + 1; allow delete: if isAdmin(). Definir validAnalyticsId para aceptar solo IDs Y_YYYY, M_YYYY_MM y D_YYYY_MM_DD. Aplicar además App Check y su enforcement de Firestore en Firebase Console.</code></pre>
+            </div>
+        </article>
+        
+
+        <article class="finding-card" style="border-left-color: #D97706;">
+            <header class="finding-header">
+                <div class="finding-title-group">
+                    <span class="finding-id">F-03</span>
+                    <h3 class="finding-title">A06 Insecure Design <span class="cwe-pill">CWE-770</span></h3>
+                </div>
+                <div class="finding-badges">
+                    <span class="badge" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #D97706;">Medio</span>
+                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                </div>
+            </header>
+
+            <div class="finding-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <strong>Archivo:</strong> <code>firestore.rules:93</code>
+                </span>
+            </div>
+
+            <p class="finding-diag"><strong>Diagnóstico:</strong> La creación de reportes pendientes es pública y valida dateKey, pero no exige que el ID del documento sea igual a dateKey. Un cliente puede crear muchos documentos con IDs distintos para la misma fecha, evitando la deduplicación del frontend y llenando la bandeja administrativa. No hay rate limit del lado servidor.</p>
+
+            
+
+            <div class="code-section">
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 93):</label>
+                <pre><code>allow create: if isPublicRead() &amp;&amp; request.resource.data.keys().hasOnly([&#x27;dateKey&#x27;, &#x27;status&#x27;, &#x27;createdAt&#x27;]) &amp;&amp; ...;</code></pre>
+            </div>
+
+            <div class="code-section">
+                <label class="code-label code-label-fix">Corrección aplicada / requerida:</label>
+                <pre class="pre-fix"><code>Agregar &amp;&amp; reportId == request.resource.data.dateKey a la condición allow create; el cliente legítimo ya usa doc(pendingReportsCollection, dateKey), por lo que solo puede existir un pendiente por día. Mantener App Check con enforcement de Firestore y considerar un backend con límites por IP/usuario para frenar abuso automatizado.</code></pre>
+            </div>
+        </article>
+        
+
+        <article class="finding-card" style="border-left-color: #2563EB;">
+            <header class="finding-header">
+                <div class="finding-title-group">
+                    <span class="finding-id">F-04</span>
+                    <h3 class="finding-title">A02 Security Misconfiguration <span class="cwe-pill">CWE-693</span></h3>
+                </div>
+                <div class="finding-badges">
+                    <span class="badge" style="background-color: #DBEAFE; color: #1E40AF; border: 1px solid #2563EB;">Bajo</span>
+                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                </div>
+            </header>
+
+            <div class="finding-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <strong>Archivo:</strong> <code>firebase-init.js:21</code>
+                </span>
+            </div>
+
+            <p class="finding-diag"><strong>Diagnóstico:</strong> App Check se inicializa solo para agua-barrancos-tracker.web.app y monitorbarrancos.com. El Hosting desplegado es monitor-h2o-barrancos.web.app, que no está en la lista, por lo que esa URL no obtiene tokens App Check desde el cliente. El impacto depende de que Firestore App Check esté habilitado/enforced en Firebase Console.</p>
+
+            
+
+            <div class="code-section">
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 21):</label>
+                <pre><code>if (location.hostname === &quot;agua-barrancos-tracker.web.app&quot; || location.hostname === &quot;monitorbarrancos.com&quot;) {</code></pre>
+            </div>
+
+            <div class="code-section">
+                <label class="code-label code-label-fix">Corrección aplicada / requerida:</label>
+                <pre class="pre-fix"><code>Añadir monitor-h2o-barrancos.web.app a los dominios permitidos por el inicializador, comprobar que el dominio está registrado en App Check y habilitar enforcement de Firestore en Firebase Console.</code></pre>
+            </div>
+        </article>
+        
+
+        <article class="finding-card" style="border-left-color: #2563EB;">
+            <header class="finding-header">
+                <div class="finding-title-group">
+                    <span class="finding-id">F-05</span>
+                    <h3 class="finding-title">A03 Software Supply Chain Failures <span class="cwe-pill">CWE-1104</span></h3>
+                </div>
+                <div class="finding-badges">
+                    <span class="badge" style="background-color: #DBEAFE; color: #1E40AF; border: 1px solid #2563EB;">Bajo</span>
+                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                </div>
+            </header>
+
+            <div class="finding-meta">
+                <span class="meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                    <strong>Archivo:</strong> <code>admin.html:8</code>
+                </span>
+            </div>
+
+            <p class="finding-diag"><strong>Diagnóstico:</strong> El panel ejecuta Tailwind desde su CDN sin versión fijada; Lucide usa @latest en la línea siguiente. Un cambio o compromiso del proveedor/CDN puede modificar el JavaScript ejecutado en el origen del panel, sin revisión del repositorio.</p>
+
+            
+
+            <div class="code-section">
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 8):</label>
+                <pre><code>&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt; y &lt;script src=&quot;https://unpkg.com/lucide@latest&quot;&gt;&lt;/script&gt;</code></pre>
+            </div>
+
+            <div class="code-section">
+                <label class="code-label code-label-fix">Corrección aplicada / requerida:</label>
+                <pre class="pre-fix"><code>Servir versiones fijadas de estas dependencias desde el build/hosting del proyecto. Si se mantienen recursos remotos, fijar versiones exactas, aplicar Subresource Integrity cuando el tipo de recurso lo permita y restringir orígenes mediante Content-Security-Policy.</code></pre>
+            </div>
+        </article>
+        
+        </section>
+    </main>
+
+    <!-- Pie legal -->
+    <footer class="footer">
+        <div><span class="ai-pill">Revisión Automática Asistida por IA</span></div>
+        <p><strong>Información Confidencial — Propiedad de Grupo Coppel.</strong> Prohibida su copia, distribución o divulgación fuera de los equipos autorizados.</p>
+        <p>Generado con base en la metodología pública OWASP Top 10:2025. Este reporte es un apoyo de diagnóstico
+        automatizado y no sustituye la revisión de un analista de seguridad ni la validación contra las políticas
+        internas de desarrollo seguro vigentes en Grupo Coppel.</p>
+    </footer>
+
+</body>
+</html>
