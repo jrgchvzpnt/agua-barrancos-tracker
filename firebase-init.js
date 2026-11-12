@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment, query, where, documentId, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc, runTransaction, increment, query, where, documentId, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // --- CONFIGURACIÓN ---
@@ -40,6 +40,7 @@ const messagesCollection = collection(db, 'messages');
 const adsCollection = collection(db, 'ads');
 const noticesCollection = collection(db, 'notices');
 const pendingReportsCollection = collection(db, 'pending_reports');
+const citizenReportDetailsCollection = collection(db, 'citizen_report_details');
 
 // --- ESTADO GLOBAL ---
 window.appState = {
@@ -49,7 +50,10 @@ window.appState = {
     user: null,
     ads: [],
     messages: [],
-    notices: []
+    notices: [],
+    pendingReportDetails: {},
+    pendingReportDetailsLoaded: false,
+    pendingReportDetailsError: null
 };
 
 // --- LÓGICA DE AUTENTICACIÓN ---
@@ -80,6 +84,7 @@ onAuthStateChanged(auth, async (user) => {
             if (path.includes('admin.html')) {
                 syncOutages();
                 syncPendingReports();
+                syncCitizenReportDetails();
                 syncMessages();
                 syncAds();
                 syncNotices();
@@ -316,12 +321,42 @@ async function syncPendingReports() {
         snapshot.forEach(doc => {
             const data = doc.data();
             if (data.dateKey) {
-                pendingData[data.dateKey] = data;
+                pendingData[data.dateKey] = { id: doc.id, ...data };
             }
         });
         window.appState.pendingReports = pendingData;
         // Re-render calendar or modal if needed
         if (typeof window.renderCalendar === 'function') window.renderCalendar();
+        if (typeof window.renderPendingReports === 'function') window.renderPendingReports();
+    }, (error) => {
+        console.error("Error al sincronizar reportes ciudadanos pendientes:", error);
+    });
+}
+
+function syncCitizenReportDetails() {
+    const loadingTimeout = setTimeout(() => {
+        if (window.appState.pendingReportDetailsLoaded) return;
+        window.appState.pendingReportDetailsError = 'La lectura de los comentarios está tardando.';
+        window.appState.pendingReportDetailsLoaded = true;
+        if (typeof window.renderPendingReports === 'function') window.renderPendingReports();
+    }, 10000);
+
+    onSnapshot(citizenReportDetailsCollection, (snapshot) => {
+        clearTimeout(loadingTimeout);
+        const details = {};
+        snapshot.forEach(reportDoc => {
+            details[reportDoc.id] = reportDoc.data();
+        });
+        window.appState.pendingReportDetails = details;
+        window.appState.pendingReportDetailsError = null;
+        window.appState.pendingReportDetailsLoaded = true;
+        if (typeof window.renderPendingReports === 'function') window.renderPendingReports();
+    }, (error) => {
+        clearTimeout(loadingTimeout);
+        console.error("Error al sincronizar los detalles de reportes ciudadanos:", error);
+        window.appState.pendingReportDetailsError = error.message || 'No se pudieron leer los detalles del reporte.';
+        window.appState.pendingReportDetailsLoaded = true;
+        if (typeof window.renderPendingReports === 'function') window.renderPendingReports();
     });
 }
 
@@ -332,18 +367,28 @@ window.checkPendingReportExists = async function(dateKey) {
         return !querySnapshot.empty;
     } catch (error) {
         console.error("Error checking pending reports:", error);
-        return false;
+        throw error;
     }
 };
 
-window.savePendingReportCloud = async function(dateKey) {
+window.savePendingReportCloud = async function(dateKey, details) {
     try {
-        const newReportRef = doc(collection(db, 'pending_reports'));
-        await setDoc(newReportRef, {
+        const newReportRef = doc(pendingReportsCollection, dateKey);
+        const createdAt = new Date().toISOString();
+        const batch = writeBatch(db);
+        batch.set(newReportRef, {
             dateKey: dateKey,
             status: 'pending',
-            createdAt: new Date().toISOString()
+            createdAt
         });
+        batch.set(doc(citizenReportDetailsCollection, newReportRef.id), {
+            dateKey,
+            name: details.name,
+            phone: details.phone,
+            message: details.message,
+            createdAt
+        });
+        await batch.commit();
         return true;
     } catch (error) {
         console.error("Error saving pending report:", error);
@@ -352,15 +397,98 @@ window.savePendingReportCloud = async function(dateKey) {
 };
 
 window.deletePendingReportCloud = async function(dateKey) {
-    if (!window.appState.isAdmin) return;
+    if (!window.appState || !window.appState.isAdmin) {
+        return { success: false, detailsDeleted: false, error: 'La sesión no tiene permisos de administrador.' };
+    }
+    const report = window.appState.pendingReports[dateKey];
+    if (!report || !report.id) {
+        return { success: false, detailsDeleted: false, error: 'El reporte pendiente ya no está disponible.' };
+    }
+
+    let pendingReports;
     try {
-        const q = query(pendingReportsCollection, where("dateKey", "==", dateKey));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (docSnapshot) => {
-            await deleteDoc(doc(db, 'pending_reports', docSnapshot.id));
+        const q = query(pendingReportsCollection, where('dateKey', '==', dateKey));
+        const snapshot = await getDocs(q);
+        pendingReports = snapshot.docs;
+        if (pendingReports.length === 0) {
+            pendingReports = [{ id: report.id }];
+        }
+
+        const pendingBatch = writeBatch(db);
+        pendingReports.forEach(pendingReport => {
+            pendingBatch.delete(doc(pendingReportsCollection, pendingReport.id));
         });
+        await pendingBatch.commit();
     } catch (error) {
-        console.error("Error deleting pending report:", error);
+        console.error("Error al rechazar el reporte ciudadano:", error);
+        return { success: false, detailsDeleted: false, error: error.message || 'Firestore no permitió eliminar el reporte.' };
+    }
+
+    delete window.appState.pendingReports[dateKey];
+    if (typeof window.renderCalendar === 'function') window.renderCalendar();
+    if (typeof window.renderPendingReports === 'function') window.renderPendingReports();
+
+    let detailsDeleted = true;
+    try {
+        const detailsBatch = writeBatch(db);
+        pendingReports.forEach(pendingReport => {
+            detailsBatch.delete(doc(citizenReportDetailsCollection, pendingReport.id));
+        });
+        await detailsBatch.commit();
+    } catch (error) {
+        detailsDeleted = false;
+        console.error("El reporte se rechazó, pero no se pudieron eliminar sus datos privados:", error);
+    }
+
+    return { success: true, detailsDeleted };
+};
+
+window.approvePendingReportCloud = async function(reportId, legacyMessage = '') {
+    if (!window.appState || !window.appState.isAdmin) return false;
+    const report = Object.values(window.appState.pendingReports).find(item => item.id === reportId);
+    if (!report || !report.dateKey) return false;
+    const pendingRef = doc(pendingReportsCollection, reportId);
+    const detailsRef = doc(citizenReportDetailsCollection, reportId);
+    const outageRef = doc(db, 'outages', report.dateKey);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const pendingSnapshot = await transaction.get(pendingRef);
+            if (!pendingSnapshot.exists()) {
+                throw new Error("El reporte ya fue revisado.");
+            }
+            if (pendingSnapshot.data().dateKey !== report.dateKey) {
+                throw new Error("La fecha del reporte cambió.");
+            }
+            let message;
+            if (legacyMessage.trim()) {
+                message = legacyMessage.trim();
+            } else {
+                const detailsSnapshot = await transaction.get(detailsRef);
+                message = detailsSnapshot.exists() ? detailsSnapshot.data().message : '';
+            }
+            if (!message) {
+                throw new Error("El reporte no tiene comentario. Proporciona el comentario original para publicarlo.");
+            }
+            const outageSnapshot = await transaction.get(outageRef);
+            if (outageSnapshot.exists()) {
+                throw new Error("Ya existe un registro oficial para esta fecha.");
+            }
+            transaction.set(outageRef, {
+                status: 'Reporte ciudadano',
+                notes: message,
+                timestamp: new Date().toISOString()
+            });
+            transaction.delete(pendingRef);
+            if (!legacyMessage.trim()) {
+                transaction.delete(detailsRef);
+            }
+        });
+        await window.touchDataVersion();
+        return true;
+    } catch (error) {
+        console.error("Error al aprobar el reporte ciudadano:", error);
+        return false;
     }
 };
 

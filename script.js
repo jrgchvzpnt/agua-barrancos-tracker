@@ -256,7 +256,14 @@ window.showReportForm = async function() {
 
     // Check cloud just in case
     if (window.checkPendingReportExists) {
-        const isPendingCloud = await window.checkPendingReportExists(window.selectedDateKey);
+        let isPendingCloud;
+        try {
+            isPendingCloud = await window.checkPendingReportExists(window.selectedDateKey);
+        } catch (error) {
+            console.error("No se pudo verificar si ya existe un reporte:", error);
+            window.showToast("No pudimos verificar los reportes. Inténtalo de nuevo más tarde.", true);
+            return;
+        }
         if (isPendingCloud) {
             window.showToast("Ya existe un reporte en revisión para este día.", true);
             return;
@@ -274,7 +281,7 @@ window.showReportForm = async function() {
             <form id="citizen-report-form" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Nombre</label>
-                    <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Tu nombre">
+                    <input type="text" name="name" required maxlength="99" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Tu nombre">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Teléfono</label>
@@ -282,7 +289,7 @@ window.showReportForm = async function() {
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Descripción de la falla</label>
-                    <textarea name="message" required rows="3" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Ej. Sin agua desde las 10 AM en la etapa 2..."></textarea>
+                    <textarea name="message" required rows="3" maxlength="499" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white p-2 text-sm focus:ring-2 focus:ring-water-500 focus:border-water-500 placeholder-slate-400 dark:placeholder-slate-500" placeholder="Ej. Sin agua desde las 10 AM en la etapa 2..."></textarea>
                 </div>
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="window.openDayModal(window.selectedDateKey)" class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm">Cancelar</button>
@@ -308,56 +315,60 @@ window.showReportForm = async function() {
         const message = formData.get('message');
         
         try {
+            const dateKey = window.selectedDateKey;
+            if (window.checkPendingReportExists && await window.checkPendingReportExists(dateKey)) {
+                window.showToast("Alguien más ya reportó este día. ¡Gracias por avisar!", true);
+                document.getElementById('day-modal').close();
+                return;
+            }
+
+            const saved = await window.savePendingReportCloud(dateKey, {
+                name: (name || '').trim(),
+                phone: phone || '',
+                message: (message || '').trim()
+            });
+            if (!saved) {
+                window.showToast("No se pudo guardar el reporte. Inténtalo de nuevo.", true);
+                return;
+            }
+
+            if (!window.appState.pendingReports) window.appState.pendingReports = {};
+            window.appState.pendingReports[dateKey] = {
+                id: dateKey,
+                dateKey,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            document.getElementById('day-modal').close();
+            window.renderCalendar();
+
             const scriptURL = 'https://script.google.com/macros/s/AKfycbw4YpUuxulX30Ib2e9e1P23BK9O4WbKIvW0jLh_5rXR9XsGLhcyNm9tib5Yb69_AqfSvQ/exec';
-            
             const data = new FormData();
             data.append('nombre', name || '');
-            data.append('correo', 'REPORTE CIUDADANO'); 
+            data.append('correo', 'REPORTE CIUDADANO');
             data.append('telefono', phone || '');
-            data.append('descripcion', `[REPORTE FECHA: ${window.selectedDateKey}] ${message}`);
-            
+            data.append('descripcion', `[REPORTE FECHA: ${dateKey}] ${message}`);
+
             const now = new Date();
             const formattedDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
             data.append('fecha', formattedDate);
 
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                body: data
-            });
-
-            if (response.ok) {
-                // Double check before saving to avoid race conditions
-                let canSave = true;
-                if (window.checkPendingReportExists) {
-                    const exists = await window.checkPendingReportExists(window.selectedDateKey);
-                    if (exists) {
-                        canSave = false;
-                        window.showToast("Alguien más acaba de reportar este día. ¡Gracias por tu reporte!", true);
-                        document.getElementById('day-modal').close();
-                        window.renderCalendar();
-                    }
-                }
-
-                if (canSave && window.savePendingReportCloud) {
-                    const saved = await window.savePendingReportCloud(window.selectedDateKey);
-                    if (saved) {
-                        if (!window.appState.pendingReports) window.appState.pendingReports = {};
-                        const tempId = 'temp_' + Date.now();
-                        window.appState.pendingReports[tempId] = { dateKey: window.selectedDateKey, status: 'pending', createdAt: new Date().toISOString() };
-                        window.showToast("¡Reporte enviado! Lo validaremos pronto.");
-                        document.getElementById('day-modal').close();
-                        window.renderCalendar(); // Re-render to update UI immediately
-                    } else {
-                        console.error("No se pudo guardar el reporte pendiente en Firestore.");
-                        window.showToast("Error al guardar el reporte.", true);
-                    }
-                }
-            } else {
-                window.showToast("Error al enviar el reporte.", true);
+            let sheetSent = false;
+            try {
+                const response = await fetch(scriptURL, { method: 'POST', body: data });
+                sheetSent = response.ok;
+            } catch (error) {
+                console.error('Error al enviar la copia del reporte:', error);
             }
+            window.showToast(
+                sheetSent
+                    ? "¡Reporte enviado! Lo validaremos pronto."
+                    : "El reporte quedó pendiente de revisión; no se pudo enviar una copia externa.",
+                !sheetSent
+            );
         } catch (error) {
-            console.error('Error!', error);
-            window.showToast("Error al enviar el reporte.", true);
+            console.error('Error al guardar el reporte ciudadano:', error);
+            window.showToast("Error al guardar el reporte. Inténtalo de nuevo.", true);
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalText;

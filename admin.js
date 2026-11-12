@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sponsors: document.getElementById('nav-sponsors'),
         notices: document.getElementById('nav-notices'),
         calendar: document.getElementById('nav-calendar'),
+        reports: document.getElementById('nav-reports'),
         messages: document.getElementById('nav-messages'),
         stats: document.getElementById('nav-stats'),
     };
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sponsors: document.getElementById('section-sponsors'),
         notices: document.getElementById('section-notices'),
         calendar: document.getElementById('section-calendar'),
+        reports: document.getElementById('section-reports'),
         messages: document.getElementById('section-messages'),
         stats: document.getElementById('section-stats'),
     };
@@ -26,10 +28,122 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navLinks[view]) navLinks[view].classList.add('bg-slate-700');
     }
 
+    window.renderPendingReports = function() {
+        const reportsList = document.getElementById('pending-reports-list');
+        const countBadge = document.getElementById('pending-reports-count');
+        if (!reportsList || !countBadge) return;
+
+        const reports = Object.values(window.appState.pendingReports || {})
+            .sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+        countBadge.textContent = reports.length;
+        countBadge.classList.toggle('hidden', reports.length === 0);
+        reportsList.replaceChildren();
+
+        if (reports.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'text-sm text-gray-500 italic';
+            emptyMessage.textContent = 'No hay reportes pendientes de revisión.';
+            reportsList.appendChild(emptyMessage);
+            return;
+        }
+
+        reports.forEach(report => {
+            const details = window.appState.pendingReportDetails[report.id] || {};
+            const detailsLoaded = window.appState.pendingReportDetailsLoaded;
+            const card = document.createElement('article');
+            card.className = 'rounded-lg border border-orange-200 bg-orange-50 p-4';
+
+            const heading = document.createElement('h3');
+            heading.className = 'font-bold text-gray-800';
+            heading.textContent = `Fecha reportada: ${report.dateKey}`;
+
+            const reporter = document.createElement('p');
+            reporter.className = 'mt-2 text-sm text-gray-700';
+            reporter.textContent = !detailsLoaded
+                ? 'Cargando datos del reporte...'
+                : details.name
+                    ? `Reportado por: ${details.name}`
+                    : 'No se guardaron los datos del usuario.';
+
+            const phone = document.createElement('p');
+            phone.className = 'text-sm text-gray-700';
+            phone.textContent = details.phone ? `Teléfono: ${details.phone}` : '';
+
+            const message = document.createElement('p');
+            message.className = 'mt-3 whitespace-pre-wrap rounded bg-white p-3 text-sm text-gray-700';
+            message.textContent = !detailsLoaded
+                ? 'Esperando los datos del reporte...'
+                : details.message || (window.appState.pendingReportDetailsError
+                    ? `No se pudieron leer los detalles guardados (${window.appState.pendingReportDetailsError}). El reporte pudo haberse enviado desde una versión anterior o las reglas de Firestore aún no se actualizaron.`
+                    : 'El comentario original no está en Firestore. Consúltalo en la hoja donde se reciben los reportes.');
+
+            const actions = document.createElement('div');
+            actions.className = 'mt-4 flex flex-wrap gap-2';
+
+            const approveButton = document.createElement('button');
+            approveButton.type = 'button';
+            approveButton.className = 'rounded bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50';
+            approveButton.textContent = 'Aceptar y publicar';
+            approveButton.disabled = !detailsLoaded;
+            approveButton.addEventListener('click', async () => {
+                let legacyMessage = '';
+                if (!details.message) {
+                    legacyMessage = prompt(
+                        `El comentario del reporte del ${report.dateKey} no está disponible en el panel. Cópialo del correo o la hoja y pégalo aquí para revisarlo y publicarlo:`
+                    ) || '';
+                    if (!legacyMessage.trim()) {
+                        window.showToast('Pega el comentario original para poder publicar este reporte.', true);
+                        return;
+                    }
+                } else if (!confirm(`¿Aceptar el reporte del ${report.dateKey} y publicarlo en el calendario?`)) {
+                    return;
+                }
+                approveButton.disabled = true;
+                rejectButton.disabled = true;
+                const success = await window.approvePendingReportCloud(report.id, legacyMessage);
+                window.showToast(success ? 'Reporte aprobado y publicado.' : 'No se pudo aprobar el reporte.', !success);
+                if (!success) {
+                    approveButton.disabled = false;
+                    rejectButton.disabled = false;
+                }
+            });
+
+            const rejectButton = document.createElement('button');
+            rejectButton.type = 'button';
+            rejectButton.className = 'rounded bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50';
+            rejectButton.textContent = 'Rechazar';
+            rejectButton.addEventListener('click', async () => {
+                if (!confirm(`¿Rechazar y eliminar el reporte del ${report.dateKey}?`)) return;
+                approveButton.disabled = true;
+                rejectButton.disabled = true;
+                const result = await window.deletePendingReportCloud(report.dateKey);
+                if (result.success) {
+                    window.showToast(
+                        result.detailsDeleted
+                            ? 'Reporte rechazado.'
+                            : 'Reporte rechazado, pero no se pudieron eliminar sus datos privados. Revisa las reglas de Firestore.',
+                        !result.detailsDeleted
+                    );
+                } else {
+                    window.showToast(`No se pudo rechazar el reporte: ${result.error}`, true);
+                    approveButton.disabled = false;
+                    rejectButton.disabled = false;
+                }
+            });
+
+            actions.append(approveButton, rejectButton);
+            card.append(heading, reporter);
+            if (detailsLoaded && details.phone) card.appendChild(phone);
+            card.append(message, actions);
+            reportsList.appendChild(card);
+        });
+    };
+
     navLinks.outages.addEventListener('click', (e) => { e.preventDefault(); switchView('outages'); });
     navLinks.sponsors.addEventListener('click', (e) => { e.preventDefault(); switchView('sponsors'); });
     navLinks.notices.addEventListener('click', (e) => { e.preventDefault(); switchView('notices'); });
     navLinks.calendar.addEventListener('click', (e) => { e.preventDefault(); switchView('calendar'); });
+    navLinks.reports.addEventListener('click', (e) => { e.preventDefault(); switchView('reports'); });
     navLinks.messages.addEventListener('click', (e) => { e.preventDefault(); switchView('messages'); });
     navLinks.stats.addEventListener('click', (e) => { 
         e.preventDefault(); 
@@ -590,6 +704,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const modalTitle = document.getElementById('modal-title');
         const modalContent = document.getElementById('modal-content-body');
         const adminActions = document.getElementById('modal-admin-actions');
+        const editButton = document.getElementById('modal-edit-outage');
+        const deleteButton = document.getElementById('modal-delete-outage');
 
         modalContent.innerHTML = ''; // Clear previous content
         modalTitle.textContent = '';
@@ -622,6 +738,8 @@ document.addEventListener("DOMContentLoaded", () => {
             notesP.appendChild(document.createTextNode(data.notes || 'N/A'));
             modalContent.appendChild(notesP);
 
+            editButton.classList.remove('hidden');
+            deleteButton.textContent = '🗑️ Eliminar Registro';
             adminActions.classList.remove('hidden');
         } else if (pendingData) {
             modalHeader.className = 'p-4 flex justify-between items-center bg-orange-500';
@@ -631,6 +749,24 @@ document.addEventListener("DOMContentLoaded", () => {
             statusP.innerHTML = '<strong>Estado:</strong> Pendiente de revisión';
             modalContent.appendChild(statusP);
 
+            const details = window.appState.pendingReportDetails[pendingData.id] || {};
+            const reporterP = document.createElement('p');
+            reporterP.textContent = window.appState.pendingReportDetailsLoaded
+                ? `Reportado por: ${details.name || 'No disponible'}`
+                : 'Cargando datos del reporte...';
+            modalContent.appendChild(reporterP);
+            const notesP = document.createElement('p');
+            notesP.textContent = `Comentario: ${window.appState.pendingReportDetailsLoaded ? details.message || 'No disponible' : 'Cargando...'}`;
+            modalContent.appendChild(notesP);
+            if (window.appState.pendingReportDetailsLoaded && !details.message) {
+                const warningP = document.createElement('p');
+                warningP.className = 'text-sm font-semibold text-amber-700';
+                warningP.textContent = 'Este reporte antiguo no contiene comentario. Verifícalo por otro medio antes de publicarlo.';
+                modalContent.appendChild(warningP);
+            }
+
+            editButton.classList.add('hidden');
+            deleteButton.textContent = 'Rechazar Reporte';
             adminActions.classList.remove('hidden');
         } else {
             modalHeader.className = 'p-4 flex justify-between items-center bg-green-600';
@@ -638,6 +774,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const noReportP = document.createElement('p');
             noReportP.textContent = 'No hay reportes para este día.';
             modalContent.appendChild(noReportP);
+            editButton.classList.remove('hidden');
+            deleteButton.textContent = '🗑️ Eliminar Registro';
             adminActions.classList.add('hidden');
         }
         
@@ -653,7 +791,17 @@ document.addEventListener("DOMContentLoaded", () => {
             if (outages[window.selectedDateKey]) {
                 await window.deleteOutageCloud(window.selectedDateKey);
             } else if (pendingReports[window.selectedDateKey]) {
-                await window.deletePendingReportCloud(window.selectedDateKey);
+                const result = await window.deletePendingReportCloud(window.selectedDateKey);
+                if (!result.success) {
+                    window.showToast(`No se pudo rechazar el reporte: ${result.error}`, true);
+                    return;
+                }
+                window.showToast(
+                    result.detailsDeleted
+                        ? 'Reporte rechazado.'
+                        : 'Reporte rechazado, pero no se pudieron eliminar sus datos privados. Revisa las reglas de Firestore.',
+                    !result.detailsDeleted
+                );
             }
             
             document.getElementById('day-modal').close();
@@ -680,6 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.renderAds();
         window.renderMessages();
         window.renderNotices();
+        window.renderPendingReports();
     }, 1000);
 
     // --- LÓGICA DE ESTADÍSTICAS ---

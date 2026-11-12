@@ -31,13 +31,14 @@ service cloud.firestore {
                       // Validate document ID format (YYYY-MM-DD)
                       outageId.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
                       // Enforce strict data schema (campos opcionales permitidos)
-                      request.resource.data.keys().hasOnly(['status', 'notes', 'duracion', 'timestamp']) &&
+                      request.resource.data.keys().hasOnly(['status', 'notes', 'duracion', 'serviceType', 'timestamp']) &&
                       // Validate field types and constraints
                       request.resource.data.status is string &&
                       request.resource.data.status.size() > 0 &&
                       request.resource.data.status.size() < 100 &&
                       (!('notes' in request.resource.data) || (request.resource.data.notes is string && request.resource.data.notes.size() < 500)) &&
                       (!('duracion' in request.resource.data) || (request.resource.data.duracion is string && request.resource.data.duracion.size() < 50)) &&
+                      (!('serviceType' in request.resource.data) || request.resource.data.serviceType in ['water', 'power', 'both']) &&
                       (!('timestamp' in request.resource.data) || request.resource.data.timestamp is string || request.resource.data.timestamp is timestamp);
     }
 
@@ -91,8 +92,33 @@ service cloud.firestore {
       allow read: if isPublicRead();
       allow create: if isPublicRead() &&
                        request.resource.data.keys().hasOnly(['dateKey', 'status', 'createdAt']) &&
-                       request.resource.data.status == 'pending';
+                       request.resource.data.keys().hasAll(['dateKey', 'status', 'createdAt']) &&
+                       request.resource.data.dateKey is string &&
+                       request.resource.data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+                       request.resource.data.status == 'pending' &&
+                       request.resource.data.createdAt is string;
       allow update, delete: if isAdmin();
+    }
+
+    // Report details contain personal information and are visible only to admins.
+    match /citizen_report_details/{reportId} {
+      allow read, delete: if isAdmin();
+      allow create: if isPublicRead() &&
+                      request.resource.data.keys().hasOnly(['dateKey', 'name', 'phone', 'message', 'createdAt']) &&
+                      request.resource.data.keys().hasAll(['dateKey', 'name', 'phone', 'message', 'createdAt']) &&
+                      request.resource.data.dateKey is string &&
+                      request.resource.data.dateKey.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+                      request.resource.data.name is string &&
+                      request.resource.data.name.size() > 0 &&
+                      request.resource.data.name.size() < 100 &&
+                      request.resource.data.phone is string &&
+                      request.resource.data.phone.matches('^[0-9]{10}$') &&
+                      request.resource.data.message is string &&
+                      request.resource.data.message.size() > 0 &&
+                      request.resource.data.message.size() < 1000 &&
+                      request.resource.data.createdAt is string &&
+                      getAfter(/databases/$(database)/documents/pending_reports/$(reportId)).data.dateKey == request.resource.data.dateKey;
+      allow update: if false;
     }
 
     // Metadata Collection: Public Read, Admin Write
