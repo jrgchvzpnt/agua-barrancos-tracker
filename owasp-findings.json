@@ -16,8 +16,8 @@
       "severidad": "Alto",
       "archivo": "admin.js",
       "linea": 612,
-      "diagnostico": "El teléfono de un mensaje público se interpola directamente en innerHTML. Las reglas permiten que cualquier cliente cree mensajes con un campo phone de texto, por lo que un atacante puede almacenar marcado HTML y ejecutar JavaScript cuando un administrador abre la bandeja. Los campos name y message usan textContent y no presentan este problema en este renderizador.",
-      "codigo_actual": "contactP.innerHTML = `📞 ${msg.phone || 'N/A'} | 📧 ${msg.email || 'N/A'} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}`;",
+      "diagnostico": "El código anterior interpolaba el teléfono de un mensaje público directamente en innerHTML, permitiendo almacenar marcado HTML y ejecutar JavaScript al abrir la bandeja administrativa. Se reemplazó por inserción como texto.",
+      "codigo_actual": "contactP.append('📞 ', msg.phone || 'N/A', ' | ', '📧 ', msg.email || 'N/A', ' • ', new Date(msg.createdAt).toLocaleDateString());",
       "propuesta_correccion": "Reemplazar la interpolación HTML por nodos de texto: contactP.append('📞 ', msg.phone || 'N/A', ' | 📧 ', msg.email || 'N/A', ' • 🗓️ ', new Date(msg.createdAt).toLocaleDateString());",
       "estado": "Corregido y re-verificado"
     },
@@ -27,11 +27,11 @@
       "cwe": "CWE-862",
       "severidad": "Medio",
       "archivo": "firestore.rules",
-      "linea": 134,
+      "linea": 138,
       "diagnostico": "La regla permite a cualquier cliente crear, cambiar o borrar cualquier documento de analytics; isPublicRead() siempre devuelve true. Esto permite falsificar o borrar métricas y crear documentos arbitrarios, con impacto en integridad y costos.",
-      "codigo_actual": "match /analytics/{docId} { allow read: if isAdmin(); allow write: if isPublicRead(); }",
+      "codigo_actual": "allow create: if validAnalyticsId(docId) && keys().hasOnly(['visits']) && visits == 1; allow update: if validAnalyticsId(docId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits']) && visits == resource.data.visits + 1; allow delete: if isAdmin();",
       "propuesta_correccion": "Separar permisos: allow create: if isPublicRead() && validAnalyticsId(docId) && request.resource.data.keys().hasOnly(['visits']) && request.resource.data.visits is int && request.resource.data.visits == 1; allow update: if isPublicRead() && validAnalyticsId(docId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits']) && request.resource.data.visits is int && request.resource.data.visits == resource.data.visits + 1; allow delete: if isAdmin(). Definir validAnalyticsId para aceptar solo IDs Y_YYYY, M_YYYY_MM y D_YYYY_MM_DD. Aplicar además App Check y su enforcement de Firestore en Firebase Console.",
-      "estado": "Pendiente"
+      "estado": "Corregido y re-verificado"
     },
     {
       "id": "F-03",
@@ -39,11 +39,11 @@
       "cwe": "CWE-770",
       "severidad": "Medio",
       "archivo": "firestore.rules",
-      "linea": 93,
+      "linea": 97,
       "diagnostico": "La creación de reportes pendientes es pública y valida dateKey, pero no exige que el ID del documento sea igual a dateKey. Un cliente puede crear muchos documentos con IDs distintos para la misma fecha, evitando la deduplicación del frontend y llenando la bandeja administrativa. No hay rate limit del lado servidor.",
-      "codigo_actual": "allow create: if isPublicRead() && request.resource.data.keys().hasOnly(['dateKey', 'status', 'createdAt']) && ...;",
+      "codigo_actual": "allow create: if isPublicRead() && reportId == request.resource.data.dateKey && ...;",
       "propuesta_correccion": "Agregar && reportId == request.resource.data.dateKey a la condición allow create; el cliente legítimo ya usa doc(pendingReportsCollection, dateKey), por lo que solo puede existir un pendiente por día. Mantener App Check con enforcement de Firestore y considerar un backend con límites por IP/usuario para frenar abuso automatizado.",
-      "estado": "Pendiente"
+      "estado": "Corregido y re-verificado"
     },
     {
       "id": "F-04",
@@ -52,8 +52,8 @@
       "severidad": "Bajo",
       "archivo": "firebase-init.js",
       "linea": 21,
-      "diagnostico": "App Check se inicializa solo para agua-barrancos-tracker.web.app y monitorbarrancos.com. El Hosting desplegado es monitor-h2o-barrancos.web.app, que no está en la lista, por lo que esa URL no obtiene tokens App Check desde el cliente. El impacto depende de que Firestore App Check esté habilitado/enforced en Firebase Console.",
-      "codigo_actual": "if (location.hostname === \"agua-barrancos-tracker.web.app\" || location.hostname === \"monitorbarrancos.com\") {",
+      "diagnostico": "El inicializador ahora incluye monitor-h2o-barrancos.web.app. Aún falta confirmar que el dominio esté registrado en App Check y que el enforcement de Firestore esté habilitado en Firebase Console; sin esos ajustes externos no se puede verificar la protección efectiva del proyecto.",
+      "codigo_actual": "if (location.hostname === \"agua-barrancos-tracker.web.app\" || location.hostname === \"monitor-h2o-barrancos.web.app\" || location.hostname === \"monitorbarrancos.com\") {",
       "propuesta_correccion": "Añadir monitor-h2o-barrancos.web.app a los dominios permitidos por el inicializador, comprobar que el dominio está registrado en App Check y habilitar enforcement de Firestore en Firebase Console.",
       "estado": "Pendiente"
     },
@@ -65,9 +65,9 @@
       "archivo": "admin.html",
       "linea": 8,
       "diagnostico": "El panel ejecuta Tailwind desde su CDN sin versión fijada; Lucide usa @latest en la línea siguiente. Un cambio o compromiso del proveedor/CDN puede modificar el JavaScript ejecutado en el origen del panel, sin revisión del repositorio.",
-      "codigo_actual": "<script src=\"https://cdn.tailwindcss.com\"></script> y <script src=\"https://unpkg.com/lucide@latest\"></script>",
+      "codigo_actual": "<script src=\"https://cdn.tailwindcss.com/3.4.17\" integrity=\"sha384-igm5BeiBt36UU4gqwWS7imYmelpTsZlQ45FZf+XBn9MuJbn4nQr7yx1yFydocC/K\" crossorigin=\"anonymous\"></script> y <script src=\"https://unpkg.com/lucide@0.468.0\" integrity=\"sha384-uTYyvsSSUZeaPhb5RbKlQa0zY/WpX/QHfvg2mczXyBQOpkWPEDy9lczyp+w7SKXu\" crossorigin=\"anonymous\"></script>",
       "propuesta_correccion": "Servir versiones fijadas de estas dependencias desde el build/hosting del proyecto. Si se mantienen recursos remotos, fijar versiones exactas, aplicar Subresource Integrity cuando el tipo de recurso lo permita y restringir orígenes mediante Content-Security-Policy.",
-      "estado": "Pendiente"
+      "estado": "Corregido y re-verificado"
     }
   ]
 }

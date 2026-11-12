@@ -393,13 +393,13 @@
                 </span>
             </div>
 
-            <p class="finding-diag"><strong>Diagnóstico:</strong> El teléfono de un mensaje público se interpola directamente en innerHTML. Las reglas permiten que cualquier cliente cree mensajes con un campo phone de texto, por lo que un atacante puede almacenar marcado HTML y ejecutar JavaScript cuando un administrador abre la bandeja. Los campos name y message usan textContent y no presentan este problema en este renderizador.</p>
+            <p class="finding-diag"><strong>Diagnóstico:</strong> El código anterior interpolaba el teléfono de un mensaje público directamente en innerHTML, permitiendo almacenar marcado HTML y ejecutar JavaScript al abrir la bandeja administrativa. Se reemplazó por inserción como texto.</p>
 
             
 
             <div class="code-section">
                 <label class="code-label code-label-vuln">Código actual identificado (Línea 612):</label>
-                <pre><code>contactP.innerHTML = `📞 ${msg.phone || &#x27;N/A&#x27;} | 📧 ${msg.email || &#x27;N/A&#x27;} • 🗓️ ${new Date(msg.createdAt).toLocaleDateString()}`;</code></pre>
+                <pre><code>contactP.append(&#x27;📞 &#x27;, msg.phone || &#x27;N/A&#x27;, &#x27; | &#x27;, &#x27;📧 &#x27;, msg.email || &#x27;N/A&#x27;, &#x27; • &#x27;, new Date(msg.createdAt).toLocaleDateString());</code></pre>
             </div>
 
             <div class="code-section">
@@ -417,14 +417,14 @@
                 </div>
                 <div class="finding-badges">
                     <span class="badge" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #D97706;">Medio</span>
-                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                    <span class="badge" style="background-color: #DCFCE7; color: #166534;">Corregido y re-verificado</span>
                 </div>
             </header>
 
             <div class="finding-meta">
                 <span class="meta-item">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    <strong>Archivo:</strong> <code>firestore.rules:134</code>
+                    <strong>Archivo:</strong> <code>firestore.rules:138</code>
                 </span>
             </div>
 
@@ -433,8 +433,8 @@
             
 
             <div class="code-section">
-                <label class="code-label code-label-vuln">Código actual identificado (Línea 134):</label>
-                <pre><code>match /analytics/{docId} { allow read: if isAdmin(); allow write: if isPublicRead(); }</code></pre>
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 138):</label>
+                <pre><code>allow create: if validAnalyticsId(docId) &amp;&amp; keys().hasOnly([&#x27;visits&#x27;]) &amp;&amp; visits == 1; allow update: if validAnalyticsId(docId) &amp;&amp; request.resource.data.diff(resource.data).affectedKeys().hasOnly([&#x27;visits&#x27;]) &amp;&amp; visits == resource.data.visits + 1; allow delete: if isAdmin();</code></pre>
             </div>
 
             <div class="code-section">
@@ -452,14 +452,14 @@
                 </div>
                 <div class="finding-badges">
                     <span class="badge" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #D97706;">Medio</span>
-                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                    <span class="badge" style="background-color: #DCFCE7; color: #166534;">Corregido y re-verificado</span>
                 </div>
             </header>
 
             <div class="finding-meta">
                 <span class="meta-item">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                    <strong>Archivo:</strong> <code>firestore.rules:93</code>
+                    <strong>Archivo:</strong> <code>firestore.rules:97</code>
                 </span>
             </div>
 
@@ -468,8 +468,8 @@
             
 
             <div class="code-section">
-                <label class="code-label code-label-vuln">Código actual identificado (Línea 93):</label>
-                <pre><code>allow create: if isPublicRead() &amp;&amp; request.resource.data.keys().hasOnly([&#x27;dateKey&#x27;, &#x27;status&#x27;, &#x27;createdAt&#x27;]) &amp;&amp; ...;</code></pre>
+                <label class="code-label code-label-vuln">Código actual identificado (Línea 97):</label>
+                <pre><code>allow create: if isPublicRead() &amp;&amp; reportId == request.resource.data.dateKey &amp;&amp; ...;</code></pre>
             </div>
 
             <div class="code-section">
@@ -498,13 +498,13 @@
                 </span>
             </div>
 
-            <p class="finding-diag"><strong>Diagnóstico:</strong> App Check se inicializa solo para agua-barrancos-tracker.web.app y monitorbarrancos.com. El Hosting desplegado es monitor-h2o-barrancos.web.app, que no está en la lista, por lo que esa URL no obtiene tokens App Check desde el cliente. El impacto depende de que Firestore App Check esté habilitado/enforced en Firebase Console.</p>
+            <p class="finding-diag"><strong>Diagnóstico:</strong> El inicializador ahora incluye monitor-h2o-barrancos.web.app. Aún falta confirmar que el dominio esté registrado en App Check y que el enforcement de Firestore esté habilitado en Firebase Console; sin esos ajustes externos no se puede verificar la protección efectiva del proyecto.</p>
 
             
 
             <div class="code-section">
                 <label class="code-label code-label-vuln">Código actual identificado (Línea 21):</label>
-                <pre><code>if (location.hostname === &quot;agua-barrancos-tracker.web.app&quot; || location.hostname === &quot;monitorbarrancos.com&quot;) {</code></pre>
+                <pre><code>if (location.hostname === &quot;agua-barrancos-tracker.web.app&quot; || location.hostname === &quot;monitor-h2o-barrancos.web.app&quot; || location.hostname === &quot;monitorbarrancos.com&quot;) {</code></pre>
             </div>
 
             <div class="code-section">
@@ -522,7 +522,7 @@
                 </div>
                 <div class="finding-badges">
                     <span class="badge" style="background-color: #DBEAFE; color: #1E40AF; border: 1px solid #2563EB;">Bajo</span>
-                    <span class="badge" style="background-color: #FEE2E2; color: #991B1B;">Pendiente</span>
+                    <span class="badge" style="background-color: #DCFCE7; color: #166534;">Corregido y re-verificado</span>
                 </div>
             </header>
 
@@ -539,7 +539,7 @@
 
             <div class="code-section">
                 <label class="code-label code-label-vuln">Código actual identificado (Línea 8):</label>
-                <pre><code>&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt; y &lt;script src=&quot;https://unpkg.com/lucide@latest&quot;&gt;&lt;/script&gt;</code></pre>
+                <pre><code>&lt;script src=&quot;https://cdn.tailwindcss.com/3.4.17&quot; integrity=&quot;sha384-igm5BeiBt36UU4gqwWS7imYmelpTsZlQ45FZf+XBn9MuJbn4nQr7yx1yFydocC/K&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt; y &lt;script src=&quot;https://unpkg.com/lucide@0.468.0&quot; integrity=&quot;sha384-uTYyvsSSUZeaPhb5RbKlQa0zY/WpX/QHfvg2mczXyBQOpkWPEDy9lczyp+w7SKXu&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</code></pre>
             </div>
 
             <div class="code-section">

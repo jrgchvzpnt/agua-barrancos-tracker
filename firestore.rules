@@ -14,6 +14,12 @@ service cloud.firestore {
       return request.auth == null || request.auth != null;
     }
 
+    function validAnalyticsId(docId) {
+      return docId.matches('^Y_\\d{4}$') ||
+             docId.matches('^M_\\d{4}_(0[1-9]|1[0-2])$') ||
+             docId.matches('^D_\\d{4}_(0[1-9]|1[0-2])_(0[1-9]|[12]\\d|3[01])$');
+    }
+
     // --- Collection Rules ---
 
     // Admin Collection: Secure
@@ -91,6 +97,7 @@ service cloud.firestore {
     match /pending_reports/{reportId} {
       allow read: if isPublicRead();
       allow create: if isPublicRead() &&
+                       reportId == request.resource.data.dateKey &&
                        request.resource.data.keys().hasOnly(['dateKey', 'status', 'createdAt']) &&
                        request.resource.data.keys().hasAll(['dateKey', 'status', 'createdAt']) &&
                        request.resource.data.dateKey is string &&
@@ -130,8 +137,18 @@ service cloud.firestore {
     // Analytics Collection: Secured
     match /analytics/{docId} {
       allow read: if isAdmin();
-      // Allow anyone to create or update, but only to increment the visit count.
-      allow write: if isPublicRead();
+      allow create: if isPublicRead() &&
+                      validAnalyticsId(docId) &&
+                      request.resource.data.keys().hasOnly(['visits']) &&
+                      request.resource.data.visits is int &&
+                      request.resource.data.visits == 1;
+      allow update: if isPublicRead() &&
+                      validAnalyticsId(docId) &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits']) &&
+                      request.resource.data.visits is int &&
+                      resource.data.visits is int &&
+                      request.resource.data.visits == resource.data.visits + 1;
+      allow delete: if isAdmin();
     }
   }
 }
